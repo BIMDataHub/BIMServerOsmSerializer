@@ -2,6 +2,6 @@
 <PluginDescriptor>      
     <PluginImplementation>
         <interfaceClass>org.bimserver.plugins.serializers.SerializerPlugin</interfaceClass>
-        <implementationClass>test.IfcOSMSerializerPlugin</implementationClass>
+        <implementationClass>org.bimserver.osm.serializer.OsmSerializerPlugin</implementationClass>
     </PluginImplementation>
 </PluginDescriptor>
