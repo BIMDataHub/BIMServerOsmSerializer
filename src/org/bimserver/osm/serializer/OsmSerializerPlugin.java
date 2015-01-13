@@ -1,8 +1,5 @@
-package test;
+package org.bimserver.osm.serializer;
 
-import java.util.Set;
-
-import org.bimserver.emf.Schema;
 import org.bimserver.models.store.ObjectDefinition;
 import org.bimserver.models.store.ParameterDefinition;
 import org.bimserver.models.store.PrimitiveDefinition;
@@ -14,19 +11,19 @@ import org.bimserver.plugins.PluginException;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.serializers.AbstractSerializerPlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
-import org.bimserver.plugins.serializers.SerializerPlugin;
 
-public class IfcOSMSerializerPlugin implements SerializerPlugin {
+
+public class OsmSerializerPlugin extends AbstractSerializerPlugin {
 	private boolean initialized = false;
 
 	@Override
 	public EmfSerializer createSerializer(PluginConfiguration pluginConfiguration) {
-		return new IfcOSMSerializer();
+		return new OsmSerializer();
 	}
 
 	@Override
 	public String getDescription() {
-		return "IfcOSMSerializer";
+		return "OsmSerializer";
 	}
 
 	@Override
@@ -47,7 +44,7 @@ public class IfcOSMSerializerPlugin implements SerializerPlugin {
 
 	@Override
 	public String getDefaultName() {
-		return "IfcOSM";
+		return "Osm";
 	}
 
 	@Override
@@ -75,10 +72,14 @@ public class IfcOSMSerializerPlugin implements SerializerPlugin {
 	}
 
 	@Override
-	public Set<Schema> getSupportedSchemas()
-	{
+	public String getDefaultExtension() {
 		// TODO Auto-generated method stub
-		return null;
+		return "osm";
+	}
+
+	@Override
+	public String getDefaultContentType() {
+		return "application/osm";
 	}
 
 }

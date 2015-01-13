@@ -1,11 +1,9 @@
-package test;
+package org.bimserver.osm.serializer;
 
 import java.io.OutputStream;
 import java.util.*;
 
 import org.bimserver.emf.IfcModelInterface;
-import org.bimserver.emf.PackageMetaData;
-import org.bimserver.ifc.IfcSerializer;
 import org.bimserver.models.ifc2x3tc1.*;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
@@ -14,10 +12,7 @@ import org.bimserver.plugins.serializers.ProjectInfo;
 import org.bimserver.plugins.serializers.SerializerException;
 import org.bimserver.utils.UTF8PrintWriter;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-public class IfcOSMSerializer extends EmfSerializer
+public class OsmSerializer extends EmfSerializer
 {
 	private UTF8PrintWriter						out;
 	/**
@@ -59,10 +54,9 @@ public class IfcOSMSerializer extends EmfSerializer
 	private int									surfaceNum					= 0;
 
 	@Override
-	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, PackageMetaData packageMetaData, boolean normalizeOids) throws SerializerException
+	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException
 	{
-		super.init(model, projectInfo, pluginManager, renderEnginePlugin,
-				packageMetaData, normalizeOids);
+		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList)
@@ -87,15 +81,12 @@ public class IfcOSMSerializer extends EmfSerializer
 	}
 
 	@Override
-	protected boolean write(OutputStream outputStream)
-			throws SerializerException
+	protected boolean write(OutputStream outputStream) throws SerializerException
 	{
-		if (out == null)
-		{
+		if (out == null) {
 			out = new UTF8PrintWriter(outputStream);
 		}
-		if (getMode() == Mode.BODY)
-		{
+		if (getMode() == Mode.BODY) {
 			out = new UTF8PrintWriter(outputStream);
 			generateOutput(out);
 			out.flush();
@@ -113,109 +104,129 @@ public class IfcOSMSerializer extends EmfSerializer
 	 * each type of element is represented as a JsonArray of JsonObjects
 	 * @param out
 	 */
-	private void generateOutput(UTF8PrintWriter out)
+	private void generateOutput(UTF8PrintWriter outputContent)
 	{
-		JsonArray spaceArray = new JsonArray();
-		JsonArray surfaceArray = new JsonArray();
-		JsonArray subSurfaceArray = new JsonArray();
-		//write osmSpace
-		for (OSMSpace osmSpace : allSpaces)
-		{
-			JsonObject space = new JsonObject();
-			space.addProperty("Name", osmSpace.getSpaceName());
-			space.addProperty("SpaceTypeName", osmSpace.getTypeName());
-			space.addProperty("DefaultConstructionSetName", osmSpace.getDefaultConstructionSetName());
-			space.addProperty("DefaultScheduleSetName", osmSpace.getDefaultScheduleSetName());
-			space.addProperty("DirectionOfRelativeNorth", osmSpace.getDirectionOfRelativeNorth());
-			space.addProperty("XOrigin", osmSpace.getxOrigin());
-			space.addProperty("YOrigin", osmSpace.getyOrigin());
-			space.addProperty("ZOrigin", osmSpace.getzOrigin());
-			space.addProperty("BuildingStoryName", osmSpace.getBuildingStoryName());
-			space.addProperty("ThermalZoneName", osmSpace.getSpaceName());//Currently thermal zone is the same as space name?
-			spaceArray.add(space);
+		for(OSMSpace osmSpace: allSpaces){
+			outputContent.append("OS:Space,\n  ");
+			outputContent.append(osmSpace.getSpaceName());
+			outputContent.append(",               ! Name\n  ");
+			outputContent.append(osmSpace.getTypeName());
+			outputContent.append(",                         ! Space Type Name\n  ");
+			outputContent.append(osmSpace.getDefaultConstructionSetName());
+			outputContent.append(",                         ! Default Construction Set Name\n  ");
+			outputContent.append(osmSpace.getDefaultScheduleSetName());
+			outputContent.append(",                         ! Default Schedule Set Name\n  ");
+			outputContent.append(osmSpace.getDirectionOfRelativeNorth());
+			outputContent.append(",                         ! Direction of Relative North {deg}\n  ");
+			outputContent.append(osmSpace.getxOrigin());
+			outputContent.append(",                         ! X Origin {m}\n  ");
+			outputContent.append(osmSpace.getyOrigin());
+			outputContent.append(",                         ! Y Origin {m}\n  ");
+			outputContent.append(osmSpace.getzOrigin());
+			outputContent.append(",                         ! Z Origin {m}\n  ");
+			outputContent.append(osmSpace.getBuildingStoryName());
+			outputContent.append(",                         ! Building Story Name\n  ");
+			outputContent.append(osmSpace.getSpaceName());
+			outputContent.append(" ThermalZone;  ! Thermal Zone Name\n\n");
 		}
 		
-		//write osmSurfaces
-		for (OSMSpace osmSpace : allSpaces)
-		{
-			//for all osmSurfaces
-			for (OSMSurface osmSurface : osmSpace.getSurfaceList())
-			{
-				//construct surface JSON
-				JsonObject surface = new JsonObject();
-				surface.addProperty("Name", osmSurface.getSurfaceName());
-				surface.addProperty("SurfaceType", osmSurface.getTypeName());
-				surface.addProperty("ConstructionName", osmSurface.getConstructionName());
-				surface.addProperty("SpaceName", osmSurface.getOSMSpace().getSpaceName());
-				surface.addProperty("OutsideBoundaryCondition", osmSurface.getOutsideBoundaryCondition());
-				surface.addProperty("OutsideBoundaryConditionObject", osmSurface.getOutsideBoundaryConditionObject());
-				surface.addProperty("SunExposure", osmSurface.getSunExposure());
-				surface.addProperty("WindExposure", osmSurface.getWindExposure());
-				surface.addProperty("ViewFactorToGround", osmSurface.getViewFactorToGround());
-				surface.addProperty("NumberOfVertices", osmSurface.getNumberOfVertices());
+		for(OSMSpace osmSpace: allSpaces){
+			for(OSMSurface osmSurface: osmSpace.getSurfaceList()){
+				outputContent.append("OS:Surface,\n  ");
+				outputContent.append(osmSurface.getSurfaceName());
+				outputContent.append(",                     ! Name\n  ");
+				outputContent.append(osmSurface.getTypeName());
+				outputContent.append(",                     ! Surface Type\n  ");
+				outputContent.append(osmSurface.getConstructionName());
+				outputContent.append(",                         ! Construction Name\n  ");
+				outputContent.append(osmSurface.getOSMSpace().getSpaceName());
+				outputContent.append(",             ! Space Name\n  ");
+				outputContent.append(osmSurface.getOutsideBoundaryCondition());
+				outputContent.append(",                 ! Outside Boundary Condition\n  ");
+				outputContent.append(osmSurface.getOutsideBoundaryConditionObject());
+				outputContent.append(",                         ! Outside Boundary Condition Object\n  ");
+				outputContent.append(osmSurface.getSunExposure());
+				outputContent.append(",               ! Sun Exposure\n  ");
+				outputContent.append(osmSurface.getWindExposure());
+				outputContent.append(",              ! Wind Exposure\n  ");
+				outputContent.append(osmSurface.getViewFactorToGround());
+				outputContent.append(",                         ! View Factor to Ground\n  ");
+				outputContent.append(osmSurface.getNumberOfVertices());
 				
-				JsonArray surfacePointList = new JsonArray();
-
-				if (osmSurface.getOSMPointList().size() > 0)
-				{
-					for (OSMPoint osmPoint:osmSurface.getOSMPointList())
-					{
-						JsonObject point = new JsonObject();
-						point.addProperty("X", osmPoint.getX());
-						point.addProperty("Y", osmPoint.getY());
-						point.addProperty("Z", osmPoint.getZ());
-						surfacePointList.add(point);
+				int size = osmSurface.getOSMPointList().size();
+				if(size <= 0){
+					outputContent.append(";                         ! Number of Vertices\n  ");
+				}
+				else{
+					outputContent.append(",                         ! Number of Vertices\n  ");
+					for(int i = 0; i < size; i ++){
+						OSMPoint osmPoint = osmSurface.getOSMPointList().get(i);
+						outputContent.append(String.valueOf(osmPoint.getX()));
+						outputContent.append(",");
+						outputContent.append(String.valueOf(osmPoint.getY()));
+						outputContent.append(",");
+						outputContent.append(String.valueOf(osmPoint.getZ()));
+						if(i < size - 1){
+							outputContent.append(",  ! X,Y,Z Vertex ");
+						}
+						else{
+							outputContent.append(";  ! X,Y,Z Vertex ");
+						}
+						outputContent.append(String.valueOf(i+1));
+						outputContent.append(" {m}\n  ");
 					}
 				}
+				outputContent.append("\n");
 				
-				surface.add("Vertices", surfacePointList);
-				surfaceArray.add(surface);
-
-				//for all osmSubSurfaces
-				for (OSMSubSurface osmSubSurface : osmSurface
-						.getSubSurfaceList())
-				{					
-					//construct subsurface JSON
-					JsonObject subSurface = new JsonObject();
-					subSurface.addProperty("Name", osmSubSurface.getSubSurfaceName());
-					subSurface.addProperty("SubSurfaceType", osmSubSurface.getTypeName());
-					subSurface.addProperty("ConstructionName", osmSubSurface.getConstructionName());
-					subSurface.addProperty("SurfaceName", osmSubSurface.getOSMSurface().getSurfaceName());
-					subSurface.addProperty("OutsideBoundaryConditionObject", osmSubSurface.getOutsideBoundaryConditionObject());
-					subSurface.addProperty("ViewFactorToGround", osmSubSurface.getViewFactorToGround());
-					subSurface.addProperty("ShadingControlName", osmSubSurface.getShadingControlName());
-					subSurface.addProperty("FrameAndDividerName", osmSubSurface.getFrameAndDividerName());
-					subSurface.addProperty("Multiplier", osmSubSurface.getMultiplier());
-					subSurface.addProperty("NumberOfVertices", osmSubSurface.getNumberOfVertices());
+				for(OSMSubSurface osmSubSurface: osmSurface.getSubSurfaceList()){
+					outputContent.append("OS:SubSurface,\n  ");
+					outputContent.append(osmSubSurface.getSubSurfaceName());
+					outputContent.append(",                     ! Name\n  ");
+					outputContent.append(osmSubSurface.getTypeName());
+					outputContent.append(",                     ! Surface Type\n  ");
+					outputContent.append(osmSubSurface.getConstructionName());
+					outputContent.append(",                         ! Construction Name\n  ");
+					outputContent.append(osmSubSurface.getOSMSurface().getSurfaceName());
+					outputContent.append(",                  ! Surface Name\n  ");
+					outputContent.append(osmSubSurface.getOutsideBoundaryConditionObject());
+					outputContent.append(",                         ! Outside Boundary Condition Object\n  ");
+					outputContent.append(osmSubSurface.getViewFactorToGround());
+					outputContent.append(",                         ! View Factor to Ground\n  ");
+					outputContent.append(osmSubSurface.getShadingControlName());
+					outputContent.append(",                         ! Shading Control Name\n  ");
+					outputContent.append(osmSubSurface.getFrameAndDividerName());
+					outputContent.append(",                         ! Frame and Divider Name\n  ");
+					outputContent.append(osmSubSurface.getMultiplier());
+					outputContent.append(",                         ! Multiplier\n  ");
+					outputContent.append(osmSubSurface.getNumberOfVertices());
 					
-					JsonArray subSurfacePointList = new JsonArray();
-					
-					if (osmSubSurface.getOSMPointList().size() > 0)
-					{
-						
-						for (OSMPoint osmPoint:osmSubSurface.getOSMPointList())
-						{
-							JsonObject point = new JsonObject();
-							point.addProperty("X", osmPoint.getX());
-							point.addProperty("Y", osmPoint.getY());
-							point.addProperty("Z", osmPoint.getZ());
-							subSurfacePointList.add(point);
+					size = osmSubSurface.getOSMPointList().size();
+					if(size <= 0){
+						outputContent.append(";                         ! Number of Vertices\n  ");
+					}
+					else{
+						outputContent.append(",                         ! Number of Vertices\n  ");
+						for(int i = 0; i < size; i ++){
+							OSMPoint osmPoint = osmSubSurface.getOSMPointList().get(i);
+							outputContent.append(String.valueOf(osmPoint.getX()));
+							outputContent.append(",");
+							outputContent.append(String.valueOf(osmPoint.getY()));
+							outputContent.append(",");
+							outputContent.append(String.valueOf(osmPoint.getZ()));
+							if(i < size - 1){
+								outputContent.append(",  ! X,Y,Z Vertex ");
+							}
+							else{
+								outputContent.append(";  ! X,Y,Z Vertex ");
+							}
+							outputContent.append(String.valueOf(i + 1));
+							outputContent.append(" {m}\n  ");
 						}
 					}
-					
-					subSurface.add("Vertices", subSurfacePointList);
-					subSurfaceArray.add(subSurface);
+					outputContent.append("\n");
 				}
 			}
 		}
-		
-		//Construct the final assembled OSM JSON
-		JsonObject osmJSON = new JsonObject();
-		osmJSON.add("Spaces", spaceArray);
-		osmJSON.add("Surfaces", surfaceArray);
-		osmJSON.add("SubSurfaces", subSurfaceArray);
-		
-		out.append(osmJSON.toString());
 	}
 
 	/**
@@ -527,6 +538,7 @@ public class IfcOSMSerializer extends EmfSerializer
 				{
 					IfcRelDefines ifcRelDefines = ifcWall.getIsDefinedBy().get(
 							j);
+					
 					if (ifcRelDefines instanceof IfcRelDefinesByProperties)
 					{
 						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
@@ -650,6 +662,9 @@ public class IfcOSMSerializer extends EmfSerializer
 				if (ifcSlab.getPredefinedType().getName().equals("FLOOR"))
 				{
 					osmSurface.setTypeName("Floor");
+					if(isCCW(spaceBoundaryPointList)) {
+						Collections.reverse(spaceBoundaryPointList);	
+					}
 				} else if (ifcSlab.getPredefinedType().getName().equals("ROOF"))
 				{
 					osmSurface.setTypeName("RoofCeiling");
@@ -764,7 +779,10 @@ public class IfcOSMSerializer extends EmfSerializer
 			{
 				IfcWindow ifcWindow = (IfcWindow) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
-				osmSubSurface.setSubSurfaceName(ifcElement.getName());
+				UUID uuid = UUID.randomUUID();
+                String randomUUIDString = uuid.toString();
+				String subSurfaceName = "FixedWindow-" + randomUUIDString; 
+				osmSubSurface.setSubSurfaceName(subSurfaceName);
 				osmSubSurface.setTypeName("FixedWindow");
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow
 						.getFillsVoids();
@@ -818,7 +836,10 @@ public class IfcOSMSerializer extends EmfSerializer
 			{
 				IfcDoor ifcDoor = (IfcDoor) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
-				osmSubSurface.setSubSurfaceName(ifcElement.getName());
+				UUID uuid = UUID.randomUUID();
+                String randomUUIDString = uuid.toString();
+				String subSurfaceName = "Door-" + randomUUIDString;
+				osmSubSurface.setSubSurfaceName(subSurfaceName);
 				osmSubSurface.setTypeName("Door");
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor
 						.getFillsVoids();
@@ -869,6 +890,28 @@ public class IfcOSMSerializer extends EmfSerializer
 			System.err.println("Error: unparsed element type!");
 		}
 	}
+	
+	public boolean isCCW(List<OSMPoint> point)
+    {
+		double centroidX = 0.0;
+		double centroidY = 0.0;
+		int length = point.size();
+		
+		for(OSMPoint temp : point) {
+			centroidX += temp.getX();
+			centroidY += temp.getY();
+		}
+		
+		centroidX = centroidX / length;
+		centroidY = centroidY / length;
+		
+		double x1 = Math.atan2(point.get(0).getY() - centroidY, point.get(0).getX() - centroidX);
+		double x2 = Math.atan2(point.get(1).getY() - centroidY, point.get(1).getX() - centroidX);	
+		
+		
+        return (x2 - x1 > 0);
+    }
+	
 
 	private void transformUnits(double scale)
 	{
