@@ -14,6 +14,9 @@ import org.bimserver.utils.UTF8PrintWriter;
 
 public class OsmSerializer extends EmfSerializer
 {
+	
+	private static final double maxWallThickness = 0.8;
+	
 	private UTF8PrintWriter						out;
 	/**
 	 * Current analyzed instance, the value could be wall, floor, roof, window,
@@ -47,7 +50,7 @@ public class OsmSerializer extends EmfSerializer
 	 * A 1 to 2 mapping from IfcWall to OSMSurface to store duplicated internal
 	 * walls.
 	 */
-	private HashMap<IfcWall, List<OSMSurface>>	internalSurfaceMap			= new HashMap<IfcWall, List<OSMSurface>>();
+	private HashMap<IfcWall, LinkedList<OSMSurface>>	internalSurfaceMap			= new HashMap<IfcWall, LinkedList<OSMSurface>>();
 
 	/**
 	 */
@@ -235,25 +238,78 @@ public class OsmSerializer extends EmfSerializer
 	 */
 	private void addLinkageInformation()
 	{
-		for (List<OSMSurface> surfaceList : internalSurfaceMap.values())
+		for (LinkedList<OSMSurface> surfaceList : internalSurfaceMap.values())
 		{
-			// check if each internal wall is shared by 2 spaces.
-			if (surfaceList.size() == 2)
+			while (!surfaceList.isEmpty())//while not empty
 			{
-				String surface0 = surfaceList.get(0).getSurfaceName();
-				String surface1 = surfaceList.get(1).getSurfaceName();
-				surfaceList.get(0).setOutsideBoundaryConditionObject(surface1);
-				surfaceList.get(1).setOutsideBoundaryConditionObject(surface0);
-				System.err.println("Success:" + surface0);
-			} else
-			{
-				System.err
-						.println("Error: internal wall matching not equal to 2!");
-				System.err.println("size:" + surfaceList.size());
-				System.err.println("firstName:"
-						+ surfaceList.get(0).getSurfaceName());
+				OSMSurface firstSurface = surfaceList.removeFirst();
+
+				int closestSurfaceIndex = -1;
+				double leastDistance = maxWallThickness;
+				OSMPoint firstCenter = computeSurfaceCenter(firstSurface);
+				
+				//loop through the rest of elements
+				for (int i = 0; i<surfaceList.size(); i++)
+				{
+					OSMPoint secondCenter = computeSurfaceCenter(surfaceList.get(i));
+					double distance = distanceOfPoints(firstCenter,secondCenter);
+					if(distance <= leastDistance)
+					{
+						closestSurfaceIndex = i;
+						leastDistance = distance;
+					}
+				}
+				if(closestSurfaceIndex>=0)//found a match
+				{
+					OSMSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
+					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
+					secondSurface.setOutsideBoundaryConditionObject(firstSurface.getSurfaceName());
+				
+				}
+				else//does not contain any element or does not have a match smaller than the threshold
+				{
+					firstSurface.setOutsideBoundaryCondition("Outdoors");
+					firstSurface.setSunExposure("SunExposed");
+					firstSurface.setWindExposure("WindExposed");
+				}
 			}
 		}
+	}
+	
+	/**
+	 * Calculate the center of a rectangular Surface. 
+	 * Assuming all OSMSurfaces are Rectangular and contains four points
+	 * @param osmSurface
+	 * @return
+	 */
+	private OSMPoint computeSurfaceCenter(OSMSurface osmSurface)
+	{
+		List<OSMPoint> list = osmSurface.getOSMPointList();
+		if (list.size()!=4)
+			System.err.print("Warning! The Surface " + osmSurface.getSurfaceName() 
+					+ " contains " + list.size() + " points!");
+		double xSum = 0, ySum = 0, zSum = 0;
+		for (OSMPoint p : list)
+		{
+			xSum += p.getX();
+			ySum += p.getY();
+			zSum += p.getZ();
+		}
+		return new OSMPoint(xSum/list.size(),ySum/list.size(),zSum/list.size());		
+	}
+	
+	/**
+	 * compute the euclidean distance of two OSMPoints
+	 * @param point1
+	 * @param point2
+	 * @return
+	 */
+	private double distanceOfPoints(OSMPoint point1, OSMPoint point2)
+	{
+		double x2 = (point1.getX()-point2.getX())*(point1.getX()-point2.getX());
+		double y2 = (point1.getY()-point2.getY())*(point1.getY()-point2.getY());
+		double z2 = (point1.getZ()-point2.getZ())*(point1.getZ()-point2.getZ());
+		return Math.sqrt(x2+y2+z2);
 	}
 
 	/**
@@ -589,7 +645,7 @@ public class OsmSerializer extends EmfSerializer
 													.add(osmSurface);
 										} else
 										{
-											ArrayList<OSMSurface> surfaceList = new ArrayList<OSMSurface>();
+											LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
 											surfaceList.add(osmSurface);
 											internalSurfaceMap.put(ifcWall,
 													surfaceList);
