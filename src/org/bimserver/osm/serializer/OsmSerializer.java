@@ -265,9 +265,14 @@ public class OsmSerializer extends EmfSerializer
 				if(closestSurfaceIndex>=0)//found a match
 				{
 					OSMSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
+					firstSurface.setOutsideBoundaryCondition("Surface");
 					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
+					firstSurface.setSunExposure("NoSun");
+					firstSurface.setWindExposure("NoWind");
+					secondSurface.setOutsideBoundaryCondition("Surface");
 					secondSurface.setOutsideBoundaryConditionObject(firstSurface.getSurfaceName());
-				
+					secondSurface.setSunExposure("NoSun");
+					secondSurface.setWindExposure("NoWind");
 				}
 				else//does not contain any element or does not have a match smaller than the threshold
 				{
@@ -593,77 +598,19 @@ public class OsmSerializer extends EmfSerializer
 				osmSurface.setSurfaceName(osmSurfaceName);
 				osmSurface.setTypeName("Wall");
 				osmSurface.setOSMSpace(osmSpace);
-				for (int j = 0; j < ifcWall.getIsDefinedBy().size(); j++)
+				
+				//add internal surface link information
+				if (internalSurfaceMap
+						.containsKey(ifcWall))
 				{
-					IfcRelDefines ifcRelDefines = ifcWall.getIsDefinedBy().get(
-							j);
-					
-					if (ifcRelDefines instanceof IfcRelDefinesByProperties)
-					{
-						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
-						if (ifcRelDefinesByProperties
-								.getRelatingPropertyDefinition().getName()
-								.equals("Pset_WallCommon"))
-						{
-							List<IfcProperty> ifcPropertySetList = ((IfcPropertySet) ifcRelDefinesByProperties
-									.getRelatingPropertyDefinition())
-									.getHasProperties();
-							for (int k = 0; k < ifcPropertySetList.size(); k++)
-							{
-								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcPropertySetList
-										.get(k);
-								if (ifcPropertySingleValue.getName().equals(
-										"IsExternal"))
-								{
-									Tristate isExternal = ((IfcBoolean) ifcPropertySingleValue
-											.getNominalValue())
-											.getWrappedValue();
-									if (isExternal.getValue() == 0)
-									{ // true
-										osmSurface
-												.setOutsideBoundaryCondition("Outdoors"); // TODO:
-																							// Chong!!!!!
-																							// confirmed
-																							// with
-																							// mechanical
-																							// engineers,
-																							// Ke
-																							// or
-																							// OpenStudio
-																							// teams
-										osmSurface.setSunExposure("SunExposed");
-										osmSurface
-												.setWindExposure("WindExposed");
-									} else if (isExternal.getValue() == 1)
-									{ // false
-										osmSurface
-												.setOutsideBoundaryCondition("Surface");
-										osmSurface.setSunExposure("NoSun");
-										osmSurface.setWindExposure("NoWind");
-
-										if (internalSurfaceMap
-												.containsKey(ifcWall))
-										{
-											internalSurfaceMap.get(ifcWall)
-													.add(osmSurface);
-										} else
-										{
-											LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
-											surfaceList.add(osmSurface);
-											internalSurfaceMap.put(ifcWall,
-													surfaceList);
-										}
-									} else
-									{
-										System.err
-												.println("Error: invalid value of isExternal!!");
-									}
-									break;
-								}
-							}
-							break;
-						}
-					}
+					internalSurfaceMap.get(ifcWall)
+							.add(osmSurface);
+				} else
+				{
+					LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
+					surfaceList.add(osmSurface);
+					internalSurfaceMap.put(ifcWall,
+							surfaceList);
 				}
 
 				for (OSMPoint osmPoint : spaceBoundaryPointList)
