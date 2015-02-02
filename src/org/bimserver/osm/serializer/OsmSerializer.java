@@ -110,7 +110,7 @@ public class OsmSerializer extends EmfSerializer
 	private void generateOutput(UTF8PrintWriter outputContent)
 	{
 		outputContent.append("OS:Version,\n  ");
-		outputContent.append("1.4.2;                         !- Version Identifier");
+		outputContent.append("1.4.2;                         !- Version Identifier\n\n");
 		
 		for(OSMSpace osmSpace: allSpaces){
 			outputContent.append("OS:Space,\n  ");
