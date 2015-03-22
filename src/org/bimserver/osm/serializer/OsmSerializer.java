@@ -109,26 +109,29 @@ public class OsmSerializer extends EmfSerializer
 	 */
 	private void generateOutput(UTF8PrintWriter outputContent)
 	{
+		outputContent.append("OS:Version,\n  ");
+		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
+		
 		for(OSMSpace osmSpace: allSpaces){
 			outputContent.append("OS:Space,\n  ");
 			outputContent.append(osmSpace.getSpaceName());
 			outputContent.append(",               ! Name\n  ");
 			outputContent.append(osmSpace.getTypeName());
-			outputContent.append(",                         ! Space Type Name\n  ");
+			outputContent.append(",                         !- Space Type Name\n  ");
 			outputContent.append(osmSpace.getDefaultConstructionSetName());
-			outputContent.append(",                         ! Default Construction Set Name\n  ");
+			outputContent.append(",                         !- Default Construction Set Name\n  ");
 			outputContent.append(osmSpace.getDefaultScheduleSetName());
-			outputContent.append(",                         ! Default Schedule Set Name\n  ");
+			outputContent.append(",                         !- Default Schedule Set Name\n  ");
 			outputContent.append(osmSpace.getDirectionOfRelativeNorth());
-			outputContent.append(",                         ! Direction of Relative North {deg}\n  ");
+			outputContent.append(",                         !- Direction of Relative North {deg}\n  ");
 			outputContent.append(osmSpace.getxOrigin());
-			outputContent.append(",                         ! X Origin {m}\n  ");
+			outputContent.append(",                         !- X Origin {m}\n  ");
 			outputContent.append(osmSpace.getyOrigin());
-			outputContent.append(",                         ! Y Origin {m}\n  ");
+			outputContent.append(",                         !- Y Origin {m}\n  ");
 			outputContent.append(osmSpace.getzOrigin());
-			outputContent.append(",                         ! Z Origin {m}\n  ");
+			outputContent.append(",                         !- Z Origin {m}\n  ");
 			outputContent.append(osmSpace.getBuildingStoryName());
-			outputContent.append(",                         ! Building Story Name\n  ");
+			outputContent.append(",                         !- Building Story Name\n  ");
 			outputContent.append(osmSpace.getSpaceName());
 			outputContent.append(" ThermalZone;  ! Thermal Zone Name\n\n");
 		}
@@ -137,31 +140,31 @@ public class OsmSerializer extends EmfSerializer
 			for(OSMSurface osmSurface: osmSpace.getSurfaceList()){
 				outputContent.append("OS:Surface,\n  ");
 				outputContent.append(osmSurface.getSurfaceName());
-				outputContent.append(",                     ! Name\n  ");
+				outputContent.append(",                     !- Name\n  ");
 				outputContent.append(osmSurface.getTypeName());
-				outputContent.append(",                     ! Surface Type\n  ");
+				outputContent.append(",                     !- Surface Type\n  ");
 				outputContent.append(osmSurface.getConstructionName());
-				outputContent.append(",                         ! Construction Name\n  ");
+				outputContent.append(",                         !- Construction Name\n  ");
 				outputContent.append(osmSurface.getOSMSpace().getSpaceName());
-				outputContent.append(",             ! Space Name\n  ");
+				outputContent.append(",             !- Space Name\n  ");
 				outputContent.append(osmSurface.getOutsideBoundaryCondition());
-				outputContent.append(",                 ! Outside Boundary Condition\n  ");
+				outputContent.append(",                 !- Outside Boundary Condition\n  ");
 				outputContent.append(osmSurface.getOutsideBoundaryConditionObject());
-				outputContent.append(",                         ! Outside Boundary Condition Object\n  ");
+				outputContent.append(",                         !- Outside Boundary Condition Object\n  ");
 				outputContent.append(osmSurface.getSunExposure());
-				outputContent.append(",               ! Sun Exposure\n  ");
+				outputContent.append(",               !- Sun Exposure\n  ");
 				outputContent.append(osmSurface.getWindExposure());
-				outputContent.append(",              ! Wind Exposure\n  ");
+				outputContent.append(",              !- Wind Exposure\n  ");
 				outputContent.append(osmSurface.getViewFactorToGround());
-				outputContent.append(",                         ! View Factor to Ground\n  ");
+				outputContent.append(",                         !- View Factor to Ground\n  ");
 				outputContent.append(osmSurface.getNumberOfVertices());
 				
 				int size = osmSurface.getOSMPointList().size();
 				if(size <= 0){
-					outputContent.append(";                         ! Number of Vertices\n  ");
+					outputContent.append(";                         !- Number of Vertices\n  ");
 				}
 				else{
-					outputContent.append(",                         ! Number of Vertices\n  ");
+					outputContent.append(",                         !- Number of Vertices\n  ");
 					for(int i = 0; i < size; i ++){
 						OSMPoint osmPoint = osmSurface.getOSMPointList().get(i);
 						outputContent.append(String.valueOf(osmPoint.getX()));
@@ -170,10 +173,10 @@ public class OsmSerializer extends EmfSerializer
 						outputContent.append(",");
 						outputContent.append(String.valueOf(osmPoint.getZ()));
 						if(i < size - 1){
-							outputContent.append(",  ! X,Y,Z Vertex ");
+							outputContent.append(",  !- X,Y,Z Vertex ");
 						}
 						else{
-							outputContent.append(";  ! X,Y,Z Vertex ");
+							outputContent.append(";  !- X,Y,Z Vertex ");
 						}
 						outputContent.append(String.valueOf(i+1));
 						outputContent.append(" {m}\n  ");
@@ -184,31 +187,31 @@ public class OsmSerializer extends EmfSerializer
 				for(OSMSubSurface osmSubSurface: osmSurface.getSubSurfaceList()){
 					outputContent.append("OS:SubSurface,\n  ");
 					outputContent.append(osmSubSurface.getSubSurfaceName());
-					outputContent.append(",                     ! Name\n  ");
+					outputContent.append(",                     !- Name\n  ");
 					outputContent.append(osmSubSurface.getTypeName());
-					outputContent.append(",                     ! Surface Type\n  ");
+					outputContent.append(",                     !- Surface Type\n  ");
 					outputContent.append(osmSubSurface.getConstructionName());
-					outputContent.append(",                         ! Construction Name\n  ");
+					outputContent.append(",                         !- Construction Name\n  ");
 					outputContent.append(osmSubSurface.getOSMSurface().getSurfaceName());
-					outputContent.append(",                  ! Surface Name\n  ");
+					outputContent.append(",                  !- Surface Name\n  ");
 					outputContent.append(osmSubSurface.getOutsideBoundaryConditionObject());
-					outputContent.append(",                         ! Outside Boundary Condition Object\n  ");
+					outputContent.append(",                         !- Outside Boundary Condition Object\n  ");
 					outputContent.append(osmSubSurface.getViewFactorToGround());
-					outputContent.append(",                         ! View Factor to Ground\n  ");
+					outputContent.append(",                         !- View Factor to Ground\n  ");
 					outputContent.append(osmSubSurface.getShadingControlName());
-					outputContent.append(",                         ! Shading Control Name\n  ");
+					outputContent.append(",                         !- Shading Control Name\n  ");
 					outputContent.append(osmSubSurface.getFrameAndDividerName());
-					outputContent.append(",                         ! Frame and Divider Name\n  ");
+					outputContent.append(",                         !- Frame and Divider Name\n  ");
 					outputContent.append(osmSubSurface.getMultiplier());
-					outputContent.append(",                         ! Multiplier\n  ");
+					outputContent.append(",                         !- Multiplier\n  ");
 					outputContent.append(osmSubSurface.getNumberOfVertices());
 					
 					size = osmSubSurface.getOSMPointList().size();
 					if(size <= 0){
-						outputContent.append(";                         ! Number of Vertices\n  ");
+						outputContent.append(";                         !- Number of Vertices\n  ");
 					}
 					else{
-						outputContent.append(",                         ! Number of Vertices\n  ");
+						outputContent.append(",                         !- Number of Vertices\n  ");
 						for(int i = 0; i < size; i ++){
 							OSMPoint osmPoint = osmSubSurface.getOSMPointList().get(i);
 							outputContent.append(String.valueOf(osmPoint.getX()));
@@ -217,10 +220,10 @@ public class OsmSerializer extends EmfSerializer
 							outputContent.append(",");
 							outputContent.append(String.valueOf(osmPoint.getZ()));
 							if(i < size - 1){
-								outputContent.append(",  ! X,Y,Z Vertex ");
+								outputContent.append(",  !- X,Y,Z Vertex ");
 							}
 							else{
-								outputContent.append(";  ! X,Y,Z Vertex ");
+								outputContent.append(";  !- X,Y,Z Vertex ");
 							}
 							outputContent.append(String.valueOf(i + 1));
 							outputContent.append(" {m}\n  ");
@@ -262,9 +265,14 @@ public class OsmSerializer extends EmfSerializer
 				if(closestSurfaceIndex>=0)//found a match
 				{
 					OSMSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
+					firstSurface.setOutsideBoundaryCondition("Surface");
 					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
+					firstSurface.setSunExposure("NoSun");
+					firstSurface.setWindExposure("NoWind");
+					secondSurface.setOutsideBoundaryCondition("Surface");
 					secondSurface.setOutsideBoundaryConditionObject(firstSurface.getSurfaceName());
-				
+					secondSurface.setSunExposure("NoSun");
+					secondSurface.setWindExposure("NoWind");
 				}
 				else//does not contain any element or does not have a match smaller than the threshold
 				{
@@ -350,7 +358,7 @@ public class OsmSerializer extends EmfSerializer
 			IfcElement ifcElement = ifcRelSpaceBoundary
 					.getRelatedBuildingElement();
 
-			// TODO edit: get the connection geometry points of the space
+			// get the connection geometry points of the space
 			// boundary
 			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary
 					.getConnectionGeometry();
@@ -418,7 +426,6 @@ public class OsmSerializer extends EmfSerializer
 			IfcConnectionSurfaceGeometry ifcConnectionGeometry,
 			List<OSMPoint> spaceBoundaryPointList)
 	{
-		// TODO what does this mean?
 		boolean isGeometrySolved = false;
 
 		IfcSurfaceOrFaceSurface ifcSurfaceOrFaceSurface = ifcConnectionGeometry
@@ -590,77 +597,19 @@ public class OsmSerializer extends EmfSerializer
 				osmSurface.setSurfaceName(osmSurfaceName);
 				osmSurface.setTypeName("Wall");
 				osmSurface.setOSMSpace(osmSpace);
-				for (int j = 0; j < ifcWall.getIsDefinedBy().size(); j++)
+				
+				//add internal surface link information
+				if (internalSurfaceMap
+						.containsKey(ifcWall))
 				{
-					IfcRelDefines ifcRelDefines = ifcWall.getIsDefinedBy().get(
-							j);
-					
-					if (ifcRelDefines instanceof IfcRelDefinesByProperties)
-					{
-						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
-						if (ifcRelDefinesByProperties
-								.getRelatingPropertyDefinition().getName()
-								.equals("Pset_WallCommon"))
-						{
-							List<IfcProperty> ifcPropertySetList = ((IfcPropertySet) ifcRelDefinesByProperties
-									.getRelatingPropertyDefinition())
-									.getHasProperties();
-							for (int k = 0; k < ifcPropertySetList.size(); k++)
-							{
-								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcPropertySetList
-										.get(k);
-								if (ifcPropertySingleValue.getName().equals(
-										"IsExternal"))
-								{
-									Tristate isExternal = ((IfcBoolean) ifcPropertySingleValue
-											.getNominalValue())
-											.getWrappedValue();
-									if (isExternal.getValue() == 0)
-									{ // true
-										osmSurface
-												.setOutsideBoundaryCondition("Outdoors"); // TODO:
-																							// Chong!!!!!
-																							// confirmed
-																							// with
-																							// mechanical
-																							// engineers,
-																							// Ke
-																							// or
-																							// OpenStudio
-																							// teams
-										osmSurface.setSunExposure("SunExposed");
-										osmSurface
-												.setWindExposure("WindExposed");
-									} else if (isExternal.getValue() == 1)
-									{ // false
-										osmSurface
-												.setOutsideBoundaryCondition("Surface");
-										osmSurface.setSunExposure("NoSun");
-										osmSurface.setWindExposure("NoWind");
-
-										if (internalSurfaceMap
-												.containsKey(ifcWall))
-										{
-											internalSurfaceMap.get(ifcWall)
-													.add(osmSurface);
-										} else
-										{
-											LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
-											surfaceList.add(osmSurface);
-											internalSurfaceMap.put(ifcWall,
-													surfaceList);
-										}
-									} else
-									{
-										System.err
-												.println("Error: invalid value of isExternal!!");
-									}
-									break;
-								}
-							}
-							break;
-						}
-					}
+					internalSurfaceMap.get(ifcWall)
+							.add(osmSurface);
+				} else
+				{
+					LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
+					surfaceList.add(osmSurface);
+					internalSurfaceMap.put(ifcWall,
+							surfaceList);
 				}
 
 				for (OSMPoint osmPoint : spaceBoundaryPointList)
@@ -744,6 +693,7 @@ public class OsmSerializer extends EmfSerializer
 		}
 
 		// Roof, Surface
+		/*
 		else if (ifcElement instanceof IfcRoof)
 		{
 			if (isGeometrySolved)
@@ -827,7 +777,8 @@ public class OsmSerializer extends EmfSerializer
 						.println("Error: unparsed geometry representation of roof!");
 			}
 		}
-
+		 */
+		
 		// Window, subsurface
 		else if (ifcElement instanceof IfcWindow)
 		{
