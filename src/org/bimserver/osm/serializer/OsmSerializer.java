@@ -110,7 +110,7 @@ public class OsmSerializer extends EmfSerializer
 	private void generateOutput(UTF8PrintWriter outputContent)
 	{
 		outputContent.append("OS:Version,\n  ");
-		outputContent.append("1.4.2;                         !- Version Identifier\n\n");
+		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
 		
 		for(OSMSpace osmSpace: allSpaces){
 			outputContent.append("OS:Space,\n  ");
@@ -358,7 +358,7 @@ public class OsmSerializer extends EmfSerializer
 			IfcElement ifcElement = ifcRelSpaceBoundary
 					.getRelatedBuildingElement();
 
-			// TODO edit: get the connection geometry points of the space
+			// get the connection geometry points of the space
 			// boundary
 			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary
 					.getConnectionGeometry();
@@ -426,7 +426,6 @@ public class OsmSerializer extends EmfSerializer
 			IfcConnectionSurfaceGeometry ifcConnectionGeometry,
 			List<OSMPoint> spaceBoundaryPointList)
 	{
-		// TODO what does this mean?
 		boolean isGeometrySolved = false;
 
 		IfcSurfaceOrFaceSurface ifcSurfaceOrFaceSurface = ifcConnectionGeometry
@@ -694,6 +693,7 @@ public class OsmSerializer extends EmfSerializer
 		}
 
 		// Roof, Surface
+		/*
 		else if (ifcElement instanceof IfcRoof)
 		{
 			if (isGeometrySolved)
@@ -777,7 +777,8 @@ public class OsmSerializer extends EmfSerializer
 						.println("Error: unparsed geometry representation of roof!");
 			}
 		}
-
+		 */
+		
 		// Window, subsurface
 		else if (ifcElement instanceof IfcWindow)
 		{
