@@ -55,6 +55,8 @@ public class OsmSerializer extends EmfSerializer
 	/**
 	 */
 	private int									surfaceNum					= 0;
+	
+	private int									subSurfaceNum				= 0;
 
 	@Override
 	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException
@@ -110,10 +112,15 @@ public class OsmSerializer extends EmfSerializer
 	private void generateOutput(UTF8PrintWriter outputContent)
 	{
 		outputContent.append("OS:Version,\n  ");
-		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
+		UUID uuid = UUID.randomUUID();
+		outputContent.append("{" +uuid.toString()+ "}");
+		outputContent.append(",                              !- Handle\n  ");
+		outputContent.append("1.7.0;                         !- Version Identifier\n\n");
 		
 		for(OSMSpace osmSpace: allSpaces){
 			outputContent.append("OS:Space,\n  ");
+			outputContent.append("{" +osmSpace.getUuid().toString()+ "}");
+			outputContent.append(",                              !- Handle\n  ");
 			outputContent.append(osmSpace.getSpaceName());
 			outputContent.append(",               ! Name\n  ");
 			outputContent.append(osmSpace.getTypeName());
@@ -139,6 +146,8 @@ public class OsmSerializer extends EmfSerializer
 		for(OSMSpace osmSpace: allSpaces){
 			for(OSMSurface osmSurface: osmSpace.getSurfaceList()){
 				outputContent.append("OS:Surface,\n  ");
+				outputContent.append("{" +osmSurface.getUuid().toString()+ "}");
+				outputContent.append(",                              !- Handle\n  ");
 				outputContent.append(osmSurface.getSurfaceName());
 				outputContent.append(",                     !- Name\n  ");
 				outputContent.append(osmSurface.getTypeName());
@@ -186,6 +195,8 @@ public class OsmSerializer extends EmfSerializer
 				
 				for(OSMSubSurface osmSubSurface: osmSurface.getSubSurfaceList()){
 					outputContent.append("OS:SubSurface,\n  ");
+					outputContent.append("{" +osmSubSurface.getUuid().toString()+ "}");
+					outputContent.append(",                              !- Handle\n  ");
 					outputContent.append(osmSubSurface.getSubSurfaceName());
 					outputContent.append(",                     !- Name\n  ");
 					outputContent.append(osmSubSurface.getTypeName());
@@ -332,7 +343,8 @@ public class OsmSerializer extends EmfSerializer
 
 		// Create the temporary OSMSpace object
 		OSMSpace osmSpace = new OSMSpace();
-
+		UUID uuid = UUID.randomUUID();
+		osmSpace.setUuid(uuid.toString());
 		// Assign a name to the OSMSpace
 		osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
 
@@ -590,10 +602,9 @@ public class OsmSerializer extends EmfSerializer
 			{
 				IfcWall ifcWall = (IfcWall) ifcElement;
 				OSMSurface osmSurface = new OSMSurface();
+				UUID uuid = UUID.randomUUID();
+				osmSurface.setUuid(uuid.toString());
 				String osmSurfaceName = "su-" + (++surfaceNum);
-				// String osmSurfaceName = "su-" + (++surfaceNum) + "-" +
-				// ifcElement.getName(); //this line should be replaced by the
-				// line above!!!!
 				osmSurface.setSurfaceName(osmSurfaceName);
 				osmSurface.setTypeName("Wall");
 				osmSurface.setOSMSpace(osmSpace);
@@ -647,20 +658,11 @@ public class OsmSerializer extends EmfSerializer
 			{
 				IfcSlab ifcSlab = (IfcSlab) ifcElement;
 				OSMSurface osmSurface = new OSMSurface();
+				UUID uuid = UUID.randomUUID();
+				osmSurface.setUuid(uuid.toString());
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
-				// osmSurface.setSurfaceName("su-" + (++surfaceNum) + "-" +
-				// ifcElement.getName()); //this line should be replaced by the
-				// line above!!!!
 				osmSurface.setOSMSpace(osmSpace);
-				osmSurface.setOutsideBoundaryCondition("Ground"); // TODO:
-																	// Chong!!!!!
-																	// confirmed
-																	// with
-																	// mechanical
-																	// engineers,
-																	// Ke or
-																	// OpenStudio
-																	// teams
+				osmSurface.setOutsideBoundaryCondition("Ground");
 				osmSurface.setSunExposure("NoSun");
 				osmSurface.setWindExposure("NoWind");
 
@@ -787,9 +789,8 @@ public class OsmSerializer extends EmfSerializer
 				IfcWindow ifcWindow = (IfcWindow) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
 				UUID uuid = UUID.randomUUID();
-                String randomUUIDString = uuid.toString();
-				String subSurfaceName = "FixedWindow-" + randomUUIDString; 
-				osmSubSurface.setSubSurfaceName(subSurfaceName);
+                osmSubSurface.setUuid(uuid.toString());
+				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("FixedWindow");
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow
 						.getFillsVoids();
@@ -805,8 +806,6 @@ public class OsmSerializer extends EmfSerializer
 						osmSubSurface.addOSMPoint(osmPoint);
 						allOSMPoints.add(osmPoint);
 					}
-					// TODO: Chong!!!!! confirmed with mechanical engineers, Ke
-					// or OpenStudio teams
 					OSMSurface osmSurface = wallOSMSurfaceMap
 							.get(ifcRelatingBuildingElement); // add (IfcWall)
 																// cast before
@@ -844,9 +843,8 @@ public class OsmSerializer extends EmfSerializer
 				IfcDoor ifcDoor = (IfcDoor) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
 				UUID uuid = UUID.randomUUID();
-                String randomUUIDString = uuid.toString();
-				String subSurfaceName = "Door-" + randomUUIDString;
-				osmSubSurface.setSubSurfaceName(subSurfaceName);
+                osmSubSurface.setUuid(uuid.toString());
+                osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("Door");
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor
 						.getFillsVoids();
@@ -862,8 +860,6 @@ public class OsmSerializer extends EmfSerializer
 						osmSubSurface.addOSMPoint(osmPoint);
 						allOSMPoints.add(osmPoint);
 					}
-					// TODO: Chong!!!!! confirmed with mechanical engineers, Ke
-					// or OpenStudio teams
 					OSMSurface osmSurface = wallOSMSurfaceMap
 							.get(ifcRelatingBuildingElement); // add (IfcWall)
 																// cast before
@@ -1115,6 +1111,7 @@ public class OsmSerializer extends EmfSerializer
 
 	class OSMSurface
 	{
+		private String				uuid							= "";
 		private String				surfaceName						= "";
 		private String				typeName						= "";
 		private String				constructionName				= "";
@@ -1248,10 +1245,19 @@ public class OsmSerializer extends EmfSerializer
 		{
 			this.subSurfaceList.add(subSurface);
 		}
+
+		public String getUuid() {
+			return uuid;
+		}
+
+		public void setUuid(String uuid) {
+			this.uuid = uuid;
+		}
 	}
 
 	class OSMSubSurface
 	{
+		private String			uuid							= "";
 		private String			subSurfaceName					= "";
 		private String			typeName						= "";
 		private String			constructionName				= "";
@@ -1374,10 +1380,19 @@ public class OsmSerializer extends EmfSerializer
 		{
 			this.pointList.add(point);
 		}
+
+		public String getUuid() {
+			return uuid;
+		}
+
+		public void setUuid(String uuid) {
+			this.uuid = uuid;
+		}
 	}
 
 	class OSMSpace
 	{
+		private String				uuid						= "";
 		private boolean				containsUnsolvedSurface		= false;
 		private String				spaceName					= "";
 		private String				typeName					= "";
@@ -1510,6 +1525,14 @@ public class OsmSerializer extends EmfSerializer
 		public void addSurface(OSMSurface surface)
 		{
 			this.surfaceList.add(surface);
+		}
+
+		public String getUuid() {
+			return uuid;
+		}
+
+		public void setUuid(String uuid) {
+			this.uuid = uuid;
 		}
 	}
 
