@@ -44,11 +44,14 @@ import org.bimserver.plugins.serializers.ProgressReporter;
 import org.bimserver.plugins.serializers.ProjectInfo;
 import org.bimserver.plugins.serializers.SerializerException;
 import org.bimserver.utils.UTF8PrintWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OsmSerializer extends EmfSerializer
 {
 	
 	private static final double maxWallThickness = 0.8;
+	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
 	
 	private UTF8PrintWriter						out;
 	/**
@@ -498,10 +501,8 @@ public class OsmSerializer extends EmfSerializer
 			IfcCurveBoundedPlane ifcCurveBoundedPlane,
 			List<OSMPoint> spaceBoundaryPointList)
 	{
-		boolean isGeometrySolved = false;
-		try
-		{
-			IfcCurve ifcCurve = ifcCurveBoundedPlane.getOuterBoundary();
+		IfcCurve ifcCurve = ifcCurveBoundedPlane.getOuterBoundary();
+		if (ifcCurve instanceof IfcPolyline) {
 			IfcPolyline ifcPolyline = (IfcPolyline) ifcCurve;
 			List<IfcCartesianPoint> ifcCartesianPointList = ifcPolyline
 					.getPoints();
@@ -512,26 +513,24 @@ public class OsmSerializer extends EmfSerializer
 				List<Double> point = ifcCartesianPoint.getCoordinates();
 				OSMPointList.add(new OSMPoint(point.get(0), point.get(1)));
 			}
-
+			
 			IfcAxis2Placement3D position = ifcCurveBoundedPlane
 					.getBasisSurface().getPosition();
 			for (OSMPoint OSMPoint : OSMPointList)
 			{
 				OSMPoint = coordinate3DTrans(OSMPoint, position); // internal 3D
-																	// transformation
+				// transformation
 				OSMPoint = coordinateSys3DTrans(OSMPoint); // transform
-															// according to the
-															// space's local
-															// coordinate system
+				// according to the
+				// space's local
+				// coordinate system
 				spaceBoundaryPointList.add(OSMPoint);
 			}
-			isGeometrySolved = true;
-		} catch (Exception e)
-		{
-			System.err
-					.println("Error: extractCurveBoundedPlaneSB downcast error!");
+			return true;
+		} else {
+			LOGGER.info("Unimplemented type " + ifcCurve.eClass().getName());
+			return false;
 		}
-		return isGeometrySolved;
 	}
 
 	// TODO: might miss one translation
