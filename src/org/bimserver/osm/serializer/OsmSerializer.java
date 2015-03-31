@@ -1,13 +1,46 @@
 package org.bimserver.osm.serializer;
 
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.bimserver.emf.IfcModelInterface;
-import org.bimserver.models.ifc2x3tc1.*;
+import org.bimserver.emf.PackageMetaData;
+import org.bimserver.models.ifc2x3tc1.IfcArbitraryOpenProfileDef;
+import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement3D;
+import org.bimserver.models.ifc2x3tc1.IfcCartesianPoint;
+import org.bimserver.models.ifc2x3tc1.IfcConnectionGeometry;
+import org.bimserver.models.ifc2x3tc1.IfcConnectionSurfaceGeometry;
+import org.bimserver.models.ifc2x3tc1.IfcConversionBasedUnit;
+import org.bimserver.models.ifc2x3tc1.IfcCurve;
+import org.bimserver.models.ifc2x3tc1.IfcCurveBoundedPlane;
+import org.bimserver.models.ifc2x3tc1.IfcDoor;
+import org.bimserver.models.ifc2x3tc1.IfcElement;
+import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
+import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
+import org.bimserver.models.ifc2x3tc1.IfcPolyline;
+import org.bimserver.models.ifc2x3tc1.IfcProduct;
+import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
+import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
+import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
+import org.bimserver.models.ifc2x3tc1.IfcSlab;
+import org.bimserver.models.ifc2x3tc1.IfcSpace;
+import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
+import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
+import org.bimserver.models.ifc2x3tc1.IfcUnit;
+import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
+import org.bimserver.models.ifc2x3tc1.IfcValue;
+import org.bimserver.models.ifc2x3tc1.IfcWall;
+import org.bimserver.models.ifc2x3tc1.IfcWindow;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
+import org.bimserver.plugins.serializers.ProgressReporter;
 import org.bimserver.plugins.serializers.ProjectInfo;
 import org.bimserver.plugins.serializers.SerializerException;
 import org.bimserver.utils.UTF8PrintWriter;
@@ -59,9 +92,9 @@ public class OsmSerializer extends EmfSerializer
 	private int									subSurfaceNum				= 0;
 
 	@Override
-	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException
+	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, PackageMetaData packageMetaData, boolean normalizeOids) throws SerializerException
 	{
-		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
+		super.init(model, projectInfo, pluginManager, renderEnginePlugin, packageMetaData, normalizeOids);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList)
@@ -86,7 +119,7 @@ public class OsmSerializer extends EmfSerializer
 	}
 
 	@Override
-	protected boolean write(OutputStream outputStream) throws SerializerException
+	protected boolean write(OutputStream outputStream, ProgressReporter progressReporter) throws SerializerException
 	{
 		if (out == null) {
 			out = new UTF8PrintWriter(outputStream);
