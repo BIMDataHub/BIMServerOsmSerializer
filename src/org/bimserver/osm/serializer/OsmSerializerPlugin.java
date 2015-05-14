@@ -1,8 +1,5 @@
 package org.bimserver.osm.serializer;
 
-import java.util.Set;
-
-import org.bimserver.emf.Schema;
 import org.bimserver.models.store.ObjectDefinition;
 import org.bimserver.plugins.PluginConfiguration;
 import org.bimserver.plugins.PluginException;
@@ -65,8 +62,4 @@ public class OsmSerializerPlugin extends AbstractSerializerPlugin {
 		return "application/osm";
 	}
 
-	@Override
-	public Set<Schema> getSupportedSchemas() {
-		return Schema.IFC2X3TC1.toSet();
-	}
 }
