@@ -57,9 +57,9 @@ import org.bimserver.utils.UTF8PrintWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// version 1.3.4
 public class OsmSerializer extends EmfSerializer
 {
-	
 	private static final double maxWallThickness = 0.8;
 	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
 	
