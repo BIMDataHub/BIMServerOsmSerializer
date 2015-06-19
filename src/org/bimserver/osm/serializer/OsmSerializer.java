@@ -57,9 +57,7 @@ import org.bimserver.utils.UTF8PrintWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// version 1.3.4
-public class OsmSerializer extends EmfSerializer
-{
+public class OsmSerializer extends EmfSerializer {
 	private static final double maxWallThickness = 0.8;
 	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
 	
@@ -105,13 +103,11 @@ public class OsmSerializer extends EmfSerializer
 	private int									subSurfaceNum				= 0;
 
 	@Override
-	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException
-	{
+	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException {
 		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
-		for (IfcSpace ifcSpace : ifcSpaceList)
-		{
+		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
 		}
 
@@ -126,25 +122,23 @@ public class OsmSerializer extends EmfSerializer
 	}
 
 	@Override
-	public void reset()
-	{
+	public void reset()	{
 		setMode(Mode.BODY);
 	}
 
 	@Override
-	protected boolean write(OutputStream outputStream) throws SerializerException
-	{
+	protected boolean write(OutputStream outputStream) throws SerializerException {
 		if (out == null) {
 			out = new UTF8PrintWriter(outputStream);
 		}
+		
 		if (getMode() == Mode.BODY) {
 			out = new UTF8PrintWriter(outputStream);
 			generateOutput(out);
 			out.flush();
 			setMode(Mode.FINISHED);
 			return true;
-		} else if (getMode() == Mode.FINISHED)
-		{
+		} else if (getMode() == Mode.FINISHED) {
 			return false;
 		}
 		return false;
@@ -155,15 +149,14 @@ public class OsmSerializer extends EmfSerializer
 	 * each type of element is represented as a JsonArray of JsonObjects
 	 * @param out
 	 */
-	private void generateOutput(UTF8PrintWriter outputContent)
-	{
+	private void generateOutput(UTF8PrintWriter outputContent) {
 		outputContent.append("OS:Version,\n  ");
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}");
 		outputContent.append(",                              !- Handle\n  ");
 		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
 		
-		for(OSMSpace osmSpace: allSpaces){
+		for(OSMSpace osmSpace: allSpaces) {
 			outputContent.append("OS:Space,\n  ");
 			outputContent.append("{" +osmSpace.getUuid().toString()+ "}");
 			outputContent.append(",                              !- Handle\n  ");
@@ -189,8 +182,8 @@ public class OsmSerializer extends EmfSerializer
 			outputContent.append(" ThermalZone;  ! Thermal Zone Name\n\n");
 		}
 		
-		for(OSMSpace osmSpace: allSpaces){
-			for(OSMSurface osmSurface: osmSpace.getSurfaceList()){
+		for(OSMSpace osmSpace: allSpaces) {
+			for(OSMSurface osmSurface: osmSpace.getSurfaceList()) {
 				outputContent.append("OS:Surface,\n  ");
 				outputContent.append("{" +osmSurface.getUuid().toString()+ "}");
 				outputContent.append(",                              !- Handle\n  ");
@@ -215,22 +208,20 @@ public class OsmSerializer extends EmfSerializer
 				outputContent.append(osmSurface.getNumberOfVertices());
 				
 				int size = osmSurface.getOSMPointList().size();
-				if(size <= 0){
+				if(size <= 0) {
 					outputContent.append(";                         !- Number of Vertices\n  ");
-				}
-				else{
+				} else {
 					outputContent.append(",                         !- Number of Vertices\n  ");
-					for(int i = 0; i < size; i ++){
+					for(int i = 0; i < size; i ++) {
 						OSMPoint osmPoint = osmSurface.getOSMPointList().get(i);
 						outputContent.append(String.valueOf(osmPoint.getX()));
 						outputContent.append(",");
 						outputContent.append(String.valueOf(osmPoint.getY()));
 						outputContent.append(",");
 						outputContent.append(String.valueOf(osmPoint.getZ()));
-						if(i < size - 1){
+						if(i < size - 1) {
 							outputContent.append(",  !- X,Y,Z Vertex ");
-						}
-						else{
+						} else {
 							outputContent.append(";  !- X,Y,Z Vertex ");
 						}
 						outputContent.append(String.valueOf(i+1));
@@ -478,37 +469,30 @@ public class OsmSerializer extends EmfSerializer
 	 *            an empty point list of the connection geometry
 	 * @return if the connection is a surface, return true.
 	 */
-	private boolean extractSpaceBoundary(IfcConnectionGeometry ifcConnectionGeometry, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace)
-	{
-		if (ifcConnectionGeometry instanceof IfcConnectionSurfaceGeometry)
-			//the connection geometry is a surface
-		{
+	private boolean extractSpaceBoundary(IfcConnectionGeometry ifcConnectionGeometry, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
+		/*
+		 * The boundary geometry should always be a surface.
+		 * Note that only three types of surface can be used:
+		 * IfcCurveBoundedPlane, IfcSurfaceOfLinearExtrusion and IfcFaceBasedSurfaceModel 
+		 */
+		if (ifcConnectionGeometry instanceof IfcConnectionSurfaceGeometry) {
 			//provides the boundary geometry relative to the Space coordinate system.
-			IfcSurfaceOrFaceSurface ifcSurfaceOrFaceSurface = ((IfcConnectionSurfaceGeometry) ifcConnectionGeometry)
-					.getSurfaceOnRelatingElement();
+			IfcSurfaceOrFaceSurface ifcSurfaceOrFaceSurface = ((IfcConnectionSurfaceGeometry) ifcConnectionGeometry).getSurfaceOnRelatingElement();
 			
-			if (ifcSurfaceOrFaceSurface instanceof IfcCurveBoundedPlane)
-			{
-				IfcCurveBoundedPlane ifcCurveBoundedPlane = (IfcCurveBoundedPlane) ifcSurfaceOrFaceSurface;
-				return extractCurveBoundedPlaneSB(ifcCurveBoundedPlane, spaceBoundaryPointList, ifcSpace);
-			} else if (ifcSurfaceOrFaceSurface instanceof IfcSurfaceOfLinearExtrusion)
-			{
+			if (ifcSurfaceOrFaceSurface instanceof IfcSurfaceOfLinearExtrusion) {
 				IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion = (IfcSurfaceOfLinearExtrusion) ifcSurfaceOrFaceSurface;
 				return extractSurfaceOfLinearExtrusionSB(ifcSurfaceOfLinearExtrusion, spaceBoundaryPointList, ifcSpace);
-			} else
-			{
+			} /*else if (ifcSurfaceOrFaceSurface instanceof IfcCurveBoundedPlane) {
+				IfcCurveBoundedPlane ifcCurveBoundedPlane = (IfcCurveBoundedPlane) ifcSurfaceOrFaceSurface;
+				return extractCurveBoundedPlaneSB(ifcCurveBoundedPlane, spaceBoundaryPointList, ifcSpace);
+			} */else {
 				LOGGER.info("Unimplemented type " + ifcConnectionGeometry.eClass().getName());
 				return false;
 			}
-		}
-		//TODO: for curved walls: else if(ifcConnectionGeometry instanceof IfcConnectionCurveGeometry)
-		//the connection geometry is a curve
-		else
-		{
+		} else {
 			LOGGER.info("Unimplemented type " + ifcConnectionGeometry.eClass().getName());
 			return false;
-		}
-		
+		}		
 	}
 
 	/**
@@ -562,57 +546,68 @@ public class OsmSerializer extends EmfSerializer
 	 * @param spaceBoundaryPointList
 	 * @return
 	 */
-	private boolean extractSurfaceOfLinearExtrusionSB(IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace)
-	{
+	private boolean extractSurfaceOfLinearExtrusionSB(IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
 		IfcProfileDef ifcProfileDef = ifcSurfaceOfLinearExtrusion.getSweptCurve();
-		if(ifcProfileDef instanceof IfcArbitraryOpenProfileDef)
-		{
-			IfcArbitraryOpenProfileDef ifcArbitraryOpenProfileDef = (IfcArbitraryOpenProfileDef)ifcProfileDef;
+		
+		
+		if(ifcProfileDef instanceof IfcArbitraryOpenProfileDef) {
+			IfcArbitraryOpenProfileDef ifcArbitraryOpenProfileDef = (IfcArbitraryOpenProfileDef) ifcProfileDef;
 			IfcBoundedCurve ifcBoundedCurve = ifcArbitraryOpenProfileDef.getCurve();
 			
-			IfcDirection ifcDirection = ifcSurfaceOfLinearExtrusion.getExtrudedDirection();
 			
-			if(ifcDirection.getDim() !=3 )
-			{
-				LOGGER.info("Unimplemented type: extrusion dimension = " + ifcDirection.getDim());
-				return false;
-			}
 			
-			if(ifcBoundedCurve instanceof IfcPolyline)
-			{
+			if(ifcBoundedCurve instanceof IfcPolyline) {
 				IfcPolyline ifcPolyline = (IfcPolyline) ifcBoundedCurve;
-
 				List<OSMPoint> osmPointList = new ArrayList<OSMPoint>();
-				// the points on the swept surface
-				for (IfcCartesianPoint ifcCartesianPoint : ifcPolyline.getPoints())
-				{
+				for (IfcCartesianPoint ifcCartesianPoint : ifcPolyline.getPoints()) {
 					List<Double> point = ifcCartesianPoint.getCoordinates();
-					
-					int dimension = ifcCartesianPoint.getDim();
-					if (dimension == 2)
-						osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
-					else
-						osmPointList.add(new OSMPoint(point.get(0), point.get(1), point.get(2)));
-					// put the curved boundary point in the basis plane coordinate system.
-					
+					/*
+					 * http://www.buildingsmart-tech.org/ifc/IFC2x4/rc2/html/schema/ifcgeometryresource/lexical/ifccartesianpoint.htm
+					 * @author:Pengwei Lan
+					 * */
+					if(ifcCartesianPoint.isSetDim()) {
+						int dimension = ifcCartesianPoint.getDim();
+						if (dimension == 2) {
+							osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
+						} else if(dimension == 3) {
+							osmPointList.add(new OSMPoint(point.get(0), point.get(1), point.get(2)));
+						} else {
+							LOGGER.info("The dimension of the point is incorrect: point dimension = " + dimension);
+							return false;
+						}
+					} else {
+						LOGGER.info("The dimension of the point has not been setted.");
+						return false;
+					}	
 				}
 				
 				IfcAxis2Placement3D position = ifcSurfaceOfLinearExtrusion.getPosition();
 				
-				// translate the points on the swept surface
+				if(osmPointList.isEmpty()) {
+					LOGGER.info("Can't get the points of the current line!");
+					return false;
+				}
+				
+				// Translate the points on the swept surface
 				for (OSMPoint osmPoint : osmPointList)
 				{
-					// put the curved boundary point in the basis plane coordinate system.
+					// Put the curved boundary point in the basis plane coordinate system.
 					coordinate3DTrans(osmPoint, position); 
-					// upgrade to global coordinates according to the space's local coordinate system
+					// Upgrade to global coordinates according to the space's local coordinate system
 					coordinateSys3DTrans(osmPoint, ifcSpace); 
 					spaceBoundaryPointList.add(osmPoint);
 				}
 	
-				// the extruded points and the translation
-				Collections.reverse(osmPointList); // OSM requirement
+				// OSM requirement
+				Collections.reverse(osmPointList); 
 				
 				double extrudedDepth = ifcSurfaceOfLinearExtrusion.getDepth();
+				IfcDirection ifcDirection = ifcSurfaceOfLinearExtrusion.getExtrudedDirection();
+				
+				if(ifcDirection.getDim() <= 0 || ifcDirection.getDim() > 3) {
+					LOGGER.info("The dimension of the direction is incorrect: extrusion direction dimension = " + ifcDirection.getDim());
+					return false;
+				}
 				
 				//Direction
 				double x = ifcDirection.getDirectionRatios().get(0);
@@ -622,9 +617,9 @@ public class OsmSerializer extends EmfSerializer
 				double length = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
 				
 				//move the point along the direction for depth.
-				double mx = extrudedDepth*x/length;
-				double my = extrudedDepth*y/length;
-				double mz = extrudedDepth*z/length;
+				double mx = extrudedDepth * x / length;
+				double my = extrudedDepth * y / length;
+				double mz = extrudedDepth * z / length;
 				
 				for (OSMPoint osmPoint : osmPointList)
 				{
@@ -768,7 +763,8 @@ public class OsmSerializer extends EmfSerializer
 				LOGGER.info("Unparsed slab geomatry" + ifcElement.eClass().getName());
 			}
 		}
-
+		
+		/*
 		// Roof, Surface
 		
 		else if (ifcElement instanceof IfcRoof)
@@ -843,6 +839,7 @@ public class OsmSerializer extends EmfSerializer
 						.println("Error: unparsed geometry representation of roof!");
 			}
 		}
+		*/
 		 
 		
 		// Window, subsurface
@@ -1064,8 +1061,7 @@ public class OsmSerializer extends EmfSerializer
 			xDirection.add(0.0);
 		} else
 		{
-			xDirection = ifcRelativePlacement.getRefDirection()
-					.getDirectionRatios();
+			xDirection = ifcRelativePlacement.getRefDirection().getDirectionRatios();
 		}
 		List<Double> zDirection = new ArrayList<Double>(); // new z Axis
 		if (ifcRelativePlacement.isSetAxis())
@@ -1128,6 +1124,9 @@ public class OsmSerializer extends EmfSerializer
 
 		public OSMPoint()
 		{
+			this.x = 0.0;
+			this.y = 0.0;
+			this.z = 0.0;
 		}
 
 		public OSMPoint(Double x, Double y)
