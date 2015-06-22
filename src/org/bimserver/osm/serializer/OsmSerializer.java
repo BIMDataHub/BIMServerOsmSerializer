@@ -576,8 +576,7 @@ public class OsmSerializer extends EmfSerializer {
 							return false;
 						}
 					} else {
-						LOGGER.info("The dimension of the point has not been setted.");
-						return false;
+						osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
 					}	
 				}
 				
@@ -604,10 +603,12 @@ public class OsmSerializer extends EmfSerializer {
 				double extrudedDepth = ifcSurfaceOfLinearExtrusion.getDepth();
 				IfcDirection ifcDirection = ifcSurfaceOfLinearExtrusion.getExtrudedDirection();
 				
+				/*
 				if(ifcDirection.getDim() <= 0 || ifcDirection.getDim() > 3) {
 					LOGGER.info("The dimension of the direction is incorrect: extrusion direction dimension = " + ifcDirection.getDim());
 					return false;
 				}
+				*/
 				
 				//Direction
 				double x = ifcDirection.getDirectionRatios().get(0);
@@ -764,7 +765,7 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 		
-		/*
+		
 		// Roof, Surface
 		
 		else if (ifcElement instanceof IfcRoof)
@@ -839,7 +840,7 @@ public class OsmSerializer extends EmfSerializer {
 						.println("Error: unparsed geometry representation of roof!");
 			}
 		}
-		*/
+		
 		 
 		
 		// Window, subsurface
@@ -1054,24 +1055,20 @@ public class OsmSerializer extends EmfSerializer {
 		Double oz = relOrigin.get(2);
 
 		List<Double> xDirection = new ArrayList<Double>(); // new x Axis
-		if (ifcRelativePlacement.isSetRefDirection())
-		{
+		if (ifcRelativePlacement.isSetRefDirection()) {
+			xDirection = ifcRelativePlacement.getRefDirection().getDirectionRatios();
+		} else {
 			xDirection.add(1.0);
 			xDirection.add(0.0);
 			xDirection.add(0.0);
-		} else
-		{
-			xDirection = ifcRelativePlacement.getRefDirection().getDirectionRatios();
 		}
 		List<Double> zDirection = new ArrayList<Double>(); // new z Axis
-		if (ifcRelativePlacement.isSetAxis())
-		{
+		if (ifcRelativePlacement.isSetAxis()) {
+			zDirection = ifcRelativePlacement.getAxis().getDirectionRatios();
+		} else {
 			zDirection.add(0.0);
 			zDirection.add(0.0);
 			zDirection.add(1.0);
-		} else
-		{
-			zDirection = ifcRelativePlacement.getAxis().getDirectionRatios();
 		}
 
 		/**
