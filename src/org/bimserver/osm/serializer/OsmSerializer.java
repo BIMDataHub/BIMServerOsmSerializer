@@ -414,7 +414,7 @@ public class OsmSerializer extends EmfSerializer {
 				// extract the space boundary information such as wall, ceiling and floor.
 				extractRelatedElement(ifcElement, ifcConnectionGeometry, ifcSpace, osmSpace);
 			} else {
-				LOGGER.info("Unimplemented type " + ifcRelSpaceBoundary.eClass().getName());
+				LOGGER.info("Unimplemented type [extractSpaces]:" + ifcRelSpaceBoundary.eClass().getName());
 			}
 		}
 
@@ -485,11 +485,11 @@ public class OsmSerializer extends EmfSerializer {
 				//TODO: implement IfcFaceBasedSurfaceModel
 				return false;
 			} else {
-				LOGGER.info("Wrong type " + ifcConnectionGeometry.eClass().getName());
+				LOGGER.info("Wrong type [extractSpaceBoundary]:" + ifcConnectionGeometry.eClass().getName());
 				return false;
 			}
 		} else {
-			LOGGER.info("Unimplemented type " + ifcConnectionGeometry.eClass().getName());
+			LOGGER.info("Unimplemented type [extractSpaceBoundary]" + ifcConnectionGeometry.eClass().getName());
 			return false;
 		}		
 	}
@@ -531,13 +531,13 @@ public class OsmSerializer extends EmfSerializer {
 				} else if(parentCurve instanceof IfcTrimmedCurve) {
 					//TODO: extract geometry from IfcTrimmedCurve
 				} else {
-					LOGGER.info("Unimplemented type " + parentCurve.eClass().getName());
+					LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + parentCurve.eClass().getName());
 				}
 			}
 			
 			return true;
 		} else {
-			LOGGER.info("Unimplemented type " + ifcCurve.eClass().getName());
+			LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + ifcCurve.eClass().getName());
 			return false;
 		}
 	}
@@ -642,11 +642,11 @@ public class OsmSerializer extends EmfSerializer {
 				}
 				return true;
 			} else {
-				LOGGER.info("Unimplemented type " + ifcBoundedCurve.eClass().getName());
+				LOGGER.info("Unimplemented type [extractSurfaceOfLinearExtrusionSB]" + ifcBoundedCurve.eClass().getName());
 				return false;
 			}
 		} else {
-			LOGGER.info("Unimplemented type " + ifcProfileDef.eClass().getName());
+			LOGGER.info("Unimplemented type [extractSurfaceOfLinearExtrusionSB]" + ifcProfileDef.eClass().getName());
 			return false;
 		}
 	}
