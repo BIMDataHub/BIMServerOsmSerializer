@@ -15,6 +15,8 @@ import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement;
 import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement3D;
 import org.bimserver.models.ifc2x3tc1.IfcBoundedCurve;
 import org.bimserver.models.ifc2x3tc1.IfcCartesianPoint;
+import org.bimserver.models.ifc2x3tc1.IfcCompositeCurve;
+import org.bimserver.models.ifc2x3tc1.IfcCompositeCurveSegment;
 import org.bimserver.models.ifc2x3tc1.IfcConnectionGeometry;
 import org.bimserver.models.ifc2x3tc1.IfcConnectionSurfaceGeometry;
 import org.bimserver.models.ifc2x3tc1.IfcConversionBasedUnit;
@@ -23,6 +25,7 @@ import org.bimserver.models.ifc2x3tc1.IfcCurveBoundedPlane;
 import org.bimserver.models.ifc2x3tc1.IfcDirection;
 import org.bimserver.models.ifc2x3tc1.IfcDoor;
 import org.bimserver.models.ifc2x3tc1.IfcElement;
+import org.bimserver.models.ifc2x3tc1.IfcFaceBasedSurfaceModel;
 import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
 import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
@@ -42,6 +45,7 @@ import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcSpace;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
+import org.bimserver.models.ifc2x3tc1.IfcTrimmedCurve;
 import org.bimserver.models.ifc2x3tc1.IfcUnit;
 import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
 import org.bimserver.models.ifc2x3tc1.IfcValue;
@@ -373,8 +377,7 @@ public class OsmSerializer extends EmfSerializer {
 	 * 
 	 * @param ifcSpace
 	 */
-	private void extractSpaces(IfcSpace ifcSpace)
-	{
+	private void extractSpaces(IfcSpace ifcSpace) {
 		// Create the temporary OSMSpace object
 		OSMSpace osmSpace = new OSMSpace();
 		UUID uuid = UUID.randomUUID();
@@ -397,44 +400,36 @@ public class OsmSerializer extends EmfSerializer {
 		wallOSMSurfaceMap.clear();
 
 		// for every space bounary such as wall, ceiling or floor
-		for (IfcRelSpaceBoundary ifcRelSpaceBoundary : ifcRelSpaceBoundaryList)
-		{
+		for (IfcRelSpaceBoundary ifcRelSpaceBoundary : ifcRelSpaceBoundaryList) {
 
 			// get the related ifc element of the space boundary to see if it's
 			// a wall or floor, etc.
-			IfcElement ifcElement = ifcRelSpaceBoundary
-					.getRelatedBuildingElement();
+			IfcElement ifcElement = ifcRelSpaceBoundary.getRelatedBuildingElement();
 
 			// get the connection geometry points of the space boundary
 			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary.getConnectionGeometry();
 
-			if (ifcConnectionGeometry != null && ifcElement != null)
-			{
+			if (ifcConnectionGeometry != null && ifcElement != null) {
 
 				// extract the space boundary information such as wall, ceiling and floor.
 				extractRelatedElement(ifcElement, ifcConnectionGeometry, ifcSpace, osmSpace);
-			}
-			else
-			{
+			} else {
 				LOGGER.info("Unimplemented type " + ifcRelSpaceBoundary.eClass().getName());
 			}
 		}
-		if (!osmSpace.containsUnsolvedSurface())
-		{
+
+		if (!osmSpace.containsUnsolvedSurface()) {
 			allSpaces.add(osmSpace);
-		} else
-		{
+		} else {
 			surfaceNum -= osmSpace.getSurfaceList().size();
 		}
 	}
 
-	private double calUnitConvScale(IfcModelInterface model)
-	{
+	private double calUnitConvScale(IfcModelInterface model) {
 		double scale = 1.0;
 		List<IfcUnitAssignment> ifcUnitAssignmentList =  model
 				.getAll(IfcUnitAssignment.class);
-		if(!ifcUnitAssignmentList.isEmpty())
-		{
+		if(!ifcUnitAssignmentList.isEmpty()) {
 			IfcUnitAssignment ifcUnitAssignment = ifcUnitAssignmentList.get(0);
 			List<IfcUnit> ifcUnitList = ifcUnitAssignment.getUnits();
 			for (IfcUnit ifcUnit : ifcUnitList)
@@ -473,7 +468,8 @@ public class OsmSerializer extends EmfSerializer {
 		/*
 		 * The boundary geometry should always be a surface.
 		 * Note that only three types of surface can be used:
-		 * IfcCurveBoundedPlane, IfcSurfaceOfLinearExtrusion and IfcFaceBasedSurfaceModel 
+		 * IfcCurveBoundedPlane, IfcSurfaceOfLinearExtrusion and IfcFaceBasedSurfaceModel
+		 * @author:Pengwei Lan 	 
 		 */
 		if (ifcConnectionGeometry instanceof IfcConnectionSurfaceGeometry) {
 			//provides the boundary geometry relative to the Space coordinate system.
@@ -482,11 +478,14 @@ public class OsmSerializer extends EmfSerializer {
 			if (ifcSurfaceOrFaceSurface instanceof IfcSurfaceOfLinearExtrusion) {
 				IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion = (IfcSurfaceOfLinearExtrusion) ifcSurfaceOrFaceSurface;
 				return extractSurfaceOfLinearExtrusionSB(ifcSurfaceOfLinearExtrusion, spaceBoundaryPointList, ifcSpace);
-			} /*else if (ifcSurfaceOrFaceSurface instanceof IfcCurveBoundedPlane) {
+			} else if (ifcSurfaceOrFaceSurface instanceof IfcCurveBoundedPlane) {
 				IfcCurveBoundedPlane ifcCurveBoundedPlane = (IfcCurveBoundedPlane) ifcSurfaceOrFaceSurface;
 				return extractCurveBoundedPlaneSB(ifcCurveBoundedPlane, spaceBoundaryPointList, ifcSpace);
-			} */else {
-				LOGGER.info("Unimplemented type " + ifcConnectionGeometry.eClass().getName());
+			} else if (ifcSurfaceOrFaceSurface instanceof IfcFaceBasedSurfaceModel) {
+				//TODO: implement IfcFaceBasedSurfaceModel
+				return false;
+			} else {
+				LOGGER.info("Wrong type " + ifcConnectionGeometry.eClass().getName());
 				return false;
 			}
 		} else {
@@ -501,44 +500,69 @@ public class OsmSerializer extends EmfSerializer {
 	 * @param spaceBoundaryPointList
 	 * @return
 	 */
-	// TODO: Bug Found: IFC Curve will only have a 2D curved line on a basis plane.
-	//How is it expanded into a space?
-	private boolean extractCurveBoundedPlaneSB(IfcCurveBoundedPlane ifcCurveBoundedPlane, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace)
-	{
+	private boolean extractCurveBoundedPlaneSB(IfcCurveBoundedPlane ifcCurveBoundedPlane, List<OSMPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
+		IfcAxis2Placement3D position = ifcCurveBoundedPlane.getBasisSurface().getPosition();
 		IfcCurve ifcCurve = ifcCurveBoundedPlane.getOuterBoundary();
+		
 		if (ifcCurve instanceof IfcPolyline) {
-			//get outside boundary of the this surface as polylines
-			IfcPolyline ifcPolyline = (IfcPolyline) ifcCurve;
-			List<IfcCartesianPoint> ifcCartesianPointList = ifcPolyline.getPoints();
 			List<OSMPoint> osmPointList = new ArrayList<OSMPoint>();
-			for (IfcCartesianPoint ifcCartesianPoint : ifcCartesianPointList)
-			{
-				List<Double> point = ifcCartesianPoint.getCoordinates();
-				//defines how many points is contained.
-				int dimension = ifcCartesianPoint.getDim();
-				if (dimension == 2)
-					osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
-				else
-					osmPointList.add(new OSMPoint(point.get(0), point.get(1), point.get(2)));
-			}
+			getPointsOfIfcPolyline((IfcPolyline) ifcCurve, osmPointList);
 			
-			//
-			IfcAxis2Placement3D position = ifcCurveBoundedPlane.getBasisSurface().getPosition();
-			for (OSMPoint OSMPoint : osmPointList)
-			{
-				// put the curved boundary point in the basis plane coordinate system.
+			for (OSMPoint OSMPoint : osmPointList) {
 				coordinate3DTrans(OSMPoint, position);
-				// upgrade to global coordinates according to the space's local coordinate system
 				coordinateSys3DTrans(OSMPoint, ifcSpace); 
-				
 				spaceBoundaryPointList.add(OSMPoint);
 			}
+			return true;
+		} else if (ifcCurve instanceof IfcCompositeCurve) { 
+			IfcCompositeCurve ifcCompositeCurve = (IfcCompositeCurve) ifcCurve;
+			List<IfcCompositeCurveSegment> ifcCompositeCurveSegments = ifcCompositeCurve.getSegments();
+			for(IfcCompositeCurveSegment ifcCompositeCurveSegment: ifcCompositeCurveSegments) {
+				IfcCurve parentCurve = ifcCompositeCurveSegment.getParentCurve();
+				
+				if (parentCurve instanceof IfcPolyline) {
+					List<OSMPoint> osmPointList = new ArrayList<OSMPoint>();
+					getPointsOfIfcPolyline((IfcPolyline) parentCurve, osmPointList);
+					for (OSMPoint OSMPoint : osmPointList) {
+						coordinate3DTrans(OSMPoint, position);
+						coordinateSys3DTrans(OSMPoint, ifcSpace); 
+						spaceBoundaryPointList.add(OSMPoint);
+					}
+				} else if(parentCurve instanceof IfcTrimmedCurve) {
+					//TODO: extract geometry from IfcTrimmedCurve
+				} else {
+					LOGGER.info("Unimplemented type " + parentCurve.eClass().getName());
+				}
+			}
+			
 			return true;
 		} else {
 			LOGGER.info("Unimplemented type " + ifcCurve.eClass().getName());
 			return false;
 		}
 	}
+	
+	
+	private void getPointsOfIfcPolyline(IfcPolyline ifcPolyline, List<OSMPoint> osmPointList) {
+		List<IfcCartesianPoint> ifcCartesianPointList = ifcPolyline.getPoints();
+		for (IfcCartesianPoint ifcCartesianPoint : ifcCartesianPointList) {
+			List<Double> point = ifcCartesianPoint.getCoordinates();
+			
+			if(ifcCartesianPoint.isSetDim()) {
+				int dimension = ifcCartesianPoint.getDim();
+				if (dimension == 2) {
+					osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
+				} else if(dimension == 3) {
+					osmPointList.add(new OSMPoint(point.get(0), point.get(1), point.get(2)));
+				} else {
+					LOGGER.info("The dimension of this point is incorrect: point dimension = " + dimension);
+				}
+			} else {
+				osmPointList.add(new OSMPoint(point.get(0), point.get(1)));
+			}
+		}
+	}
+	
 
 	/**
 	 * Extract straight space boundary
@@ -553,8 +577,6 @@ public class OsmSerializer extends EmfSerializer {
 		if(ifcProfileDef instanceof IfcArbitraryOpenProfileDef) {
 			IfcArbitraryOpenProfileDef ifcArbitraryOpenProfileDef = (IfcArbitraryOpenProfileDef) ifcProfileDef;
 			IfcBoundedCurve ifcBoundedCurve = ifcArbitraryOpenProfileDef.getCurve();
-			
-			
 			
 			if(ifcBoundedCurve instanceof IfcPolyline) {
 				IfcPolyline ifcPolyline = (IfcPolyline) ifcBoundedCurve;
@@ -572,7 +594,7 @@ public class OsmSerializer extends EmfSerializer {
 						} else if(dimension == 3) {
 							osmPointList.add(new OSMPoint(point.get(0), point.get(1), point.get(2)));
 						} else {
-							LOGGER.info("The dimension of the point is incorrect: point dimension = " + dimension);
+							LOGGER.info("The dimension of this point is incorrect: point dimension = " + dimension);
 							return false;
 						}
 					} else {
@@ -588,8 +610,7 @@ public class OsmSerializer extends EmfSerializer {
 				}
 				
 				// Translate the points on the swept surface
-				for (OSMPoint osmPoint : osmPointList)
-				{
+				for (OSMPoint osmPoint : osmPointList) {
 					// Put the curved boundary point in the basis plane coordinate system.
 					coordinate3DTrans(osmPoint, position); 
 					// Upgrade to global coordinates according to the space's local coordinate system
@@ -602,14 +623,7 @@ public class OsmSerializer extends EmfSerializer {
 				
 				double extrudedDepth = ifcSurfaceOfLinearExtrusion.getDepth();
 				IfcDirection ifcDirection = ifcSurfaceOfLinearExtrusion.getExtrudedDirection();
-				
-				/*
-				if(ifcDirection.getDim() <= 0 || ifcDirection.getDim() > 3) {
-					LOGGER.info("The dimension of the direction is incorrect: extrusion direction dimension = " + ifcDirection.getDim());
-					return false;
-				}
-				*/
-				
+						
 				//Direction
 				double x = ifcDirection.getDirectionRatios().get(0);
 				double y = ifcDirection.getDirectionRatios().get(1);
@@ -622,21 +636,16 @@ public class OsmSerializer extends EmfSerializer {
 				double my = extrudedDepth * y / length;
 				double mz = extrudedDepth * z / length;
 				
-				for (OSMPoint osmPoint : osmPointList)
-				{
-					OSMPoint newPoint = new OSMPoint(osmPoint.getX()+mx, osmPoint.getY()+my, osmPoint.getZ()+mz);
-
+				for (OSMPoint osmPoint : osmPointList) {
+					OSMPoint newPoint = new OSMPoint(osmPoint.getX() + mx, osmPoint.getY() + my, osmPoint.getZ() + mz);
 					spaceBoundaryPointList.add(newPoint);
 				}
-				
 				return true;
-			} else //else for if(ifcBoundedCurve instanceof IfcPolyline)
-			{
+			} else {
 				LOGGER.info("Unimplemented type " + ifcBoundedCurve.eClass().getName());
 				return false;
 			}
-		} else //else for if(ifcProfileDef instanceof IfcArbitraryOpenProfileDef)
-		{
+		} else {
 			LOGGER.info("Unimplemented type " + ifcProfileDef.eClass().getName());
 			return false;
 		}
