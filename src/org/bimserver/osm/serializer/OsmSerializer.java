@@ -49,6 +49,7 @@ import org.bimserver.models.ifc2x3tc1.IfcTrimmedCurve;
 import org.bimserver.models.ifc2x3tc1.IfcUnit;
 import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
 import org.bimserver.models.ifc2x3tc1.IfcValue;
+import org.bimserver.models.ifc2x3tc1.IfcVirtualElement;
 import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.models.ifc2x3tc1.IfcWindow;
 import org.bimserver.models.ifc2x3tc1.Tristate;
@@ -677,10 +678,8 @@ public class OsmSerializer extends EmfSerializer {
 		// Extract Other Properties
 
 		// Wall, surface
-		if (ifcElement instanceof IfcWall)
-		{
-			if (isGeometrySolved)
-			{
+		if (ifcElement instanceof IfcWall) {
+			if (isGeometrySolved) {
 				IfcWall ifcWall = (IfcWall) ifcElement;
 				OSMSurface osmSurface = new OSMSurface();
 				UUID uuid = UUID.randomUUID();
@@ -691,21 +690,15 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setOSMSpace(osmSpace);
 				
 				//add internal surface link information
-				if (internalSurfaceMap
-						.containsKey(ifcWall))
-				{
-					internalSurfaceMap.get(ifcWall)
-							.add(osmSurface);
-				} else
-				{
+				if (internalSurfaceMap.containsKey(ifcWall)) {
+					internalSurfaceMap.get(ifcWall).add(osmSurface);
+				} else {
 					LinkedList<OSMSurface> surfaceList = new LinkedList<OSMSurface>();
 					surfaceList.add(osmSurface);
-					internalSurfaceMap.put(ifcWall,
-							surfaceList);
+					internalSurfaceMap.put(ifcWall,surfaceList);
 				}
 
-				for (OSMPoint osmPoint : spaceBoundaryPointList)
-				{
+				for (OSMPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOSMPoint(osmPoint);
 					allOSMPoints.add(osmPoint);
 				}
@@ -714,28 +707,22 @@ public class OsmSerializer extends EmfSerializer {
 				wallOSMSurfaceMap.put(ifcWall, osmSurface);
 				List<OSMSubSurface> unlinkedOSMSubSurfaceList = unLinkedOSMSubSurfacesMap
 						.get(ifcWall);
-				if (unlinkedOSMSubSurfaceList != null
-						&& unlinkedOSMSubSurfaceList.size() > 0)
-				{
-					for (OSMSubSurface osmSubSurface : unlinkedOSMSubSurfaceList)
-					{
+				if (unlinkedOSMSubSurfaceList != null && unlinkedOSMSubSurfaceList.size() > 0) {
+					for (OSMSubSurface osmSubSurface : unlinkedOSMSubSurfaceList) {
 						osmSubSurface.setOSMSurface(osmSurface);
 						osmSurface.addSubSurface(osmSubSurface);
 					}
 					unLinkedOSMSubSurfacesMap.remove(ifcWall);
 				}
-			} else
-			{ // else for if(isGeometrySolved)
+			} else {
 				osmSpace.setContainsUnsolvedSurface(true);
 				LOGGER.info("Unparsed geometry representation of wall!" + ifcElement.eClass().getName());
 			}
 		}
 
 		// Slab, surface
-		else if (ifcElement instanceof IfcSlab)
-		{
-			if (isGeometrySolved)
-			{
+		else if (ifcElement instanceof IfcSlab) {
+			if (isGeometrySolved) {
 				IfcSlab ifcSlab = (IfcSlab) ifcElement;
 				OSMSurface osmSurface = new OSMSurface();
 				UUID uuid = UUID.randomUUID();
@@ -746,29 +733,24 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setSunExposure("NoSun");
 				osmSurface.setWindExposure("NoWind");
 
-				if (ifcSlab.getPredefinedType().getName().equals("FLOOR"))
-				{
+				if (ifcSlab.getPredefinedType().getName().equals("FLOOR")) {
 					osmSurface.setTypeName("Floor");
 					if(isCCW(spaceBoundaryPointList)) {
 						//TODO: There is probably an error here. There are usually a upside down error.
 						Collections.reverse(spaceBoundaryPointList);	
 					}
-				} else if (ifcSlab.getPredefinedType().getName().equals("ROOF"))
-				{
+				} else if (ifcSlab.getPredefinedType().getName().equals("ROOF")) {
 					osmSurface.setTypeName("RoofCeiling");
-				} else
-				{
+				} else {
 					LOGGER.info("Unparsed slab type for " + ifcElement.eClass().getName());
 				}
 
-				for (OSMPoint osmPoint : spaceBoundaryPointList)
-				{
+				for (OSMPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOSMPoint(osmPoint);
 					allOSMPoints.add(osmPoint);
 				}
 				osmSpace.addSurface(osmSurface);
-			} else
-			{ // else for if(isGeometrySolved)
+			} else {
 				osmSpace.setContainsUnsolvedSurface(true);
 				LOGGER.info("Unparsed slab geomatry" + ifcElement.eClass().getName());
 			}
@@ -777,10 +759,8 @@ public class OsmSerializer extends EmfSerializer {
 		
 		// Roof, Surface
 		
-		else if (ifcElement instanceof IfcRoof)
-		{
-			if (isGeometrySolved)
-			{
+		else if (ifcElement instanceof IfcRoof) {
+			if (isGeometrySolved) {
 				IfcRoof ifcRoof = (IfcRoof) ifcElement;
 				OSMSurface osmSurface = new OSMSurface();
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
@@ -790,31 +770,19 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setTypeName("RoofCeiling");
 				osmSurface.setOSMSpace(osmSpace);
 
-				for (int j = 0; j < ifcRoof.getIsDefinedBy().size(); j++)
-				{
+				for (int j = 0; j < ifcRoof.getIsDefinedBy().size(); j++) {
 					IfcRelDefines ifcRelDefines = ifcRoof.getIsDefinedBy().get(j);
-					if(ifcRelDefines instanceof IfcRelDefinesByProperties)
-					{
+					if(ifcRelDefines instanceof IfcRelDefinesByProperties) {
 						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
-						if (ifcRelDefinesByProperties
-								.getRelatingPropertyDefinition().getName()
-								.equals("Pset_RoofCommon"))
-						{
-							List<IfcProperty> ifcPropertySetList = ((IfcPropertySet) ifcRelDefinesByProperties
-									.getRelatingPropertyDefinition())
-									.getHasProperties();
-							for (int k = 0; k < ifcPropertySetList.size(); k++)
-							{
-								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcPropertySetList
-										.get(k);
-								if (ifcPropertySingleValue.getName().equals(
-										"IsExternal"))
-								{
+						if (ifcRelDefinesByProperties.getRelatingPropertyDefinition().getName().equals("Pset_RoofCommon")) {
+							List<IfcProperty> ifcPropertySetList = ((IfcPropertySet) ifcRelDefinesByProperties.getRelatingPropertyDefinition()).getHasProperties();
+							for (int k = 0; k < ifcPropertySetList.size(); k++) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcPropertySetList.get(k);
+								if (ifcPropertySingleValue.getName().equals("IsExternal")) {
 //									Tristate isExternal = ((IfcBoolean) ifcPropertySingleValue.getNominalValue()).getWrappedValue();
 //									if (isExternal.getValue() == 0)
 //									{ // true
-										osmSurface
-												.setOutsideBoundaryCondition("Outdoors");
+										osmSurface.setOutsideBoundaryCondition("Outdoors");
 										osmSurface.setSunExposure("SunExposed");
 										osmSurface.setWindExposure("WindExposed");
 //									} else if (isExternal.getValue() == 1)
@@ -836,128 +804,98 @@ public class OsmSerializer extends EmfSerializer {
 					}
 				}
 
-				for (OSMPoint osmPoint : spaceBoundaryPointList)
-				{
+				for (OSMPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOSMPoint(osmPoint);
 					allOSMPoints.add(osmPoint);
 				}
 				osmSpace.addSurface(osmSurface);
-			} else
-			{ // else for if(isGeometrySolved)
+			} else { // else for if(isGeometrySolved)
 				osmSpace.setContainsUnsolvedSurface(true);
-				System.err
-						.println("Error: unparsed geometry representation of roof!");
+				System.err.println("Error: unparsed geometry representation of roof!");
 			}
 		}
 		
-		 
-		
 		// Window, subsurface
-		else if (ifcElement instanceof IfcWindow)
-		{
-			if (isGeometrySolved)
-			{
+		else if (ifcElement instanceof IfcWindow) {
+			if (isGeometrySolved) {
 				IfcWindow ifcWindow = (IfcWindow) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
 				UUID uuid = UUID.randomUUID();
                 osmSubSurface.setUuid(uuid.toString());
 				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("FixedWindow");
-				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow
-						.getFillsVoids();
-				if (ifcRelFillsElementList.size() > 0)
-				{
-					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList
-							.get(0);
-					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement
-							.getRelatingOpeningElement().getVoidsElements()
-							.getRelatingBuildingElement();
-					for (OSMPoint osmPoint : spaceBoundaryPointList)
-					{
+				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow.getFillsVoids();
+				if (ifcRelFillsElementList.size() > 0) {
+					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
+					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
+					for (OSMPoint osmPoint : spaceBoundaryPointList) {
 						osmSubSurface.addOSMPoint(osmPoint);
 						allOSMPoints.add(osmPoint);
 					}
-					OSMSurface osmSurface = wallOSMSurfaceMap
-							.get(ifcRelatingBuildingElement); // add (IfcWall)
+					OSMSurface osmSurface = wallOSMSurfaceMap.get(ifcRelatingBuildingElement); // add (IfcWall)
 																// cast before
 																// ifcRelatingBuildingElement
-					if (osmSurface != null)
-					{
+					if (osmSurface != null) {
 						osmSubSurface.setOSMSurface(osmSurface);
 						osmSurface.addSubSurface(osmSubSurface);
-					} else
-					{
+					} else {
 						List<OSMSubSurface> unlinkedOSMSubSurfaceList = unLinkedOSMSubSurfacesMap
 								.get(ifcRelatingBuildingElement);
-						if (unlinkedOSMSubSurfaceList == null)
-						{
+						if (unlinkedOSMSubSurfaceList == null) {
 							unlinkedOSMSubSurfaceList = new ArrayList<OSMSubSurface>();
 						}
 						unlinkedOSMSubSurfaceList.add(osmSubSurface);
-						unLinkedOSMSubSurfacesMap.put(
-								(IfcWall) ifcRelatingBuildingElement,
-								unlinkedOSMSubSurfaceList);
+						unLinkedOSMSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOSMSubSurfaceList);
 					}
 				}
-			} else
-			{ // else for if(isGeometrySolved)
+			} else { // else for if(isGeometrySolved)
 				LOGGER.info("Unparsed window for " + ifcElement.eClass().getName());
 			}
 		}
 
 		// Door subsurface
-		else if (ifcElement instanceof IfcDoor)
-		{
-			if (isGeometrySolved)
-			{
+		else if (ifcElement instanceof IfcDoor) {
+			if (isGeometrySolved) {
 				IfcDoor ifcDoor = (IfcDoor) ifcElement;
 				OSMSubSurface osmSubSurface = new OSMSubSurface();
 				UUID uuid = UUID.randomUUID();
                 osmSubSurface.setUuid(uuid.toString());
                 osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("Door");
-				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor
-						.getFillsVoids();
-				if (ifcRelFillsElementList.size() > 0)
-				{
-					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList
-							.get(0);
-					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement
-							.getRelatingOpeningElement().getVoidsElements()
-							.getRelatingBuildingElement();
-					for (OSMPoint osmPoint : spaceBoundaryPointList)
-					{
+				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor.getFillsVoids();
+				if (ifcRelFillsElementList.size() > 0) {
+					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
+					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
+					for (OSMPoint osmPoint : spaceBoundaryPointList) {
 						osmSubSurface.addOSMPoint(osmPoint);
 						allOSMPoints.add(osmPoint);
 					}
-					OSMSurface osmSurface = wallOSMSurfaceMap
-							.get(ifcRelatingBuildingElement); // add (IfcWall)
+					OSMSurface osmSurface = wallOSMSurfaceMap.get(ifcRelatingBuildingElement); // add (IfcWall)
 																// cast before
 																// ifcRelatingBuildingElement
-					if (osmSurface != null)
-					{
+					if (osmSurface != null) {
 						osmSubSurface.setOSMSurface(osmSurface);
 						osmSurface.addSubSurface(osmSubSurface);
-					} else
-					{
-						List<OSMSubSurface> unlinkedOSMSubSurfaceList = unLinkedOSMSubSurfacesMap
-								.get(ifcRelatingBuildingElement);
-						if (unlinkedOSMSubSurfaceList == null)
-						{
+					} else {
+						List<OSMSubSurface> unlinkedOSMSubSurfaceList = unLinkedOSMSubSurfacesMap.get(ifcRelatingBuildingElement);
+						if (unlinkedOSMSubSurfaceList == null) {
 							unlinkedOSMSubSurfaceList = new ArrayList<OSMSubSurface>();
 						}
 						unlinkedOSMSubSurfaceList.add(osmSubSurface);
-						unLinkedOSMSubSurfacesMap.put(
-								(IfcWall) ifcRelatingBuildingElement,
-								unlinkedOSMSubSurfaceList);
+						unLinkedOSMSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOSMSubSurfaceList);
 					}
 				}
-			} else
-			{ // else for if(isGeometrySolved)
+			} else { // else for if(isGeometrySolved)
 				LOGGER.info("Unparsed door for " + ifcElement.eClass().getName());
 			}
-		} else
-		{ // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
+		} 
+		
+		//Virtual element
+		else if(ifcElement instanceof IfcVirtualElement) {
+			//TODO: Add IfcVirtualElement
+		} 
+		
+		else { // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
 			// IfcWindow, IfcDoor
 			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
 		}
