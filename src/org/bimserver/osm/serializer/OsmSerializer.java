@@ -1,6 +1,6 @@
 package org.bimserver.osm.serializer;
 
-import org.bimserver.osm.model.*;
+
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -46,14 +46,11 @@ import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcSpace;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
-import org.bimserver.models.ifc2x3tc1.IfcTrimmedCurve;
 import org.bimserver.models.ifc2x3tc1.IfcUnit;
 import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
 import org.bimserver.models.ifc2x3tc1.IfcValue;
-import org.bimserver.models.ifc2x3tc1.IfcVirtualElement;
 import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.models.ifc2x3tc1.IfcWindow;
-import org.bimserver.osm.model.OsmPoint;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
