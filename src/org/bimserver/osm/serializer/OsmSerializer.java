@@ -425,10 +425,12 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		} 
 		
-		//Virtual element
+		/*
+		 * Virtual element
 		else if(ifcElement instanceof IfcVirtualElement) {
 			//TODO: Add IfcVirtualElement
 		} 
+		*/
 		
 		else { // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
 			// IfcWindow, IfcDoor
@@ -596,9 +598,10 @@ public class OsmSerializer extends EmfSerializer {
 						coordinateSys3DTrans(osmPoint, ifcSpace); 
 						spaceBoundaryPointList.add(osmPoint);
 					}
-				} else if(parentCurve instanceof IfcTrimmedCurve) {
+				} /*else if(parentCurve instanceof IfcTrimmedCurve) {
 					//TODO: extract geometry from IfcTrimmedCurve
-				} else {
+				} */
+				else {
 					LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + parentCurve.eClass().getName());
 				}
 			}
