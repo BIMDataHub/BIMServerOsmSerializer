@@ -319,7 +319,8 @@ public class OsmSerializer extends EmfSerializer {
 				IfcRoof ifcRoof = (IfcRoof) ifcElement;
 				OsmSurface osmSurface = new OsmSurface();
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
-				
+				UUID uuid = UUID.randomUUID();
+				osmSurface.setUuid(uuid.toString());
 				osmSurface.setTypeName("RoofCeiling");
 				osmSurface.setOsmSpace(osmSpace);
 
