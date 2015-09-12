@@ -288,11 +288,13 @@ public class OsmSerializer extends EmfSerializer {
 				if (ifcSlab.getPredefinedType().getName().equals("FLOOR")) {
 					osmSurface.setTypeName("Floor");
 					if(isCCW(spaceBoundaryPointList)) {
-						//TODO: There is probably an error here. There are usually a upside down error.
 						Collections.reverse(spaceBoundaryPointList);	
 					}
 				} else if (ifcSlab.getPredefinedType().getName().equals("ROOF")) {
 					osmSurface.setTypeName("RoofCeiling");
+					if(!isCCW(spaceBoundaryPointList)) {
+						Collections.reverse(spaceBoundaryPointList);
+					}
 				} else {
 					LOGGER.info("Unparsed slab type for " + ifcElement.eClass().getName());
 				}
@@ -308,9 +310,7 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 		
-		
 		// Roof, Surface
-		
 		else if (ifcElement instanceof IfcRoof) {
 			if (isGeometrySolved) {
 				IfcRoof ifcRoof = (IfcRoof) ifcElement;
@@ -494,10 +494,10 @@ public class OsmSerializer extends EmfSerializer {
 				List<OsmPoint> osmPointList = new ArrayList<OsmPoint>();
 				for (IfcCartesianPoint ifcCartesianPoint : ifcPolyline.getPoints()) {
 					List<Double> point = ifcCartesianPoint.getCoordinates();
-					/*
+					/**
 					 * http://www.buildingsmart-tech.org/ifc/IFC2x4/rc2/html/schema/ifcgeometryresource/lexical/ifccartesianpoint.htm
 					 * @author:Pengwei Lan
-					 * */
+					 **/
 					if(ifcCartesianPoint.isSetDim()) {
 						int dimension = ifcCartesianPoint.getDim();
 						if (dimension == 2) {
@@ -850,7 +850,7 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	
 	/**
-	 * Counter Clock-wize
+	 * Counter Clock-wise
 	 * @param point
 	 * @return
 	 */
@@ -871,8 +871,7 @@ public class OsmSerializer extends EmfSerializer {
 		double x1 = Math.atan2(point.get(0).getY() - centroidY, point.get(0).getX() - centroidX);
 		double x2 = Math.atan2(point.get(1).getY() - centroidY, point.get(1).getX() - centroidX);	
 		
-		
-        return (x2 - x1 > 0);
+		return (x2 - x1 > 0);
     }
 	
 	private void transformUnits(double scale)
