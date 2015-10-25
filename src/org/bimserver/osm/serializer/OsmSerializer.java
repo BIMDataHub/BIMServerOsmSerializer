@@ -283,24 +283,6 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setUuid(uuid.toString());
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
 				osmSurface.setOsmSpace(osmSpace);
-<<<<<<< HEAD
-				osmSurface.setOutsideBoundaryCondition("Ground");
-				osmSurface.setSunExposure("NoSun");
-				osmSurface.setWindExposure("NoWind");
-
-				if (ifcSlab.getPredefinedType().getName().equals("FLOOR")) {
-					osmSurface.setTypeName("Floor");
-					if(isCCW(spaceBoundaryPointList)) {
-						Collections.reverse(spaceBoundaryPointList);	
-					}
-				} else if (ifcSlab.getPredefinedType().getName().equals("ROOF")) {
-					osmSurface.setTypeName("RoofCeiling");
-					if(!isCCW(spaceBoundaryPointList)) {
-						Collections.reverse(spaceBoundaryPointList);
-					}
-				} else {
-					LOGGER.info("Unparsed slab type for " + ifcElement.eClass().getName());
-=======
 				
 				if (ifcSlab.getPredefinedType().getName().equals("Roof")) {
 					osmSurface.setTypeName("RoofCeiling");
@@ -316,7 +298,6 @@ public class OsmSerializer extends EmfSerializer {
 						surfaceList.add(osmSurface);
 						internalWallMap.put(ifcSlab,surfaceList);
 					}
->>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 				}
 				
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
