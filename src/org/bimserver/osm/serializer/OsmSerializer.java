@@ -895,13 +895,10 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	
 	/**
-<<<<<<< HEAD
-	 * Counter Clock-wise
-=======
 	 * Remove the duplicated points from the list. use OsmPoint.equals to judge
->>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 	 * @param point
 	 */
+	
 	private void deleteDuplicatePoints(List<OsmPoint> points)
 	{
 		HashSet<OsmPoint> set = new HashSet<OsmPoint>();
@@ -913,19 +910,7 @@ public class OsmSerializer extends EmfSerializer {
 				set.add(points.get(i));
 			}
 		}
-<<<<<<< HEAD
-		
-		centroidX = centroidX / length;
-		centroidY = centroidY / length;
-		
-		double x1 = Math.atan2(point.get(0).getY() - centroidY, point.get(0).getX() - centroidX);
-		double x2 = Math.atan2(point.get(1).getY() - centroidY, point.get(1).getX() - centroidX);	
-		
-		return (x2 - x1 > 0);
     }
-=======
-	}
->>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 	
 	private void transformUnits(double scale)
 	{
