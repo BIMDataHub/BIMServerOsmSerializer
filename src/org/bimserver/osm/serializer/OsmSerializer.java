@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OsmSerializer extends EmfSerializer {
-	private static final double maxWallThickness = 0.8;
+	private static final double maxWallThickness = 0.8;  //after unit conversion, meter.
 	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
 	
 	private UTF8PrintWriter						out;
@@ -94,10 +95,10 @@ public class OsmSerializer extends EmfSerializer {
 	private List<OsmSpace>						allSpaces					= new ArrayList<OsmSpace>();
 
 	/**
-	 * A 1 to 2 mapping from IfcWall to OsmSurface to store duplicated internal
-	 * walls.
+	 * A 1 to 2 mapping from IfcElements(Wall, Slab) to OsmSurface to store duplicated internal
+	 * walls. Used to determine outside boundaries.
 	 */
-	private HashMap<IfcWall, LinkedList<OsmSurface>>	internalSurfaceMap			= new HashMap<IfcWall, LinkedList<OsmSurface>>();
+	private HashMap<IfcElement, LinkedList<OsmSurface>>	internalWallMap			= new HashMap<IfcElement, LinkedList<OsmSurface>>();
 
 	/**
 	 */
@@ -226,7 +227,7 @@ public class OsmSerializer extends EmfSerializer {
 		//TODO: Bug: sometimes windows and doors are not contained in the original surfaces.
 		//TODO: put extract space boundary inside the IFC Element List as there might be some differences in extracting windows and doors
 		boolean isGeometrySolved = extractSpaceBoundary(ifcConnectionGeometry, spaceBoundaryPointList, ifcSpace);
-
+		deleteDuplicatePoints(spaceBoundaryPointList);//after extracting boundary points, remove duplicates.
 		// Extract Other Properties
 
 		// Wall, surface
@@ -242,12 +243,12 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setOsmSpace(osmSpace);
 				
 				//add internal surface link information
-				if (internalSurfaceMap.containsKey(ifcWall)) {
-					internalSurfaceMap.get(ifcWall).add(osmSurface);
+				if (internalWallMap.containsKey(ifcWall)) {
+					internalWallMap.get(ifcWall).add(osmSurface);
 				} else {
 					LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
 					surfaceList.add(osmSurface);
-					internalSurfaceMap.put(ifcWall,surfaceList);
+					internalWallMap.put(ifcWall,surfaceList);
 				}
 
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
@@ -256,6 +257,7 @@ public class OsmSerializer extends EmfSerializer {
 				}
 				osmSpace.addSurface(osmSurface);
 
+				//TODO: Lan: do you know what this chunk is for?
 				wallOsmSurfaceMap.put(ifcWall, osmSurface);
 				List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap
 						.get(ifcWall);
@@ -281,6 +283,7 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setUuid(uuid.toString());
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
 				osmSurface.setOsmSpace(osmSpace);
+<<<<<<< HEAD
 				osmSurface.setOutsideBoundaryCondition("Ground");
 				osmSurface.setSunExposure("NoSun");
 				osmSurface.setWindExposure("NoWind");
@@ -297,12 +300,30 @@ public class OsmSerializer extends EmfSerializer {
 					}
 				} else {
 					LOGGER.info("Unparsed slab type for " + ifcElement.eClass().getName());
+=======
+				
+				if (ifcSlab.getPredefinedType().getName().equals("Roof")) {
+					osmSurface.setTypeName("RoofCeiling");
+					osmSurface.setSunExposure("SunExposed");
+					osmSurface.setWindExposure("WindExposed");			
+				} else {//Floor or BaseSlab or Landing
+					//if Floor, it could be a foundation floor or a slab between stories, it is then processed at the end in addlinkage
+					//add internal surface link information
+					if (internalWallMap.containsKey(ifcSlab)) {
+						internalWallMap.get(ifcSlab).add(osmSurface);
+					} else {
+						LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
+						surfaceList.add(osmSurface);
+						internalWallMap.put(ifcSlab,surfaceList);
+					}
+>>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 				}
-
+				
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOsmPoint(osmPoint);
 					allOsmPoints.add(osmPoint);
 				}
+				
 				osmSpace.addSurface(osmSurface);
 			} else {
 				osmSpace.setContainsUnsolvedSurface(true);
@@ -340,7 +361,7 @@ public class OsmSerializer extends EmfSerializer {
 						}
 					}
 				}
-
+				
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOsmPoint(osmPoint);
 					allOsmPoints.add(osmPoint);
@@ -736,14 +757,14 @@ public class OsmSerializer extends EmfSerializer {
 	 * outsideboundaryConditionObject
 	 */
 	private void addLinkageInformation() {
-		for (LinkedList<OsmSurface> surfaceList : internalSurfaceMap.values()) {
+		for (IfcElement ifcElement:internalWallMap.keySet()) {
+			LinkedList<OsmSurface> surfaceList = internalWallMap.get(ifcElement);
 			while (!surfaceList.isEmpty()) {
 				OsmSurface firstSurface = surfaceList.removeFirst();
 
 				int closestSurfaceIndex = -1;
 				double leastDistance = maxWallThickness;
 				OsmPoint firstCenter = computeSurfaceCenter(firstSurface);
-				
 				//loop through the rest of elements
 				for (int i = 0; i<surfaceList.size(); i++) {
 					OsmPoint secondCenter = computeSurfaceCenter(surfaceList.get(i));
@@ -753,7 +774,8 @@ public class OsmSerializer extends EmfSerializer {
 						leastDistance = distance;
 					}
 				}
-				if(closestSurfaceIndex>=0) {
+				if(closestSurfaceIndex>=0) {//found a matched surface
+					
 					OsmSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
 					firstSurface.setOutsideBoundaryCondition("Surface");
 					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
@@ -763,10 +785,33 @@ public class OsmSerializer extends EmfSerializer {
 					secondSurface.setOutsideBoundaryConditionObject(firstSurface.getSurfaceName());
 					secondSurface.setSunExposure("NoSun");
 					secondSurface.setWindExposure("NoWind");
+					
+					if (ifcElement instanceof IfcSlab){ //slab
+						//set type, set exposure, set outside boundary
+						OsmPoint secondCenter = computeSurfaceCenter(secondSurface);
+						if (firstCenter.getZ() > secondCenter.getZ())
+						{
+							firstSurface.setTypeName("Floor");		
+							secondSurface.setTypeName("RoofCeiling");
+							
+						} else {
+							firstSurface.setTypeName("RoofCeiling");
+							secondSurface.setTypeName("Floor");
+						}
+					}
 				} else {
-					firstSurface.setOutsideBoundaryCondition("Outdoors");
-					firstSurface.setSunExposure("SunExposed");
-					firstSurface.setWindExposure("WindExposed");
+					if (ifcElement instanceof IfcWall)
+					{
+						firstSurface.setOutsideBoundaryCondition("Outdoors");
+						firstSurface.setSunExposure("SunExposed");
+						firstSurface.setWindExposure("WindExposed");
+					} 
+					else{// IfcSlab, only slab with a floor type will be added to the surfaceMap.
+						firstSurface.setTypeName("Floor");
+						firstSurface.setOutsideBoundaryCondition("Ground");
+						firstSurface.setSunExposure("NoSun");
+						firstSurface.setWindExposure("NoWind");
+					}
 				}
 			}
 		}
@@ -850,20 +895,25 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * Counter Clock-wise
+=======
+	 * Remove the duplicated points from the list. use OsmPoint.equals to judge
+>>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 	 * @param point
-	 * @return
 	 */
-	
-	public boolean isCCW(List<OsmPoint> point) {
-		double centroidX = 0.0;
-		double centroidY = 0.0;
-		int length = point.size();
+	private void deleteDuplicatePoints(List<OsmPoint> points)
+	{
+		HashSet<OsmPoint> set = new HashSet<OsmPoint>();
 		
-		for(OsmPoint temp : point) {
-			centroidX += temp.getX();
-			centroidY += temp.getY();
+		for (int i = 0; i < points.size(); i++){
+			if (set.contains(points.get(i))){
+				points.remove(i);
+			} else {
+				set.add(points.get(i));
+			}
 		}
+<<<<<<< HEAD
 		
 		centroidX = centroidX / length;
 		centroidY = centroidY / length;
@@ -873,6 +923,9 @@ public class OsmSerializer extends EmfSerializer {
 		
 		return (x2 - x1 > 0);
     }
+=======
+	}
+>>>>>>> 5e469799506411997a87ea69f437a87fe354ecac
 	
 	private void transformUnits(double scale)
 	{
@@ -882,4 +935,6 @@ public class OsmSerializer extends EmfSerializer {
 			osmPoint.setZ(osmPoint.getZ() * scale);
 		}
 	}
+	
+	
 }

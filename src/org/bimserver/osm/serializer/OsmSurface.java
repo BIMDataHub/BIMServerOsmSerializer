@@ -1,6 +1,7 @@
 package org.bimserver.osm.serializer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OsmSurface {
@@ -141,6 +142,9 @@ public class OsmSurface {
 		output.append(numberOfVertices);
 		
 		int size = pointList.size();
+		
+		correctDirectionOfFloorCeiling();
+		
 		if(size <= 0) {
 			output.append(";                                !- Number of Vertices\n");
 		} else {
@@ -165,4 +169,62 @@ public class OsmSurface {
 		
 		return output.toString();
 	}
+	
+	/**
+	 * Test Counter Clock-wize for floor and ceilings. Does not work with vertical plane.
+	 * @param point
+	 * @return
+	 */
+	private boolean isCCW(List<OsmPoint> point) {
+		if (point.size()<3){
+			System.err.print("Warning! isCCW only contains " + point.size() + " points!");
+			return true;
+		}
+		
+		//calculate the center
+		double centroidX = 0.0;
+		double centroidY = 0.0;
+		int length = point.size();
+		
+		for(OsmPoint temp : point) {
+			centroidX += temp.getX();
+			centroidY += temp.getY();
+		}
+		centroidX = centroidX / length;
+		centroidY = centroidY / length;
+		
+		double x1 = point.get(0).getX() - centroidX;
+		double x2 = point.get(1).getX() - centroidX;
+		double y1 = point.get(0).getY() - centroidY;
+		double y2 = point.get(1).getY() - centroidY;
+
+        return (x1*y2 - x2*y1) > 0;
+    }
+
+	/**
+	 * correct the direction for floor and ceiling/roof
+	 * @param surface
+	 * @param isFloor : floor - true; ceiling - false
+	 */
+	private void correctDirectionOfFloorCeiling(){
+		if (typeName.equals("Floor") && isCCW(pointList) || //floor needs to be clockwise
+				typeName.equals("RoofCeiling") && !isCCW(pointList) )//ceiling needs to be counter-clockwise
+		{
+			Collections.reverse(pointList);
+		} 
+	}
+	
+	/*
+	public static void main(String [] args){
+		OsmSurface o = new OsmSurface();
+		List<OsmPoint> list = new ArrayList<OsmPoint>();
+		list.add(new OsmPoint(0.0, 0.0, 0.0));
+		list.add(new OsmPoint(1.0, 0.0, 0.0));
+		list.add(new OsmPoint(1.0, 1.0, 0.0));
+		list.add(new OsmPoint(0.0, 1.0, 0.0));
+		
+		System.out.println(o.isCCW(list));
+		
+	}*/
+	
 }

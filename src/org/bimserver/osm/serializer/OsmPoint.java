@@ -1,14 +1,17 @@
 package org.bimserver.osm.serializer;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 public class OsmPoint {
 	private Double	x;
 	private Double	y;
 	private Double	z;
 
 	public OsmPoint() {
-		this.x = 0.0;
-		this.y = 0.0;
-		this.z = 0.0;
+		x = 0.0;
+		y = 0.0;
+		z = 0.0;
 	}
 
 	public OsmPoint(Double x, Double y) {
@@ -24,9 +27,9 @@ public class OsmPoint {
 	}
 
 	public OsmPoint(OsmPoint p) {
-		this.x = p.getX();
-		this.y = p.getY();
-		this.z = p.getZ();
+		x = p.getX();
+		y = p.getY();
+		z = p.getZ();
 	}
 
 	public Double getX() {
@@ -57,8 +60,20 @@ public class OsmPoint {
 		return "(" + x + ", " + y + ", " + z + ")";
 	}
 
-	public boolean equals(OsmPoint p) {
-		return this.x == p.x && this.y == p.y && this.z == p.z ? true : false; 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof OsmPoint))
+			return false;
+		if (obj == this)
+			return true;
+		
+		OsmPoint rhs = (OsmPoint) obj;
+		return new EqualsBuilder().append(x, rhs.x).append(y, rhs.y).append(z, rhs.z).isEquals();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17,31).append(x).append(y).append(z).toHashCode();
 	}
 
 	public void addWith(OsmPoint p) {
