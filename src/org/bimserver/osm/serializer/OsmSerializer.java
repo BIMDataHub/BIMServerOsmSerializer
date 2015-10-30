@@ -1,7 +1,5 @@
 package org.bimserver.osm.serializer;
 
-
-
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,11 +64,7 @@ public class OsmSerializer extends EmfSerializer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
 	
 	private UTF8PrintWriter						out;
-	/**
-	 * Current analyzed instance, the value could be wall, floor, roof, window,
-	 * door
-	 */
-	//private IfcProduct							currentInstance;
+	
 	/**
 	 * Wall and its Osm relation map, used by Osm surface-subsurface relation
 	 * //TODO clear up this information. Use it with internalSurfaceMap.
@@ -86,7 +80,7 @@ public class OsmSerializer extends EmfSerializer {
 	 * All points, incrementally added from IFC Points. Used to generate the
 	 * space name in sequence
 	 */
-	private List<OsmPoint>						allOsmPoints				= new ArrayList<OsmPoint>();					// all
+	private List<OsmPoint>						allOsmPoints				= new ArrayList<OsmPoint>();					
 
 	/**
 	 * All spaces, incrementally added from IFCSpace. Used to generate the space
@@ -110,6 +104,9 @@ public class OsmSerializer extends EmfSerializer {
 	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException {
 		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
 
+		//Add Material information
+		addMaterialInformation(model);
+		
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
@@ -121,8 +118,33 @@ public class OsmSerializer extends EmfSerializer {
 		// Convert the units
 		transformUnits(scale);
 
+		
+
 		// Add linkage information to internal Walls
 		addLinkageInformation();
+	}
+
+	HashMap<IfcMaterialLayerSet, OsmConstruction> constructionMap = new HashMap<IfcMaterialLayerSet, OsmConstruction>();
+	HashSet<OsmMaterial>     materialSet     = new HashSet<OsmMaterial>();
+	HashSet<OsmConstruction> constructionSet = new HashSet<OsmConstruction>();
+
+	public void addMaterialInformation(IfcModelInterface model) {
+		
+		for(IfcMaterialLayerSet ifcMaterialLayerSet : model.getAll(IfcMaterialLayerSet.class)) {
+			String layerSetName = IfcMaterialLayerSet.getLayerSetName();
+			
+			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
+			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
+			double layerThickness = ifcMaterialLayer.getLayerThickness();
+			IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
+			String materialName = ifcMaterial.getName();
+			OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
+			OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
+
+			materialSet.add(osmMaterial);
+			constructionSet.add(osmConstruction);
+			constructionMap.put(ifcMaterialLayerSet, osmConstruction);
+		}
 	}
 
 	@Override
@@ -168,6 +190,14 @@ public class OsmSerializer extends EmfSerializer {
 					outputContent.append(osmSubSurface.toString());
 				}
 			}
+		}
+
+		for(OsmConstruction construction : constructionSet) {
+			outputContent.append(construction.toString());
+		}
+
+		for(OsmMaterial material : materialSet) {
+			outputContent.append(material.toString());
 		}
 	}
 
@@ -241,7 +271,20 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setSurfaceName(osmSurfaceName);
 				osmSurface.setTypeName("Wall");
 				osmSurface.setOsmSpace(osmSpace);
-				
+
+				for (IfcRelAssociates ifcRelAssociates : ifcWall.getHasAssociations()) {
+					if (ifcRelAssociates instanceof IfcRelAssociatesMaterial) {
+						IfcRelAssociatesMaterial ifcRelAssociatesMaterial = (IfcRelAssociatesMaterial) ifcRelAssociates;
+						IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
+						if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
+							IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
+							IfcMaterialLayerSet ifcMaterialLayerSet = ifcMaterialLayerSetUsage.getForLayerSet();
+							OsmConstruction osmConstruction = constructionMap.get(ifcMaterialLayerSet);
+							osmSurface.setConstructionName(osmConstruction.getHandle());
+						}
+					}
+				}
+
 				//add internal surface link information
 				if (internalWallMap.containsKey(ifcWall)) {
 					internalWallMap.get(ifcWall).add(osmSurface);
@@ -323,26 +366,26 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setTypeName("RoofCeiling");
 				osmSurface.setOsmSpace(osmSpace);
 
-				for (int j = 0; j < ifcRoof.getIsDefinedBy().size(); j++) {
-					IfcRelDefines ifcRelDefines = ifcRoof.getIsDefinedBy().get(j);
-					if(ifcRelDefines instanceof IfcRelDefinesByProperties) {
+				for (IfcRelDefines ifcRelDefines : ifcRoof.getIsDefinedBy()) {
+					if (ifcRelDefines instanceof IfcRelDefinesByProperties) {
 						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
-						if (ifcRelDefinesByProperties.getRelatingPropertyDefinition().getName().equals("Pset_RoofCommon")) {
-							List<IfcProperty> ifcPropertySetList = ((IfcPropertySet) ifcRelDefinesByProperties.getRelatingPropertyDefinition()).getHasProperties();
-							for (int k = 0; k < ifcPropertySetList.size(); k++) {
-								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcPropertySetList.get(k);
-								if (ifcPropertySingleValue.getName().equals("IsExternal")) {
+						IfcPropertySetDefinition ifcPropertySetDefinition = ifcRelDefinesByProperties.getRelatingPropertyDefinition();
+						if (ifcPropertySetDefinition.getName().equals("Pset_RoofCommon") && ifcPropertySetDefinition instanceof IfcPropertySet) {
+							IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
+							for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+								if (ifcProperty instanceof IfcPropertySingleValue) {
+									IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+									if (ifcPropertySingleValue.getName().equals("IsExternal")) {
 										osmSurface.setOutsideBoundaryCondition("Outdoors");
 										osmSurface.setSunExposure("SunExposed");
 										osmSurface.setWindExposure("WindExposed");
-										break;
+									}
 								}
 							}
-							break;
 						}
 					}
 				}
-				
+
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOsmPoint(osmPoint);
 					allOsmPoints.add(osmPoint);

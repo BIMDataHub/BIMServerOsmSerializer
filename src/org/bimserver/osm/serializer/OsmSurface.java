@@ -129,15 +129,15 @@ public class OsmSurface {
 		StringBuilder output = new StringBuilder();
 		
 		output.append("OS:Surface,\n  ");
-		output.append("{" + uuid + "}" + ",!- Handle\n  ");
-		output.append(surfaceName + ",     !- Name\n  ");
-		output.append(typeName + ",        !- Surface Type\n  ");
-		output.append(constructionName + ",       !- Construction Name\n  ");
-		output.append(osmSpace.getSpaceName() + ",!- Space Name\n  ");
-		output.append(outsideBoundaryCondition + ",                 !- Outside Boundary Condition\n  ");
-		output.append(outsideBoundaryConditionObject + ",           !- Outside Boundary Condition Object\n  ");
-		output.append(sunExposure + ",               !- Sun Exposure\n  ");
-		output.append(windExposure + ",              !- Wind Exposure\n  ");
+		output.append("{" + uuid + "}" + ",                           !- Handle\n  ");
+		output.append(surfaceName + ",                                !- Name\n  ");
+		output.append(typeName + ",                                   !- Surface Type\n  ");
+		output.append("{" + constructionName + "}" + ",               !- Construction Name\n  ");
+		output.append(osmSpace.getSpaceName() + ",                    !- Space Name\n  ");
+		output.append(outsideBoundaryCondition + ",                   !- Outside Boundary Condition\n  ");
+		output.append(outsideBoundaryConditionObject + ",             !- Outside Boundary Condition Object\n  ");
+		output.append(sunExposure + ",                                !- Sun Exposure\n  ");
+		output.append(windExposure + ",                               !- Wind Exposure\n  ");
 		output.append(viewFactorToGround + ",                         !- View Factor to Ground\n  ");
 		output.append(numberOfVertices);
 		
@@ -176,7 +176,7 @@ public class OsmSurface {
 	 * @return
 	 */
 	private boolean isCCW(List<OsmPoint> point) {
-		if (point.size()<3){
+		if (point.size() < 3) {
 			System.err.print("Warning! isCCW only contains " + point.size() + " points!");
 			return true;
 		}
@@ -198,7 +198,7 @@ public class OsmSurface {
 		double y1 = point.get(0).getY() - centroidY;
 		double y2 = point.get(1).getY() - centroidY;
 
-        return (x1*y2 - x2*y1) > 0;
+        return (x1 * y2 - x2 * y1) > 0;
     }
 
 	/**
@@ -213,18 +213,5 @@ public class OsmSurface {
 			Collections.reverse(pointList);
 		} 
 	}
-	
-	/*
-	public static void main(String [] args){
-		OsmSurface o = new OsmSurface();
-		List<OsmPoint> list = new ArrayList<OsmPoint>();
-		list.add(new OsmPoint(0.0, 0.0, 0.0));
-		list.add(new OsmPoint(1.0, 0.0, 0.0));
-		list.add(new OsmPoint(1.0, 1.0, 0.0));
-		list.add(new OsmPoint(0.0, 1.0, 0.0));
 		
-		System.out.println(o.isCCW(list));
-		
-	}*/
-	
 }
