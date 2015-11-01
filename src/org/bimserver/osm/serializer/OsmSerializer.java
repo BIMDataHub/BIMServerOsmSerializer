@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
 public class OsmSerializer extends EmfSerializer {
 	private static final double maxWallThickness = 0.8;  //after unit conversion, meter.
 	private static final Logger LOGGER = LoggerFactory.getLogger(OsmSerializer.class);
-	
+
 	private UTF8PrintWriter						out;
-	
+
 	/**
 	 * Wall and its Osm relation map, used by Osm surface-subsurface relation
 	 * //TODO clear up this information. Use it with internalSurfaceMap.
@@ -80,7 +80,7 @@ public class OsmSerializer extends EmfSerializer {
 	 * All points, incrementally added from IFC Points. Used to generate the
 	 * space name in sequence
 	 */
-	private List<OsmPoint>						allOsmPoints				= new ArrayList<OsmPoint>();					
+	private List<OsmPoint>						allOsmPoints				= new ArrayList<OsmPoint>();
 
 	/**
 	 * All spaces, incrementally added from IFCSpace. Used to generate the space
@@ -97,7 +97,7 @@ public class OsmSerializer extends EmfSerializer {
 	/**
 	 */
 	private int									surfaceNum					= 0;
-	
+
 	private int									subSurfaceNum				= 0;
 
 	@Override
@@ -106,7 +106,7 @@ public class OsmSerializer extends EmfSerializer {
 
 		//Add Material information
 		addMaterialInformation(model);
-		
+
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
@@ -118,7 +118,7 @@ public class OsmSerializer extends EmfSerializer {
 		// Convert the units
 		transformUnits(scale);
 
-		
+
 
 		// Add linkage information to internal Walls
 		addLinkageInformation();
@@ -129,10 +129,10 @@ public class OsmSerializer extends EmfSerializer {
 	HashSet<OsmConstruction> constructionSet = new HashSet<OsmConstruction>();
 
 	public void addMaterialInformation(IfcModelInterface model) {
-		
+
 		for(IfcMaterialLayerSet ifcMaterialLayerSet : model.getAll(IfcMaterialLayerSet.class)) {
 			String layerSetName = IfcMaterialLayerSet.getLayerSetName();
-			
+
 			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
 			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
 			double layerThickness = ifcMaterialLayer.getLayerThickness();
@@ -157,7 +157,7 @@ public class OsmSerializer extends EmfSerializer {
 		if (out == null) {
 			out = new UTF8PrintWriter(outputStream);
 		}
-		
+
 		if (getMode() == Mode.BODY) {
 			out = new UTF8PrintWriter(outputStream);
 			generateOutput(out);
@@ -179,13 +179,13 @@ public class OsmSerializer extends EmfSerializer {
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
 		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
-		
+
 		for(OsmSpace osmSpace: allSpaces) {
 			outputContent.append(osmSpace.toString());
-			
+
 			for(OsmSurface osmSurface: osmSpace.getSurfaceList()) {
 				outputContent.append(osmSurface.toString());
-				
+
 				for(OsmSubSurface osmSubSurface: osmSurface.getSubSurfaceList()) {
 					outputContent.append(osmSubSurface.toString());
 				}
@@ -201,10 +201,10 @@ public class OsmSerializer extends EmfSerializer {
 		}
 	}
 
-	
+
 	/**
 	 * Analyze every IFCSpace and create OsmSpace accordingly
-	 * 
+	 *
 	 * @param ifcSpace
 	 */
 	private void extractSpaces(IfcSpace ifcSpace) {
@@ -212,12 +212,12 @@ public class OsmSerializer extends EmfSerializer {
 		UUID uuid = UUID.randomUUID();
 		osmSpace.setUuid(uuid.toString());
 		osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
-	
+
 		List<IfcRelSpaceBoundary> ifcRelSpaceBoundaryList = ifcSpace.getBoundedBy();
 
 		// TODO what does this means? Can we delete this global variable and put it locally?
 		wallOsmSurfaceMap.clear();
-	
+
 		for (IfcRelSpaceBoundary ifcRelSpaceBoundary : ifcRelSpaceBoundaryList) {
 			IfcElement ifcElement = ifcRelSpaceBoundary.getRelatedBuildingElement();
 			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary.getConnectionGeometry();
@@ -235,10 +235,10 @@ public class OsmSerializer extends EmfSerializer {
 			surfaceNum -= osmSpace.getSurfaceList().size();
 		}
 	}
-	
+
 	/**
 	 * Extract all properties of the building elements
-	 * 
+	 *
 	 * @param ifcElement
 	 *            the space boundary element. It could be wall, ceiling, floor,
 	 *            window, door, etc.
@@ -326,11 +326,11 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setUuid(uuid.toString());
 				osmSurface.setSurfaceName("su-" + (++surfaceNum));
 				osmSurface.setOsmSpace(osmSpace);
-				
+
 				if (ifcSlab.getPredefinedType().getName().equals("Roof")) {
 					osmSurface.setTypeName("RoofCeiling");
 					osmSurface.setSunExposure("SunExposed");
-					osmSurface.setWindExposure("WindExposed");			
+					osmSurface.setWindExposure("WindExposed");
 				} else {//Floor or BaseSlab or Landing
 					//if Floor, it could be a foundation floor or a slab between stories, it is then processed at the end in addlinkage
 					//add internal surface link information
@@ -342,19 +342,19 @@ public class OsmSerializer extends EmfSerializer {
 						internalWallMap.put(ifcSlab,surfaceList);
 					}
 				}
-				
+
 				for (OsmPoint osmPoint : spaceBoundaryPointList) {
 					osmSurface.addOsmPoint(osmPoint);
 					allOsmPoints.add(osmPoint);
 				}
-				
+
 				osmSpace.addSurface(osmSurface);
 			} else {
 				osmSpace.setContainsUnsolvedSurface(true);
 				LOGGER.info("Unparsed slab geomatry" + ifcElement.eClass().getName());
 			}
 		}
-		
+
 		// Roof, Surface
 		else if (ifcElement instanceof IfcRoof) {
 			if (isGeometrySolved) {
@@ -396,7 +396,7 @@ public class OsmSerializer extends EmfSerializer {
 				System.err.println("Error: unparsed geometry representation of roof!");
 			}
 		}
-		
+
 		// Window, subsurface
 		else if (ifcElement instanceof IfcWindow) {
 			if (isGeometrySolved) {
@@ -414,7 +414,7 @@ public class OsmSerializer extends EmfSerializer {
 						osmSubSurface.addOsmPoint(osmPoint);
 						allOsmPoints.add(osmPoint);
 					}
-					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement); 
+					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
 					if (osmSurface != null) {
 						osmSubSurface.setOsmSurface(osmSurface);
 						osmSurface.addSubSurface(osmSubSurface);
@@ -450,7 +450,7 @@ public class OsmSerializer extends EmfSerializer {
 						osmSubSurface.addOsmPoint(osmPoint);
 						allOsmPoints.add(osmPoint);
 					}
-					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement); 
+					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
 					if (osmSurface != null) {
 						osmSubSurface.setOsmSurface(osmSurface);
 						osmSurface.addSubSurface(osmSubSurface);
@@ -466,24 +466,24 @@ public class OsmSerializer extends EmfSerializer {
 			} else { // else for if(isGeometrySolved)
 				LOGGER.info("Unparsed door for " + ifcElement.eClass().getName());
 			}
-		} 
-		
+		}
+
 		/*
 		 * Virtual element
 		else if(ifcElement instanceof IfcVirtualElement) {
 			//TODO: Add IfcVirtualElement
-		} 
+		}
 		*/
-		
+
 		else { // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
 			// IfcWindow, IfcDoor
 			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
 		}
-	}	
-	
+	}
+
 	/**
-	 * Extract the connection geometry 
-	 * 
+	 * Extract the connection geometry
+	 *
 	 * @param ifcConnectionGeometry
 	 *            the connection geometry of the space
 	 * @param spaceBoundaryPointList
@@ -495,12 +495,12 @@ public class OsmSerializer extends EmfSerializer {
 		 * The boundary geometry should always be a surface.
 		 * Note that only three types of surface can be used:
 		 * IfcCurveBoundedPlane, IfcSurfaceOfLinearExtrusion and IfcFaceBasedSurfaceModel
-		 * @author:Pengwei Lan 	 
+		 * @author:Pengwei Lan
 		 */
 		if (ifcConnectionGeometry instanceof IfcConnectionSurfaceGeometry) {
 			//provides the boundary geometry relative to the Space coordinate system.
 			IfcSurfaceOrFaceSurface ifcSurfaceOrFaceSurface = ((IfcConnectionSurfaceGeometry) ifcConnectionGeometry).getSurfaceOnRelatingElement();
-			
+
 			if (ifcSurfaceOrFaceSurface instanceof IfcSurfaceOfLinearExtrusion) {
 				IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion = (IfcSurfaceOfLinearExtrusion) ifcSurfaceOrFaceSurface;
 				return extractSurfaceOfLinearExtrusionSB(ifcSurfaceOfLinearExtrusion, spaceBoundaryPointList, ifcSpace);
@@ -517,9 +517,9 @@ public class OsmSerializer extends EmfSerializer {
 		} else {
 			LOGGER.info("Unimplemented type [extractSpaceBoundary]" + ifcConnectionGeometry.eClass().getName());
 			return false;
-		}		
+		}
 	}
-	
+
 	/**
 	 * Extract straight space boundary
 	 * @param ifcSurfaceOfLinearExtrusion
@@ -528,12 +528,12 @@ public class OsmSerializer extends EmfSerializer {
 	 */
 	private boolean extractSurfaceOfLinearExtrusionSB(IfcSurfaceOfLinearExtrusion ifcSurfaceOfLinearExtrusion, List<OsmPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
 		IfcProfileDef ifcProfileDef = ifcSurfaceOfLinearExtrusion.getSweptCurve();
-		
-		
+
+
 		if(ifcProfileDef instanceof IfcArbitraryOpenProfileDef) {
 			IfcArbitraryOpenProfileDef ifcArbitraryOpenProfileDef = (IfcArbitraryOpenProfileDef) ifcProfileDef;
 			IfcBoundedCurve ifcBoundedCurve = ifcArbitraryOpenProfileDef.getCurve();
-			
+
 			if(ifcBoundedCurve instanceof IfcPolyline) {
 				IfcPolyline ifcPolyline = (IfcPolyline) ifcBoundedCurve;
 				List<OsmPoint> osmPointList = new ArrayList<OsmPoint>();
@@ -555,43 +555,43 @@ public class OsmSerializer extends EmfSerializer {
 						}
 					} else {
 						osmPointList.add(new OsmPoint(point.get(0), point.get(1)));
-					}	
+					}
 				}
-				
+
 				IfcAxis2Placement3D position = ifcSurfaceOfLinearExtrusion.getPosition();
-				
+
 				if(osmPointList.isEmpty()) {
 					LOGGER.info("Can't get the points of the current line!");
 					return false;
 				}
-				
+
 				// Translate the points on the swept surface
 				for (OsmPoint osmPoint : osmPointList) {
 					// Put the curved boundary point in the basis plane coordinate system.
-					coordinate3DTrans(osmPoint, position); 
+					coordinate3DTrans(osmPoint, position);
 					// Upgrade to global coordinates according to the space's local coordinate system
-					coordinateSys3DTrans(osmPoint, ifcSpace); 
+					coordinateSys3DTrans(osmPoint, ifcSpace);
 					spaceBoundaryPointList.add(osmPoint);
 				}
-	
+
 				// Osm requirement
-				Collections.reverse(osmPointList); 
-				
+				Collections.reverse(osmPointList);
+
 				double extrudedDepth = ifcSurfaceOfLinearExtrusion.getDepth();
 				IfcDirection ifcDirection = ifcSurfaceOfLinearExtrusion.getExtrudedDirection();
-						
+
 				//Direction
 				double x = ifcDirection.getDirectionRatios().get(0);
 				double y = ifcDirection.getDirectionRatios().get(1);
 				double z = ifcDirection.getDirectionRatios().get(2);
-				
+
 				double length = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-				
+
 				//move the point along the direction for depth.
 				double mx = extrudedDepth * x / length;
 				double my = extrudedDepth * y / length;
 				double mz = extrudedDepth * z / length;
-				
+
 				for (OsmPoint osmPoint : osmPointList) {
 					OsmPoint newPoint = new OsmPoint(osmPoint.getX() + mx, osmPoint.getY() + my, osmPoint.getZ() + mz);
 					spaceBoundaryPointList.add(newPoint);
@@ -606,7 +606,7 @@ public class OsmSerializer extends EmfSerializer {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Extract curved space boundary
 	 * @param ifcCurveBoundedPlane
@@ -616,29 +616,29 @@ public class OsmSerializer extends EmfSerializer {
 	private boolean extractCurveBoundedPlaneSB(IfcCurveBoundedPlane ifcCurveBoundedPlane, List<OsmPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
 		IfcAxis2Placement3D position = ifcCurveBoundedPlane.getBasisSurface().getPosition();
 		IfcCurve ifcCurve = ifcCurveBoundedPlane.getOuterBoundary();
-		
+
 		if (ifcCurve instanceof IfcPolyline) {
 			List<OsmPoint> osmPointList = new ArrayList<OsmPoint>();
 			getPointsOfIfcPolyline((IfcPolyline) ifcCurve, osmPointList);
-			
+
 			for (OsmPoint osmPoint : osmPointList) {
 				coordinate3DTrans(osmPoint, position);
-				coordinateSys3DTrans(osmPoint, ifcSpace); 
+				coordinateSys3DTrans(osmPoint, ifcSpace);
 				spaceBoundaryPointList.add(osmPoint);
 			}
 			return true;
-		} else if (ifcCurve instanceof IfcCompositeCurve) { 
+		} else if (ifcCurve instanceof IfcCompositeCurve) {
 			IfcCompositeCurve ifcCompositeCurve = (IfcCompositeCurve) ifcCurve;
 			List<IfcCompositeCurveSegment> ifcCompositeCurveSegments = ifcCompositeCurve.getSegments();
 			for(IfcCompositeCurveSegment ifcCompositeCurveSegment: ifcCompositeCurveSegments) {
 				IfcCurve parentCurve = ifcCompositeCurveSegment.getParentCurve();
-				
+
 				if (parentCurve instanceof IfcPolyline) {
 					List<OsmPoint> osmPointList = new ArrayList<OsmPoint>();
 					getPointsOfIfcPolyline((IfcPolyline) parentCurve, osmPointList);
 					for (OsmPoint osmPoint : osmPointList) {
 						coordinate3DTrans(osmPoint, position);
-						coordinateSys3DTrans(osmPoint, ifcSpace); 
+						coordinateSys3DTrans(osmPoint, ifcSpace);
 						spaceBoundaryPointList.add(osmPoint);
 					}
 				} /*else if(parentCurve instanceof IfcTrimmedCurve) {
@@ -648,36 +648,36 @@ public class OsmSerializer extends EmfSerializer {
 					LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + parentCurve.eClass().getName());
 				}
 			}
-			
+
 			return true;
 		} else {
 			LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + ifcCurve.eClass().getName());
 			return false;
 		}
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * Coordinate Transformation Functions
-	 * 
-	 * 
+	 *
+	 *
 	 * */
-	
+
 	/**
 	 * Given relOsmPoint, upgrade it's local coordinate system into the global coordinates.
 	 * relPoint: The point to be transformed
 	 * */
 	private void coordinateSys3DTrans(OsmPoint relOsmPoint, IfcSpace ifcSpace) {
 		IfcObjectPlacement ifcObjectPlacement = ifcSpace.getObjectPlacement();
-		
+
 		boolean upgradeCompleted = false;
-		
+
 		while(!upgradeCompleted) {
 			if(ifcObjectPlacement instanceof IfcLocalPlacement) {
 				IfcLocalPlacement ifcLocalPlacement = (IfcLocalPlacement)ifcObjectPlacement;
 				IfcAxis2Placement ifcAxis2Placement = ifcLocalPlacement.getRelativePlacement();
-				
+
 				if(ifcAxis2Placement instanceof IfcAxis2Placement3D) {
 					//put the current point into the relative coordinate system.
 					coordinate3DTrans(relOsmPoint, (IfcAxis2Placement3D)ifcAxis2Placement);
@@ -695,21 +695,21 @@ public class OsmSerializer extends EmfSerializer {
 			} else {
 				LOGGER.info("Unimplemented type " + ifcObjectPlacement.eClass().getName());
 				break;
-			}	
+			}
 		}
 	}
-	
+
 	/**
 	 * Given the relOsmPoint, put it under ifcRelativePlacement Coordinate system
-	 * relPoint: The point to be transformed 
-	 * ifcRelativePlacement: relative offset if xDirection is empty, assign it to default value 
-	 * relOrigin: the relative coordinate system's origin point 
+	 * relPoint: The point to be transformed
+	 * ifcRelativePlacement: relative offset if xDirection is empty, assign it to default value
+	 * relOrigin: the relative coordinate system's origin point
 	 * absPoint: the transformed point
 	 * */
 	private void coordinate3DTrans(OsmPoint relOsmPoint, IfcAxis2Placement3D ifcRelativePlacement) {
 		// new origin point
-		List<Double> relOrigin = ifcRelativePlacement.getLocation().getCoordinates(); 
-		
+		List<Double> relOrigin = ifcRelativePlacement.getLocation().getCoordinates();
+
 		Double ox = relOrigin.get(0);
 		Double oy = relOrigin.get(1);
 		Double oz = relOrigin.get(2);
@@ -736,7 +736,7 @@ public class OsmSerializer extends EmfSerializer {
 		 * rxz, ryx, ryy, ryz, rzx, rzy, rzz refer to the relative coordinate
 		 * system in scale 1
 		 * */
-		
+
 		double rxx = xDirection.get(0);
 		double rxy = xDirection.get(1);
 		double rxz = xDirection.get(2);
@@ -748,8 +748,8 @@ public class OsmSerializer extends EmfSerializer {
 		double ryx = rxz * rzy - rxy * rzz;
 		double ryy = rxx * rzz - rxz * rzx;
 		double ryz = rxy * rzx - rxx * rzy;
-		
-		
+
+
 		double rxLength = Math.sqrt(Math.pow(rxx, 2) + Math.pow(rxy, 2) + Math.pow(rxz, 2));
 		double ryLength = Math.sqrt(Math.pow(ryx, 2) + Math.pow(ryy, 2) + Math.pow(ryz, 2));
 		double rzLength = Math.sqrt(Math.pow(rzx, 2) + Math.pow(rzy, 2) + Math.pow(rzz, 2));
@@ -767,15 +767,11 @@ public class OsmSerializer extends EmfSerializer {
 		Double z = a1 * rxz / rxLength + a2 * ryz / ryLength + a3 * rzz / rzLength + oz;
 		relOsmPoint.setZ(z);
 	}
-		
+
 	/**
-	 * 
-	 * 
 	 * Miscellaneous Functions
-	 * 
-	 * 
 	 * */
-	
+
 	/**
 	 * For internal wall, we link the duplicated walls to each other by
 	 * outsideboundaryConditionObject
@@ -799,7 +795,7 @@ public class OsmSerializer extends EmfSerializer {
 					}
 				}
 				if(closestSurfaceIndex>=0) {//found a matched surface
-					
+
 					OsmSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
 					firstSurface.setOutsideBoundaryCondition("Surface");
 					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
@@ -809,15 +805,15 @@ public class OsmSerializer extends EmfSerializer {
 					secondSurface.setOutsideBoundaryConditionObject(firstSurface.getSurfaceName());
 					secondSurface.setSunExposure("NoSun");
 					secondSurface.setWindExposure("NoWind");
-					
+
 					if (ifcElement instanceof IfcSlab){ //slab
 						//set type, set exposure, set outside boundary
 						OsmPoint secondCenter = computeSurfaceCenter(secondSurface);
 						if (firstCenter.getZ() > secondCenter.getZ())
 						{
-							firstSurface.setTypeName("Floor");		
+							firstSurface.setTypeName("Floor");
 							secondSurface.setTypeName("RoofCeiling");
-							
+
 						} else {
 							firstSurface.setTypeName("RoofCeiling");
 							secondSurface.setTypeName("Floor");
@@ -829,7 +825,7 @@ public class OsmSerializer extends EmfSerializer {
 						firstSurface.setOutsideBoundaryCondition("Outdoors");
 						firstSurface.setSunExposure("SunExposed");
 						firstSurface.setWindExposure("WindExposed");
-					} 
+					}
 					else{// IfcSlab, only slab with a floor type will be added to the surfaceMap.
 						firstSurface.setTypeName("Floor");
 						firstSurface.setOutsideBoundaryCondition("Ground");
@@ -840,9 +836,9 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 	}
-	
+
 	/**
-	 * Calculate the center of a rectangular Surface. 
+	 * Calculate the center of a rectangular Surface.
 	 * Assuming all OsmSurfaces are Rectangular and contains four points
 	 * @param OsmSurface
 	 * @return
@@ -858,9 +854,9 @@ public class OsmSerializer extends EmfSerializer {
 			ySum += p.getY();
 			zSum += p.getZ();
 		}
-		return new OsmPoint(xSum/list.size(),ySum/list.size(),zSum/list.size());		
+		return new OsmPoint(xSum/list.size(),ySum/list.size(),zSum/list.size());
 	}
-	
+
 	/**
 	 * compute the euclidean distance of two OsmPoints
 	 * @param point1
@@ -891,7 +887,7 @@ public class OsmSerializer extends EmfSerializer {
 							break;
 						}
 					}
-	
+
 				}
 			}
 		}
@@ -902,8 +898,8 @@ public class OsmSerializer extends EmfSerializer {
 		List<IfcCartesianPoint> ifcCartesianPointList = ifcPolyline.getPoints();
 		for (IfcCartesianPoint ifcCartesianPoint : ifcCartesianPointList) {
 			List<Double> point = ifcCartesianPoint.getCoordinates();
-			
-			if(ifcCartesianPoint.isSetDim()) {
+
+			if (ifcCartesianPoint.isSetDim()) {
 				int dimension = ifcCartesianPoint.getDim();
 				if (dimension == 2) {
 					osmPointList.add(new OsmPoint(point.get(0), point.get(1)));
@@ -917,33 +913,30 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 	}
-	
+
 	/**
 	 * Remove the duplicated points from the list. use OsmPoint.equals to judge
 	 * @param point
 	 */
-	
-	private void deleteDuplicatePoints(List<OsmPoint> points)
-	{
+
+	private void deleteDuplicatePoints(List<OsmPoint> points) {
 		HashSet<OsmPoint> set = new HashSet<OsmPoint>();
-		
-		for (int i = 0; i < points.size(); i++){
-			if (set.contains(points.get(i))){
+
+		for (int i = 0; i < points.size(); i++) {
+			if (set.contains(points.get(i))) {
 				points.remove(i);
 			} else {
 				set.add(points.get(i));
 			}
 		}
-    }
-	
-	private void transformUnits(double scale)
-	{
-		for(OsmPoint osmPoint : allOsmPoints) {
+  }
+
+	private void transformUnits(double scale) {
+		for (OsmPoint osmPoint : allOsmPoints) {
 			osmPoint.setX(osmPoint.getX() * scale);
 			osmPoint.setY(osmPoint.getY() * scale);
 			osmPoint.setZ(osmPoint.getZ() * scale);
 		}
 	}
-	
-	
+
 }
