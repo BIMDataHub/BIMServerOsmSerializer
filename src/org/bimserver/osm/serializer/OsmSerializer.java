@@ -28,19 +28,27 @@ import org.bimserver.models.ifc2x3tc1.IfcDoor;
 import org.bimserver.models.ifc2x3tc1.IfcElement;
 import org.bimserver.models.ifc2x3tc1.IfcFaceBasedSurfaceModel;
 import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
+import org.bimserver.models.ifc2x3tc1.IfcMaterial;
+import org.bimserver.models.ifc2x3tc1.IfcMaterialLayer;
+import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSet;
+import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSetUsage;
+import org.bimserver.models.ifc2x3tc1.IfcMaterialSelect;
 import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
 import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcPolyline;
 import org.bimserver.models.ifc2x3tc1.IfcProfileDef;
 import org.bimserver.models.ifc2x3tc1.IfcProperty;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
+import org.bimserver.models.ifc2x3tc1.IfcPropertySetDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySingleValue;
 import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
+import org.bimserver.models.ifc2x3tc1.IfcRelAssociatesMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefines;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByProperties;
 import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
 import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
 import org.bimserver.models.ifc2x3tc1.IfcRoof;
+import org.bimserver.models.ifc2x3tc1.IfcRoot;
 import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcSpace;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
@@ -104,8 +112,8 @@ public class OsmSerializer extends EmfSerializer {
 	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException {
 		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
 
-		//Add Material information
-		addMaterialInformation(model);
+		//Create Element-Material map
+		mapElementMaterial(model);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
@@ -124,29 +132,22 @@ public class OsmSerializer extends EmfSerializer {
 		addLinkageInformation();
 	}
 
-	HashMap<IfcMaterialLayerSet, OsmConstruction> constructionMap = new HashMap<IfcMaterialLayerSet, OsmConstruction>();
-	HashSet<OsmMaterial>     materialSet     = new HashSet<OsmMaterial>();
-	HashSet<OsmConstruction> constructionSet = new HashSet<OsmConstruction>();
-
-	public void addMaterialInformation(IfcModelInterface model) {
-
-		for(IfcMaterialLayerSet ifcMaterialLayerSet : model.getAll(IfcMaterialLayerSet.class)) {
-			String layerSetName = IfcMaterialLayerSet.getLayerSetName();
-
-			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
-			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
-			double layerThickness = ifcMaterialLayer.getLayerThickness();
-			IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
-			String materialName = ifcMaterial.getName();
-			OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
-			OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
-
-			materialSet.add(osmMaterial);
-			constructionSet.add(osmConstruction);
-			constructionMap.put(ifcMaterialLayerSet, osmConstruction);
+	
+	
+	private HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap = new HashMap<IfcElement, IfcMaterialSelect>();
+	public void mapElementMaterial(IfcModelInterface model) {
+		for (IfcRelAssociatesMaterial ifcRelAssociatesMaterial : model.getAll(IfcRelAssociatesMaterial.class)) {
+			for (IfcRoot ifcRoot : ifcRelAssociatesMaterial.getRelatedObjects()) {
+				if (ifcRoot instanceof IfcElement) {
+					IfcElement ifcElement = (IfcElement) ifcRoot;
+					IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
+					elementMaterialMap.put(ifcElement, ifcMaterialSelect);
+					
+				}
+			}
 		}
 	}
-
+	
 	@Override
 	public void reset()	{
 		setMode(Mode.BODY);
@@ -192,11 +193,11 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 
-		for(OsmConstruction construction : constructionSet) {
+		for(OsmConstruction construction : constructionMap.values()) {
 			outputContent.append(construction.toString());
 		}
 
-		for(OsmMaterial material : materialSet) {
+		for(OsmMaterial material : materialMap.values()) {
 			outputContent.append(material.toString());
 		}
 	}
@@ -260,7 +261,7 @@ public class OsmSerializer extends EmfSerializer {
 		deleteDuplicatePoints(spaceBoundaryPointList);//after extracting boundary points, remove duplicates.
 		// Extract Other Properties
 
-		// Wall, surface
+		// Wall, surface  HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap
 		if (ifcElement instanceof IfcWall) {
 			if (isGeometrySolved) {
 				IfcWall ifcWall = (IfcWall) ifcElement;
@@ -271,20 +272,9 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setSurfaceName(osmSurfaceName);
 				osmSurface.setTypeName("Wall");
 				osmSurface.setOsmSpace(osmSpace);
-
-				for (IfcRelAssociates ifcRelAssociates : ifcWall.getHasAssociations()) {
-					if (ifcRelAssociates instanceof IfcRelAssociatesMaterial) {
-						IfcRelAssociatesMaterial ifcRelAssociatesMaterial = (IfcRelAssociatesMaterial) ifcRelAssociates;
-						IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
-						if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
-							IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
-							IfcMaterialLayerSet ifcMaterialLayerSet = ifcMaterialLayerSetUsage.getForLayerSet();
-							OsmConstruction osmConstruction = constructionMap.get(ifcMaterialLayerSet);
-							osmSurface.setConstructionName(osmConstruction.getHandle());
-						}
-					}
-				}
-
+				IfcMaterialSelect ifcMaterialSelect = elementMaterialMap.get(ifcElement);
+				osmSurface.setConstructionName(materialInformation(ifcMaterialSelect));
+				
 				//add internal surface link information
 				if (internalWallMap.containsKey(ifcWall)) {
 					internalWallMap.get(ifcWall).add(osmSurface);
@@ -480,6 +470,50 @@ public class OsmSerializer extends EmfSerializer {
 			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
 		}
 	}
+	
+	
+	HashMap<Long, OsmConstruction> constructionMap = new HashMap<Long, OsmConstruction>();
+	HashMap<Long, OsmMaterial>     materialMap     = new HashMap<Long, OsmMaterial>();
+	public String materialInformation(IfcMaterialSelect ifcMaterialSelect) {	
+		if (ifcMaterialSelect instanceof IfcMaterialLayerSet) {
+			IfcMaterialLayerSet ifcMaterialLayerSet = (IfcMaterialLayerSet) ifcMaterialSelect;
+			long coid = ifcMaterialLayerSet.getOid();
+			if(constructionMap.containsKey(coid)) {
+				return constructionMap.get(coid).getHandle();
+			}
+			
+			String layerSetName = ifcMaterialLayerSet.getLayerSetName();
+			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
+			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
+			long moid = ifcMaterialLayer.getOid();
+			
+			if (materialMap.containsKey(moid)) {
+				OsmMaterial osmMaterial = materialMap.get(moid);
+				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
+				constructionMap.put(coid, osmConstruction);
+				return osmConstruction.getHandle();
+			} else {
+				double layerThickness = ifcMaterialLayer.getLayerThickness();
+				IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
+				String materialName = ifcMaterial.getName();
+				OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
+				materialMap.put(moid, osmMaterial);
+				
+				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
+				constructionMap.put(coid, osmConstruction);
+				return osmConstruction.getHandle();
+			} 
+		} else if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
+			IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
+			IfcMaterialLayerSet ifcMaterialLayerSet =  ifcMaterialLayerSetUsage.getForLayerSet();
+			return materialInformation(ifcMaterialLayerSet);
+		} else {
+			return "False";
+		}
+	}
+	
+	
+	
 
 	/**
 	 * Extract the connection geometry

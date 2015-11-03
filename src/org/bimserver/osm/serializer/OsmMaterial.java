@@ -1,4 +1,4 @@
-package org,bimserver.osm.serializer;
+package org.bimserver.osm.serializer;
 
 import java.util.UUID;
 
@@ -67,7 +67,7 @@ public class OsmMaterial {
 	}
 
 	public String getRoughness() {
-		return this.roughness
+		return this.roughness;
 	}
 
 	public double getThickness() {

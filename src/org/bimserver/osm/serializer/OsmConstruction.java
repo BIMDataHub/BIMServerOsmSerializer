@@ -1,4 +1,4 @@
-package org,bimserver.osm.serializer;
+package org.bimserver.osm.serializer;
 
 import java.util.UUID;
 
