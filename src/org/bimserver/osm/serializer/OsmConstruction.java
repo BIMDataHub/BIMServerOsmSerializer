@@ -35,19 +35,19 @@ public class OsmConstruction {
 	}
 
 	public String getHandle() {
-		return this.handle;
+		return handle;
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public String getSurfaceRenderingName() {
-		return this.surfaceRenderingName;
+		return surfaceRenderingName;
 	}
 
 	public OsmMaterial getLayer() {
-		return this.layer;
+		return layer;
 	}
 
 	public String toString() {

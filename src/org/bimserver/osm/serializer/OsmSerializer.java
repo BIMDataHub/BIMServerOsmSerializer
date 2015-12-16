@@ -27,6 +27,9 @@ import org.bimserver.models.ifc2x3tc1.IfcDirection;
 import org.bimserver.models.ifc2x3tc1.IfcDoor;
 import org.bimserver.models.ifc2x3tc1.IfcElement;
 import org.bimserver.models.ifc2x3tc1.IfcFaceBasedSurfaceModel;
+import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
+import org.bimserver.models.ifc2x3tc1.IfcGroup;
+import org.bimserver.models.ifc2x3tc1.IfcLightFixtureType;
 import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayer;
@@ -34,25 +37,33 @@ import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSet;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSetUsage;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialSelect;
 import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
+import org.bimserver.models.ifc2x3tc1.IfcObject;
+import org.bimserver.models.ifc2x3tc1.IfcObjectDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcPolyline;
+import org.bimserver.models.ifc2x3tc1.IfcProduct;
 import org.bimserver.models.ifc2x3tc1.IfcProfileDef;
 import org.bimserver.models.ifc2x3tc1.IfcProperty;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySetDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySingleValue;
 import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
+import org.bimserver.models.ifc2x3tc1.IfcRelAssignsToGroup;
 import org.bimserver.models.ifc2x3tc1.IfcRelAssociatesMaterial;
+import org.bimserver.models.ifc2x3tc1.IfcRelContainedInSpatialStructure;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefines;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByProperties;
+import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByType;
 import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
 import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
 import org.bimserver.models.ifc2x3tc1.IfcRoof;
 import org.bimserver.models.ifc2x3tc1.IfcRoot;
 import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcSpace;
+import org.bimserver.models.ifc2x3tc1.IfcSpatialStructureElement;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
+import org.bimserver.models.ifc2x3tc1.IfcTypeObject;
 import org.bimserver.models.ifc2x3tc1.IfcUnit;
 import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
 import org.bimserver.models.ifc2x3tc1.IfcValue;
@@ -125,6 +136,8 @@ public class OsmSerializer extends EmfSerializer {
 
 		// Convert the units
 		transformUnits(scale);
+		
+		lightFixture(model);
 
 
 
@@ -137,15 +150,88 @@ public class OsmSerializer extends EmfSerializer {
 	private HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap = new HashMap<IfcElement, IfcMaterialSelect>();
 	public void mapElementMaterial(IfcModelInterface model) {
 		for (IfcRelAssociatesMaterial ifcRelAssociatesMaterial : model.getAll(IfcRelAssociatesMaterial.class)) {
+			IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
 			for (IfcRoot ifcRoot : ifcRelAssociatesMaterial.getRelatedObjects()) {
 				if (ifcRoot instanceof IfcElement) {
 					IfcElement ifcElement = (IfcElement) ifcRoot;
-					IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
 					elementMaterialMap.put(ifcElement, ifcMaterialSelect);
-					
 				}
 			}
 		}
+	}
+	
+	HashMap<Long, OsmLuminaireDefinition> lightFixtureTypeMap = new HashMap<Long, OsmLuminaireDefinition>();
+	HashMap<Long, String> groupMap = new HashMap<Long, String>();
+	HashMap<Long, String> spatialMap = new HashMap<Long, String>();
+	List<OsmLuminaire> lights = new ArrayList<OsmLuminaire>();
+	public void lightFixture(IfcModelInterface model) {
+		
+		for (IfcRelAssignsToGroup ifcRelAssignsToGroup : model.getAll(IfcRelAssignsToGroup.class)) {
+			IfcGroup ifcGroup = ifcRelAssignsToGroup.getRelatingGroup();
+			String groupName = ifcGroup.getName();
+			for (IfcObjectDefinition ifcObjectDefinition : ifcRelAssignsToGroup.getRelatedObjects()) {
+				if (ifcObjectDefinition instanceof IfcFlowTerminal) {
+					groupMap.put(ifcObjectDefinition.getOid(), groupName);
+				}
+			}
+		}
+		
+		for (IfcRelContainedInSpatialStructure ifcRelContainedInSpatialStructure : model.getAll(IfcRelContainedInSpatialStructure.class)) {
+			IfcSpatialStructureElement ifcSpatialStructureElement = ifcRelContainedInSpatialStructure.getRelatingStructure();
+			
+			String spaceId = "";
+			if (ifcSpatialStructureElement instanceof IfcSpace && spaceMap.containsKey(ifcSpatialStructureElement.getOid())) {
+				OsmSpace osmSpace = spaceMap.get(ifcSpatialStructureElement.getOid());
+				spaceId = osmSpace.getUuid();
+			} else {
+				OsmSpace osmSpace = new OsmSpace();
+				UUID uuid = UUID.randomUUID();
+				osmSpace.setUuid(uuid.toString());
+				osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
+				allSpaces.add(osmSpace);
+				spaceMap.put(ifcSpatialStructureElement.getOid(), osmSpace);
+				spaceId = uuid.toString();
+			}
+			
+			for (IfcProduct ifcProduct : ifcRelContainedInSpatialStructure.getRelatedElements()) {
+				if (ifcProduct instanceof IfcFlowTerminal) {
+					spatialMap.put(ifcProduct.getOid(), spaceId);
+				}
+			}
+		}
+		
+		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
+			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
+			if(ifcTypeObject instanceof IfcLightFixtureType) {
+				IfcLightFixtureType ifcLightFixtureType = (IfcLightFixtureType) ifcTypeObject;
+				Long oid = ifcLightFixtureType.getOid();
+				
+				String lightFixtureTypeHandle = "";
+				if (lightFixtureTypeMap.containsKey(oid)) {
+					lightFixtureTypeHandle = lightFixtureTypeMap.get(oid).getHandle();
+				} else {
+					String name = ifcLightFixtureType.getName();
+					OsmLuminaireDefinition osmLuminaireDefinition = new OsmLuminaireDefinition(name);
+					lightFixtureTypeHandle = osmLuminaireDefinition.getHandle();
+					lightFixtureTypeMap.put(oid, osmLuminaireDefinition);
+				}
+				
+				for (IfcObject ifcObject :ifcRelDefinesByType.getRelatedObjects()) {
+					if (ifcObject instanceof IfcFlowTerminal) {
+						IfcFlowTerminal ifcFlowTerminal = (IfcFlowTerminal) ifcObject;
+						String name = groupMap.getOrDefault(ifcFlowTerminal.getOid(), "0") + ifcFlowTerminal.getName();
+						String luminaireDefinitionName = lightFixtureTypeHandle;
+						String spaceName = spatialMap.getOrDefault(ifcFlowTerminal.getOid(), "0");
+						OsmPoint point = new OsmPoint();
+						if (ifcFlowTerminal.isSetObjectPlacement()) {
+							coordinateSys3DTrans(point, ifcFlowTerminal.getObjectPlacement());
+						}
+						lights.add(new OsmLuminaire(name, luminaireDefinitionName, spaceName, point.getX(),point.getY(),point.getZ()));
+					}
+				}
+			}
+		}
+		
 	}
 	
 	@Override
@@ -180,6 +266,8 @@ public class OsmSerializer extends EmfSerializer {
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
 		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
+		
+		
 
 		for(OsmSpace osmSpace: allSpaces) {
 			outputContent.append(osmSpace.toString());
@@ -200,6 +288,10 @@ public class OsmSerializer extends EmfSerializer {
 		for(OsmMaterial material : materialMap.values()) {
 			outputContent.append(material.toString());
 		}
+		
+		for(OsmLuminaire light : lights) {
+			outputContent.append(light.toString());
+		}
 	}
 
 
@@ -208,6 +300,8 @@ public class OsmSerializer extends EmfSerializer {
 	 *
 	 * @param ifcSpace
 	 */
+	
+	HashMap<Long, OsmSpace> spaceMap = new HashMap<Long, OsmSpace>();
 	private void extractSpaces(IfcSpace ifcSpace) {
 		OsmSpace osmSpace = new OsmSpace();
 		UUID uuid = UUID.randomUUID();
@@ -230,11 +324,16 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 
+		allSpaces.add(osmSpace);
+		spaceMap.put(ifcSpace.getOid(), osmSpace);
+		
+		/*
 		if (!osmSpace.containsUnsolvedSurface()) {
 			allSpaces.add(osmSpace);
 		} else {
 			surfaceNum -= osmSpace.getSurfaceList().size();
 		}
+		*/
 	}
 
 	/**
@@ -472,6 +571,9 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	
 	
+	
+	
+	
 	HashMap<Long, OsmConstruction> constructionMap = new HashMap<Long, OsmConstruction>();
 	HashMap<Long, OsmMaterial>     materialMap     = new HashMap<Long, OsmMaterial>();
 	public String materialInformation(IfcMaterialSelect ifcMaterialSelect) {	
@@ -604,7 +706,7 @@ public class OsmSerializer extends EmfSerializer {
 					// Put the curved boundary point in the basis plane coordinate system.
 					coordinate3DTrans(osmPoint, position);
 					// Upgrade to global coordinates according to the space's local coordinate system
-					coordinateSys3DTrans(osmPoint, ifcSpace);
+					coordinateSys3DTrans(osmPoint, ifcSpace.getObjectPlacement());
 					spaceBoundaryPointList.add(osmPoint);
 				}
 
@@ -657,7 +759,7 @@ public class OsmSerializer extends EmfSerializer {
 
 			for (OsmPoint osmPoint : osmPointList) {
 				coordinate3DTrans(osmPoint, position);
-				coordinateSys3DTrans(osmPoint, ifcSpace);
+				coordinateSys3DTrans(osmPoint, ifcSpace.getObjectPlacement());
 				spaceBoundaryPointList.add(osmPoint);
 			}
 			return true;
@@ -672,7 +774,7 @@ public class OsmSerializer extends EmfSerializer {
 					getPointsOfIfcPolyline((IfcPolyline) parentCurve, osmPointList);
 					for (OsmPoint osmPoint : osmPointList) {
 						coordinate3DTrans(osmPoint, position);
-						coordinateSys3DTrans(osmPoint, ifcSpace);
+						coordinateSys3DTrans(osmPoint, ifcSpace.getObjectPlacement());
 						spaceBoundaryPointList.add(osmPoint);
 					}
 				} /*else if(parentCurve instanceof IfcTrimmedCurve) {
@@ -702,9 +804,7 @@ public class OsmSerializer extends EmfSerializer {
 	 * Given relOsmPoint, upgrade it's local coordinate system into the global coordinates.
 	 * relPoint: The point to be transformed
 	 * */
-	private void coordinateSys3DTrans(OsmPoint relOsmPoint, IfcSpace ifcSpace) {
-		IfcObjectPlacement ifcObjectPlacement = ifcSpace.getObjectPlacement();
-
+	private void coordinateSys3DTrans(OsmPoint relOsmPoint, IfcObjectPlacement ifcObjectPlacement) {
 		boolean upgradeCompleted = false;
 
 		while(!upgradeCompleted) {

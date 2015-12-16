@@ -59,31 +59,31 @@ public class OsmMaterial {
 	}
 
 	public String getHandle() {
-		return this.handle;
+		return handle;
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public String getRoughness() {
-		return this.roughness;
+		return roughness;
 	}
 
 	public double getThickness() {
-		return this.thickness;
+		return thickness;
 	}
 
 	public double getConductivity() {
-		return this.conductivity;
+		return conductivity;
 	}
 
 	public double getDensity() {
-		return this.density;
+		return density;
 	}
 
 	public double getSpecificHeat() {
-		return this.specificHeat;
+		return specificHeat;
 	}
 
 	public String toString() {

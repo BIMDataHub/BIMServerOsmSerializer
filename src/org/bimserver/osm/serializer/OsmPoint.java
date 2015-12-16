@@ -9,9 +9,9 @@ public class OsmPoint {
 	private Double	z;
 
 	public OsmPoint() {
-		x = 0.0;
-		y = 0.0;
-		z = 0.0;
+		this.x = 0.0;
+		this.y = 0.0;
+		this.z = 0.0;
 	}
 
 	public OsmPoint(Double x, Double y) {
@@ -27,9 +27,9 @@ public class OsmPoint {
 	}
 
 	public OsmPoint(OsmPoint p) {
-		x = p.getX();
-		y = p.getY();
-		z = p.getZ();
+		this.x = p.getX();
+		this.y = p.getY();
+		this.z = p.getZ();
 	}
 
 	public Double getX() {
@@ -62,10 +62,12 @@ public class OsmPoint {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof OsmPoint))
+		if (!(obj instanceof OsmPoint)) {
 			return false;
-		if (obj == this)
+		}
+		if (obj == this) {
 			return true;
+		}
 		
 		OsmPoint rhs = (OsmPoint) obj;
 		return new EqualsBuilder().append(x, rhs.x).append(y, rhs.y).append(z, rhs.z).isEquals();
