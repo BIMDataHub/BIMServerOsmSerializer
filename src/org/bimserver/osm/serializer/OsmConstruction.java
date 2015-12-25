@@ -6,20 +6,20 @@ public class OsmConstruction {
 	private String      handle;
 	private String      name;
 	private String      surfaceRenderingName;
-	private OsmMaterial layer;
+	private String      layerHandle;
 
 	public OsmConstruction() {
 		this.handle               = UUID.randomUUID().toString();
 		this.name                 = "";
 		this.surfaceRenderingName = "";
-		this.layer                = new OsmMaterial();
+		this.layerHandle          = "";
 	}
 
-	public OsmConstruction(String name, String surfaceRenderingName, OsmMaterial layer) {
+	public OsmConstruction(String name, String surfaceRenderingName, String layerHandle) {
 		this.handle               = UUID.randomUUID().toString();
 		this.name                 = name;
 		this.surfaceRenderingName = surfaceRenderingName;
-		this.layer                = layer;
+		this.layerHandle          = layerHandle;
 	}
 
 	public void setName(String name) {
@@ -28,10 +28,6 @@ public class OsmConstruction {
 
 	public void setSurfaceRenderingName(String surfaceRenderingName) {
 		this.surfaceRenderingName = surfaceRenderingName;
-	}
-
-	public void setLayer(OsmMaterial layer) {
-		this.layer = layer;
 	}
 
 	public String getHandle() {
@@ -46,9 +42,6 @@ public class OsmConstruction {
 		return surfaceRenderingName;
 	}
 
-	public OsmMaterial getLayer() {
-		return layer;
-	}
 
 	public String toString() {
 		StringBuilder output = new StringBuilder();
@@ -57,7 +50,7 @@ public class OsmConstruction {
 		output.append("{" + handle + "}" + ",                              !- Handle\n");
 		output.append(name + ",                                            !- Name\n");
 		output.append(surfaceRenderingName + ",                            !- Surface Rendering Name\n");
-		output.append("{" + layer.getHandle() + "}" + ";                   !- Layer 1\n");
+		output.append("{" + layerHandle + "}" + ";                   !- Layer 1\n");
 		output.append("\n");
 		
 		return output.toString();

@@ -48,6 +48,7 @@ import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySetDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySingleValue;
 import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
+import org.bimserver.models.ifc2x3tc1.IfcReal;
 import org.bimserver.models.ifc2x3tc1.IfcRelAssignsToGroup;
 import org.bimserver.models.ifc2x3tc1.IfcRelAssociatesMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcRelContainedInSpatialStructure;
@@ -69,6 +70,7 @@ import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
 import org.bimserver.models.ifc2x3tc1.IfcValue;
 import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.models.ifc2x3tc1.IfcWindow;
+import org.bimserver.models.ifc2x3tc1.IfcWindowStyle;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
@@ -155,6 +157,69 @@ public class OsmSerializer extends EmfSerializer {
 				if (ifcRoot instanceof IfcElement) {
 					IfcElement ifcElement = (IfcElement) ifcRoot;
 					elementMaterialMap.put(ifcElement, ifcMaterialSelect);
+				}
+			}
+		}
+	}
+	HashMap<Long, OsmConstruction> windowTypeMap = new HashMap<Long, OsmConstruction>();
+	HashMap<Long, String> windowMap = new HashMap<Long, String>();
+	List<OsmWindowMaterialSimpleGlazingSystem> windowType = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
+	public void extractWindowsInformation(IfcModelInterface model) {
+		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
+			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
+			if (ifcTypeObject instanceof IfcWindowStyle) {
+				IfcWindowStyle ifcWindowStyle = (IfcWindowStyle) ifcTypeObject;
+				Long oid = ifcWindowStyle.getOid();
+				
+				String windowTypeHandle = "";
+				if (windowTypeMap.containsKey(oid)) {
+					windowTypeHandle = windowTypeMap.get(oid).getHandle();
+				} else {
+					String name = ifcWindowStyle.getName();
+					double uFactor = 0.0;
+					double solarHeatGainCoefficient = 0.0;
+					double visibleAbsorptance = 0.0;
+					if (ifcWindowStyle.isSetHasPropertySets()) {
+						for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcWindowStyle.getHasPropertySets()) {
+							if (ifcPropertySetDefinition instanceof IfcPropertySet) {
+								IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
+								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+									if (ifcProperty instanceof IfcPropertySingleValue) {
+										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+										String propertyName = ifcPropertySingleValue.getName();
+										if (propertyName == "Hear Transfer Coefficient(U)") {
+											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+												uFactor = ifcReal.getWrappedValue();
+											}
+										} else if (propertyName == "Solar Heat Gain Coefficient") {
+											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+												solarHeatGainCoefficient = ifcReal.getWrappedValue();
+											}
+										} else if (propertyName == "Visual Light Transmittance") {
+											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+												visibleAbsorptance = ifcReal.getWrappedValue();
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
+					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, 1 - visibleAbsorptance);
+					windowType.add(osmWindowMaterialSimpleGlazingSystem);
+					OsmConstruction osmConstruction = new OsmConstruction(name, "", osmWindowMaterialSimpleGlazingSystem.getHandle());
+					windowTypeMap.put(oid, osmConstruction);
+					windowTypeHandle = osmConstruction.getHandle();
+				}
+				
+				for (IfcObject ifcObject: ifcRelDefinesByType.getRelatedObjects()) {
+					if (ifcObject instanceof IfcWindow) {
+						windowMap.put(ifcObject.getOid(), windowTypeHandle);
+					}
 				}
 			}
 		}
@@ -495,6 +560,13 @@ public class OsmSerializer extends EmfSerializer {
                 osmSubSurface.setUuid(uuid.toString());
 				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("FixedWindow");
+				
+				String constructionName = "";
+				if(windowMap.containsKey(ifcElement.getOid())) {
+					constructionName = windowMap.get(ifcElement.getOid());
+				}
+				osmSubSurface.setConstructionName(constructionName);
+				
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow.getFillsVoids();
 				if (ifcRelFillsElementList.size() > 0) {
 					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
@@ -591,7 +663,7 @@ public class OsmSerializer extends EmfSerializer {
 			
 			if (materialMap.containsKey(moid)) {
 				OsmMaterial osmMaterial = materialMap.get(moid);
-				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
+				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
 				constructionMap.put(coid, osmConstruction);
 				return osmConstruction.getHandle();
 			} else {
@@ -601,7 +673,7 @@ public class OsmSerializer extends EmfSerializer {
 				OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
 				materialMap.put(moid, osmMaterial);
 				
-				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial);
+				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
 				constructionMap.put(coid, osmConstruction);
 				return osmConstruction.getHandle();
 			} 
