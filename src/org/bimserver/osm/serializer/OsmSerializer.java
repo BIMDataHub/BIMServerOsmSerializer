@@ -358,8 +358,12 @@ public class OsmSerializer extends EmfSerializer {
 			outputContent.append(light.toString());
 		}
 
-		for(OsmLuminaireDefinition osmLuminaireDefinition: lightFixtureTypeMap.values()) {
+		for(OsmLuminaireDefinition osmLuminaireDefinition : lightFixtureTypeMap.values()) {
 			outputContent.append(osmLuminaireDefinition.toString());
+		}
+
+		for(OsmWindowMaterialSimpleGlazingSystem window : windowType) {
+			outputContent.append(window.toString());
 		}
 	}
 
