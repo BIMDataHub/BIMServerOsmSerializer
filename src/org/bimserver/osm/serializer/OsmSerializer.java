@@ -127,6 +127,7 @@ public class OsmSerializer extends EmfSerializer {
 
 		//Create Element-Material map
 		mapElementMaterial(model);
+		extractWindowsInformation(model);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
@@ -140,6 +141,7 @@ public class OsmSerializer extends EmfSerializer {
 		transformUnits(scale);
 
 		lightFixture(model);
+		
 
 
 
@@ -163,6 +165,7 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	HashMap<Long, OsmConstruction> windowTypeMap = new HashMap<Long, OsmConstruction>();
 	HashMap<Long, String> windowMap = new HashMap<Long, String>();
+	List<OsmConstruction> windowConstructionMap = new ArrayList<OsmConstruction>();
 	List<OsmWindowMaterialSimpleGlazingSystem> windowType = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
 	public void extractWindowsInformation(IfcModelInterface model) {
 		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
@@ -213,6 +216,7 @@ public class OsmSerializer extends EmfSerializer {
 					windowType.add(osmWindowMaterialSimpleGlazingSystem);
 					OsmConstruction osmConstruction = new OsmConstruction(name, "", osmWindowMaterialSimpleGlazingSystem.getHandle());
 					windowTypeMap.put(oid, osmConstruction);
+					windowConstructionMap.add(osmConstruction);
 					windowTypeHandle = osmConstruction.getHandle();
 				}
 
@@ -364,6 +368,10 @@ public class OsmSerializer extends EmfSerializer {
 
 		for(OsmWindowMaterialSimpleGlazingSystem window : windowType) {
 			outputContent.append(window.toString());
+		}
+		
+		for(OsmConstruction osmConstruction : windowConstructionMap) {
+			outputContent.append(osmConstruction.toString());
 		}
 	}
 
