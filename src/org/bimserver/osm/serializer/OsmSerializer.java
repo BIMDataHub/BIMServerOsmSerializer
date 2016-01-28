@@ -138,7 +138,7 @@ public class OsmSerializer extends EmfSerializer {
 
 		// Convert the units
 		transformUnits(scale);
-		
+
 		lightFixture(model);
 
 
@@ -147,8 +147,8 @@ public class OsmSerializer extends EmfSerializer {
 		addLinkageInformation();
 	}
 
-	
-	
+
+
 	private HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap = new HashMap<IfcElement, IfcMaterialSelect>();
 	public void mapElementMaterial(IfcModelInterface model) {
 		for (IfcRelAssociatesMaterial ifcRelAssociatesMaterial : model.getAll(IfcRelAssociatesMaterial.class)) {
@@ -170,7 +170,7 @@ public class OsmSerializer extends EmfSerializer {
 			if (ifcTypeObject instanceof IfcWindowStyle) {
 				IfcWindowStyle ifcWindowStyle = (IfcWindowStyle) ifcTypeObject;
 				Long oid = ifcWindowStyle.getOid();
-				
+
 				String windowTypeHandle = "";
 				if (windowTypeMap.containsKey(oid)) {
 					windowTypeHandle = windowTypeMap.get(oid).getHandle();
@@ -208,14 +208,14 @@ public class OsmSerializer extends EmfSerializer {
 							}
 						}
 					}
-					
+
 					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, 1 - visibleAbsorptance);
 					windowType.add(osmWindowMaterialSimpleGlazingSystem);
 					OsmConstruction osmConstruction = new OsmConstruction(name, "", osmWindowMaterialSimpleGlazingSystem.getHandle());
 					windowTypeMap.put(oid, osmConstruction);
 					windowTypeHandle = osmConstruction.getHandle();
 				}
-				
+
 				for (IfcObject ifcObject: ifcRelDefinesByType.getRelatedObjects()) {
 					if (ifcObject instanceof IfcWindow) {
 						windowMap.put(ifcObject.getOid(), windowTypeHandle);
@@ -224,13 +224,13 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 	}
-	
+
 	HashMap<Long, OsmLuminaireDefinition> lightFixtureTypeMap = new HashMap<Long, OsmLuminaireDefinition>();
 	HashMap<Long, String> groupMap = new HashMap<Long, String>();
 	HashMap<Long, String> spatialMap = new HashMap<Long, String>();
 	List<OsmLuminaire> lights = new ArrayList<OsmLuminaire>();
 	public void lightFixture(IfcModelInterface model) {
-		
+
 		for (IfcRelAssignsToGroup ifcRelAssignsToGroup : model.getAll(IfcRelAssignsToGroup.class)) {
 			IfcGroup ifcGroup = ifcRelAssignsToGroup.getRelatingGroup();
 			String groupName = ifcGroup.getName();
@@ -240,10 +240,10 @@ public class OsmSerializer extends EmfSerializer {
 				}
 			}
 		}
-		
+
 		for (IfcRelContainedInSpatialStructure ifcRelContainedInSpatialStructure : model.getAll(IfcRelContainedInSpatialStructure.class)) {
 			IfcSpatialStructureElement ifcSpatialStructureElement = ifcRelContainedInSpatialStructure.getRelatingStructure();
-			
+
 			String spaceId = "";
 			if (ifcSpatialStructureElement instanceof IfcSpace && spaceMap.containsKey(ifcSpatialStructureElement.getOid())) {
 				OsmSpace osmSpace = spaceMap.get(ifcSpatialStructureElement.getOid());
@@ -257,20 +257,20 @@ public class OsmSerializer extends EmfSerializer {
 				spaceMap.put(ifcSpatialStructureElement.getOid(), osmSpace);
 				spaceId = uuid.toString();
 			}
-			
+
 			for (IfcProduct ifcProduct : ifcRelContainedInSpatialStructure.getRelatedElements()) {
 				if (ifcProduct instanceof IfcFlowTerminal) {
 					spatialMap.put(ifcProduct.getOid(), spaceId);
 				}
 			}
 		}
-		
+
 		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
 			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
 			if(ifcTypeObject instanceof IfcLightFixtureType) {
 				IfcLightFixtureType ifcLightFixtureType = (IfcLightFixtureType) ifcTypeObject;
 				Long oid = ifcLightFixtureType.getOid();
-				
+
 				String lightFixtureTypeHandle = "";
 				if (lightFixtureTypeMap.containsKey(oid)) {
 					lightFixtureTypeHandle = lightFixtureTypeMap.get(oid).getHandle();
@@ -280,7 +280,7 @@ public class OsmSerializer extends EmfSerializer {
 					lightFixtureTypeHandle = osmLuminaireDefinition.getHandle();
 					lightFixtureTypeMap.put(oid, osmLuminaireDefinition);
 				}
-				
+
 				for (IfcObject ifcObject :ifcRelDefinesByType.getRelatedObjects()) {
 					if (ifcObject instanceof IfcFlowTerminal) {
 						IfcFlowTerminal ifcFlowTerminal = (IfcFlowTerminal) ifcObject;
@@ -296,9 +296,9 @@ public class OsmSerializer extends EmfSerializer {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public void reset()	{
 		setMode(Mode.BODY);
@@ -331,8 +331,8 @@ public class OsmSerializer extends EmfSerializer {
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
 		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
-		
-		
+
+
 
 		for(OsmSpace osmSpace: allSpaces) {
 			outputContent.append(osmSpace.toString());
@@ -353,9 +353,13 @@ public class OsmSerializer extends EmfSerializer {
 		for(OsmMaterial material : materialMap.values()) {
 			outputContent.append(material.toString());
 		}
-		
+
 		for(OsmLuminaire light : lights) {
 			outputContent.append(light.toString());
+		}
+
+		for(OsmLuminaireDefinition osmLuminaireDefinition: lightFixtureTypeMap.values()) {
+			outputContent.append(osmLuminaireDefinition.toString());
 		}
 	}
 
@@ -365,7 +369,7 @@ public class OsmSerializer extends EmfSerializer {
 	 *
 	 * @param ifcSpace
 	 */
-	
+
 	HashMap<Long, OsmSpace> spaceMap = new HashMap<Long, OsmSpace>();
 	private void extractSpaces(IfcSpace ifcSpace) {
 		OsmSpace osmSpace = new OsmSpace();
@@ -391,7 +395,7 @@ public class OsmSerializer extends EmfSerializer {
 
 		allSpaces.add(osmSpace);
 		spaceMap.put(ifcSpace.getOid(), osmSpace);
-		
+
 		/*
 		if (!osmSpace.containsUnsolvedSurface()) {
 			allSpaces.add(osmSpace);
@@ -438,7 +442,7 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setOsmSpace(osmSpace);
 				IfcMaterialSelect ifcMaterialSelect = elementMaterialMap.get(ifcElement);
 				osmSurface.setConstructionName(materialInformation(ifcMaterialSelect));
-				
+
 				//add internal surface link information
 				if (internalWallMap.containsKey(ifcWall)) {
 					internalWallMap.get(ifcWall).add(osmSurface);
@@ -560,13 +564,13 @@ public class OsmSerializer extends EmfSerializer {
                 osmSubSurface.setUuid(uuid.toString());
 				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("FixedWindow");
-				
+
 				String constructionName = "";
 				if(windowMap.containsKey(ifcElement.getOid())) {
 					constructionName = windowMap.get(ifcElement.getOid());
 				}
 				osmSubSurface.setConstructionName(constructionName);
-				
+
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow.getFillsVoids();
 				if (ifcRelFillsElementList.size() > 0) {
 					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
@@ -641,26 +645,26 @@ public class OsmSerializer extends EmfSerializer {
 			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
 		}
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	HashMap<Long, OsmConstruction> constructionMap = new HashMap<Long, OsmConstruction>();
 	HashMap<Long, OsmMaterial>     materialMap     = new HashMap<Long, OsmMaterial>();
-	public String materialInformation(IfcMaterialSelect ifcMaterialSelect) {	
+	public String materialInformation(IfcMaterialSelect ifcMaterialSelect) {
 		if (ifcMaterialSelect instanceof IfcMaterialLayerSet) {
 			IfcMaterialLayerSet ifcMaterialLayerSet = (IfcMaterialLayerSet) ifcMaterialSelect;
 			long coid = ifcMaterialLayerSet.getOid();
 			if(constructionMap.containsKey(coid)) {
 				return constructionMap.get(coid).getHandle();
 			}
-			
+
 			String layerSetName = ifcMaterialLayerSet.getLayerSetName();
 			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
 			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
 			long moid = ifcMaterialLayer.getOid();
-			
+
 			if (materialMap.containsKey(moid)) {
 				OsmMaterial osmMaterial = materialMap.get(moid);
 				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
@@ -672,11 +676,11 @@ public class OsmSerializer extends EmfSerializer {
 				String materialName = ifcMaterial.getName();
 				OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
 				materialMap.put(moid, osmMaterial);
-				
+
 				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
 				constructionMap.put(coid, osmConstruction);
 				return osmConstruction.getHandle();
-			} 
+			}
 		} else if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
 			IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
 			IfcMaterialLayerSet ifcMaterialLayerSet =  ifcMaterialLayerSetUsage.getForLayerSet();
@@ -685,9 +689,9 @@ public class OsmSerializer extends EmfSerializer {
 			return "False";
 		}
 	}
-	
-	
-	
+
+
+
 
 	/**
 	 * Extract the connection geometry
