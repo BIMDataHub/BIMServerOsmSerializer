@@ -1,0 +1,12 @@
+language: java
+
+branches:
+  only:
+  - master
+  
+notifications:
+  email:
+  - zhouchong90@gmail.com
+  - ivanlam0320@gmail.com
+
+  sudo: false
