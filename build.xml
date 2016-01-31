@@ -1,0 +1,45 @@
+<project name="OSMSerializer" basedir="." default="test">
+
+	<property name="src.dir"     value="src"/>
+	<property name="lib.dir"     value="lib"/>
+	<property name="classes.dir" value="bin"/>
+	<property name="jar.dir"     value="dist"/>
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+
+	<path id="application" location="${jar.dir}/${ant.project.name}.jar"/>
+	
+	<target name="clean">
+		<delete dir="${classes.dir}"/>
+		<delete dir="${jar.dir}"/>
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+		</jar>
+	</target>
+
+	<target name="clean-build" depends="clean,jar"/>
+
+	<target name="test" depends="jar">
+		<junit printsummary="yes">
+			<classpath>
+				<path refid="classpath" />
+				<path refid="application"/>
+			</classpath>
+
+			<batchtest fork="yes">
+				<fileset dir="${src.dir}" includes="*Test.java"/>
+			</batchtest>
+		</junit>
+	</target>
+
+</project>

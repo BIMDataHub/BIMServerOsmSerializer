@@ -34,7 +34,7 @@ import org.junit.Test;
 /**
  * Unit test for simple App.
  */
-public class AppTest{
+public class OSMSerializerTest{
 	private static BimServerClientFactory factory;
 	static BimServerClientInterface bimServerClient;
 	

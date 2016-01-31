@@ -1,12 +1,13 @@
 language: java
 
+install: ant clean-build
+
+jdk:
+  - oraclejdk8
+
 branches:
   only:
   - master
   
 notifications:
-  email:
-  - zhouchong90@gmail.com
-  - ivanlam0320@gmail.com
-
-  sudo: false
+  email:false
