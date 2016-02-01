@@ -1,0 +1,398 @@
+OS:Version,
+{496771aa-ff58-49ef-9fd1-9270eafdf193},  !- Handle
+  1.3.0;                         !- Version Identifier
+
+OS:Space,
+{6cdf3b55-e25a-4b69-a81a-434370d2ee6e},           !- Handle
+sp-1-Space,                  !- Name
+,                   !- Space Type Name
+  ,     !- Default Construction Set Name
+,     !- Default Schedule Set Name
+,   !- Direction of Relative North {deg}
+,                    !- X Origin {m}
+,                    !- Y Origin {m}
+,                    !- Z Origin {m}
+,          !- Building Story Name
+;            !- Thermal Zone Name
+
+OS:Surface,
+  {e942c222-213d-4f74-bd11-d68c7f2b36b2},                           !- Handle
+  su-1,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-1-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.16478911125104,-8.101413155048087,0.0,  !- X,Y,Z Vertex 1 {m}
+  10.1647891112511,24.71418977818397,0.0,  !- X,Y,Z Vertex 2 {m}
+  10.1647891112511,24.71418977818397,2.6860500000000003,  !- X,Y,Z Vertex 3 {m}
+  10.16478911125104,-8.101413155048087,2.6860500000000003;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {d8baca6f-8e71-4c1a-8c29-c50e0dc311e7},                           !- Handle
+  su-2,                                !- Name
+  Floor,                                   !- Surface Type
+  {},               !- Construction Name
+  sp-1-Space,                    !- Space Name
+  Ground,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  NoSun,                                !- Sun Exposure
+  NoWind,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+-15.23521088874886,10.634739871283672,0.0,  !- X,Y,Z Vertex 1 {m}
+  10.16478911125109,24.714189778183975,0.0,  !- X,Y,Z Vertex 2 {m}
+  10.164789111251048,-8.101413155048082,0.0,  !- X,Y,Z Vertex 3 {m}
+  -15.235210888748911,-8.101413155048,0.0;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {6c624542-2074-454c-9634-9294b5459662},                           !- Handle
+  su-3,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-1-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.1647891112511,24.71418977818397,0.0,  !- X,Y,Z Vertex 1 {m}
+  -15.23521088874886,10.634739871283672,0.0,  !- X,Y,Z Vertex 2 {m}
+  -15.23521088874886,10.634739871283672,2.6860500000000003,  !- X,Y,Z Vertex 3 {m}
+  10.1647891112511,24.71418977818397,2.6860500000000003;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {e3a7f186-542c-4c39-81ff-bb050b1de351},                           !- Handle
+  su-4,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-1-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+-15.23521088874886,10.634739871283672,0.0,  !- X,Y,Z Vertex 1 {m}
+  -15.235210888748892,-8.101413155047995,0.0,  !- X,Y,Z Vertex 2 {m}
+  -15.235210888748892,-8.101413155047995,2.6860500000000003,  !- X,Y,Z Vertex 3 {m}
+  -15.23521088874886,10.634739871283672,2.6860500000000003;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {e8de2b55-5458-422e-bc90-9e7b0bc34d5e},                           !- Handle
+  su-5,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-1-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+-15.235210888748892,-8.101413155047995,0.0,  !- X,Y,Z Vertex 1 {m}
+  10.16478911125104,-8.101413155048087,0.0,  !- X,Y,Z Vertex 2 {m}
+  10.16478911125104,-8.101413155048087,2.6860500000000003,  !- X,Y,Z Vertex 3 {m}
+  -15.235210888748892,-8.101413155047995,2.6860500000000003;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Space,
+{a10e0ae4-cbc4-4a02-be78-3523bca70064},           !- Handle
+sp-2-Space,                  !- Name
+,                   !- Space Type Name
+  ,     !- Default Construction Set Name
+,     !- Default Schedule Set Name
+,   !- Direction of Relative North {deg}
+,                    !- X Origin {m}
+,                    !- Y Origin {m}
+,                    !- Z Origin {m}
+,          !- Building Story Name
+;            !- Thermal Zone Name
+
+OS:Surface,
+  {bb05d47d-33b5-49a7-8f15-c089cf7d9f08},                           !- Handle
+  su-6,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.16478911125104,-8.101413155048087,3.048,  !- X,Y,Z Vertex 1 {m}
+  10.1647891112511,24.71418977818397,3.048,  !- X,Y,Z Vertex 2 {m}
+  10.1647891112511,24.71418977818397,6.2434055637038535,  !- X,Y,Z Vertex 3 {m}
+  10.16478911125104,-8.101413155048087,6.2434055637038535;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {dfe5d003-fd31-42d9-95c9-f1a18274247e},                           !- Handle
+  su-7,                                !- Name
+  Floor,                                   !- Surface Type
+  {},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Ground,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  NoSun,                                !- Sun Exposure
+  NoWind,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.1647891112511,24.71418977818397,3.048,  !- X,Y,Z Vertex 1 {m}
+  10.1647891112511,-8.101413155047963,3.048,  !- X,Y,Z Vertex 2 {m}
+  -15.23521088874883,-8.101413155047963,3.048,  !- X,Y,Z Vertex 3 {m}
+  -15.23521088874883,10.634739871283642,3.048;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {cc93b6d5-8bfb-4c31-ad23-ee5b46f07b59},                           !- Handle
+  su-8,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+-15.23521088874886,10.634739871283672,3.048,  !- X,Y,Z Vertex 1 {m}
+  -15.235210888748892,-8.101413155047995,3.048,  !- X,Y,Z Vertex 2 {m}
+  -15.235210888748892,-8.101413155047995,6.2434055637038535,  !- X,Y,Z Vertex 3 {m}
+  -15.23521088874886,10.634739871283672,6.2434055637038535;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {794a1b14-870d-4e51-97fb-0ff02f1ecd81},                           !- Handle
+  su-9,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.1647891112511,24.71418977818397,3.048,  !- X,Y,Z Vertex 1 {m}
+  -15.23521088874886,10.634739871283672,3.048,  !- X,Y,Z Vertex 2 {m}
+  -15.23521088874886,10.634739871283672,6.2434055637038535,  !- X,Y,Z Vertex 3 {m}
+  10.1647891112511,24.71418977818397,6.2434055637038535;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {b4c80304-12b7-47a5-bd51-1a7ad22f5a19},                           !- Handle
+  su-10,                                !- Name
+  Floor,                                   !- Surface Type
+  {},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Ground,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  NoSun,                                !- Sun Exposure
+  NoWind,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+10.1647891112511,24.71418977818397,3.048,  !- X,Y,Z Vertex 1 {m}
+  10.1647891112511,-8.101413155047963,3.048,  !- X,Y,Z Vertex 2 {m}
+  -15.23521088874883,-8.101413155047963,3.048,  !- X,Y,Z Vertex 3 {m}
+  -15.23521088874883,10.634739871283642,3.048;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Surface,
+  {ede5c0fe-978d-44ac-85fd-b2f2f045a7f5},                           !- Handle
+  su-11,                                !- Name
+  Wall,                                   !- Surface Type
+  {4456d1bd-0e5e-45ec-b03d-f34554fe34d4},               !- Construction Name
+  sp-2-Space,                    !- Space Name
+  Outdoors,                   !- Outside Boundary Condition
+  ,             !- Outside Boundary Condition Object
+  SunExposed,                                !- Sun Exposure
+  WindExposed,                               !- Wind Exposure
+  ,                         !- View Factor to Ground
+  ,                                !- Number of Vertices
+-15.235210888748892,-8.101413155047995,3.048,  !- X,Y,Z Vertex 1 {m}
+  10.16478911125104,-8.101413155048087,3.048,  !- X,Y,Z Vertex 2 {m}
+  10.16478911125104,-8.101413155048087,6.2434055637038535,  !- X,Y,Z Vertex 3 {m}
+  -15.235210888748892,-8.101413155047995,6.2434055637038535;  !- X,Y,Z Vertex 4 {m}
+  
+OS:Space,
+{9e1a6ce1-393f-4017-9f78-7de136f8e17b},           !- Handle
+sp-3-Space,                  !- Name
+,                   !- Space Type Name
+  ,     !- Default Construction Set Name
+,     !- Default Schedule Set Name
+,   !- Direction of Relative North {deg}
+,                    !- X Origin {m}
+,                    !- Y Origin {m}
+,                    !- Z Origin {m}
+,          !- Building Story Name
+;            !- Thermal Zone Name
+
+OS:Space,
+{ff8516f6-2b32-4907-b706-f3dcf1e49a2c},           !- Handle
+sp-4-Space,                  !- Name
+,                   !- Space Type Name
+  ,     !- Default Construction Set Name
+,     !- Default Schedule Set Name
+,   !- Direction of Relative North {deg}
+,                    !- X Origin {m}
+,                    !- Y Origin {m}
+,                    !- Z Origin {m}
+,          !- Building Story Name
+;            !- Thermal Zone Name
+
+OS:Space,
+{e91f0631-c0a2-492a-af8a-8dda7d0a59a9},           !- Handle
+sp-5-Space,                  !- Name
+,                   !- Space Type Name
+  ,     !- Default Construction Set Name
+,     !- Default Schedule Set Name
+,   !- Direction of Relative North {deg}
+,                    !- X Origin {m}
+,                    !- Y Origin {m}
+,                    !- Z Origin {m}
+,          !- Building Story Name
+;            !- Thermal Zone Name
+
+OS:Construction,
+{4456d1bd-0e5e-45ec-b03d-f34554fe34d4},                              !- Handle
+Basic Wall:Generic - 8",                                            !- Name
+,                            !- Surface Rendering Name
+{ff599fda-d5ab-4027-ab57-f21c79c5e78d};                   !- Layer 1
+
+OS:Material,
+{ff599fda-d5ab-4027-ab57-f21c79c5e78d},                              !- Handle
+Default Wall,                                            !- Name
+MediumRough,                                       !- Roughness
+0.666666666666667,                                 	   !- Thickness
+123.0,                                    !- Conductivity
+123.0,                                         !- Density
+123.0,                                    !- Specific Heat
+,                                                   !- Thermal Absorptance
+,                                                   !- Solar Absorptance
+;                                                   !- Visible Absorptance
+
+OS:Luminaire,
+{345262e4-8d4d-4dab-b261-ea02d0454dce},                              !- Handle
+Model Group:Control Zone 2:321684Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:319283,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-3.31762102607911,                                               !- Position X-coordinate
+39.5872271816009,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{7bb26065-6df9-432f-86a4-7e936d31f075},                              !- Handle
+Model Group:Control Zone 2:321684Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:319352,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+13.1823789739209,                                               !- Position X-coordinate
+32.5872271816008,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{d3ca53ab-e49a-4c3d-91bb-1608e0cd637f},                              !- Handle
+Model Group:Control Zone 2:321684Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:319844,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-25.3176210260789,                                               !- Position X-coordinate
+30.587227181601,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{7f7117d0-f0c5-40f2-9a15-cde20bddb539},                              !- Handle
+Model Group:Control Zone 1:321646Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:320204,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-36.317621026079,                                               !- Position X-coordinate
+-6.412772818399,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{3995a92d-f4f3-411c-81d4-8832b76735a0},                              !- Handle
+Model Group:Control Zone 1:321646Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:320528,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-24.817621026079,                                               !- Position X-coordinate
+-6.41277281839904,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{0cb2ffed-292a-4df4-b5e3-808976258860},                              !- Handle
+Model Group:Control Zone 1:321646Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:320744,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-24.317621026079,                                               !- Position X-coordinate
+-14.412772818399,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire,
+{ce26b08c-7491-445a-89bd-b0e179ca5d6f},                              !- Handle
+Model Group:Control Zone 1:321646Ceiling Light - Linear Box:1'x4'(1 Lamp) - 120V:321008,                                            !- Name
+870aac58-6bf2-41af-addd-1fa95aee0f15,                         !- Luminaire Definition Name
+6cdf3b55-e25a-4b69-a81a-434370d2ee6e,                                 	   !- Space or SpaceType Name
+,                                    !- Schedule Name
+-35.817621026079,                                               !- Position X-coordinate
+-14.412772818399,                                               !- Position Y-coordinate
+0.8125,                                               !- Position Z-coordinate
+,                                                   !- Psi Rotation Around X-axis
+,                                                   !- Theta Rotation Around Y-axis
+,                                                   !- Phi Rotation Around Z-axis
+,                                                   !- Fraction Replaceable
+,                                                   !- Multiplier
+;                                                   !- End-Use Subcategory
+
+OS:Luminaire:Definition,
+{870aac58-6bf2-41af-addd-1fa95aee0f15},                              !- Handle
+1'x4'(1 Lamp) - 120V,                                            !- Name
+,                                                   !- IES File Path
+,                                 	               !- Lighting Power
+,                                                   !- Fraction Radiant
+,                                                   !- Fraction Visible
+,                                                   !- Return Air Fraction
+,                                                   !- Return Air Fraction Calculated from Plenum Temperature
+,                                                   !- Return Air Fraction Function of Plenum Temperature Coefficient 1
+;                                                   !- Return Air Fraction Function of Plenum Temperature Coefficient 2
+

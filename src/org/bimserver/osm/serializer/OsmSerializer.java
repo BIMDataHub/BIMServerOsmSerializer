@@ -334,7 +334,7 @@ public class OsmSerializer extends EmfSerializer {
 		outputContent.append("OS:Version,\n");
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
-		outputContent.append("1.3.0;                         !- Version Identifier\n\n");
+		outputContent.append("1.8.0;                         !- Version Identifier\n\n");
 
 
 

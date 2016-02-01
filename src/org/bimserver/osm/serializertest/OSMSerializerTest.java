@@ -50,21 +50,23 @@ public class OSMSerializerTest{
 	
 	@Test
 	public void testLuminaire() {
-		String downloadedOSM = checkInAndDownload("./testIFC/lighting fixture.ifc");
+		String downloadedOSM = checkInAndDownload("./tests/ifc/lighting fixture.ifc");
 		String fixture1 = "OS:Luminaire,";
 		String fixture2 = "OS:Luminaire:Definition,";
 		
+		saveAsOSM("./tests/osm/luminair.osm",downloadedOSM);
 		assertTrue(StringUtils.contains(downloadedOSM, fixture1));
 		assertTrue(StringUtils.contains(downloadedOSM, fixture2));
 	}
 	
 	@Test
 	public void testWindow(){
-		String downloadedOSM = checkInAndDownload("./testIFC/window.ifc");
+		String downloadedOSM = checkInAndDownload("./tests/ifc/window.ifc");
 		String window1 = "OS:Construction,";
 		String window2 = "OS:WindowMaterial:SimpleGlazingSystem,";
 		String window3 = "FixedWindow,";
 		
+		saveAsOSM("./tests/osm/window.osm",downloadedOSM);
 		assertTrue(StringUtils.contains(downloadedOSM, window1));
 		assertTrue(StringUtils.contains(downloadedOSM, window2));
 		assertTrue(StringUtils.contains(downloadedOSM, window3));
