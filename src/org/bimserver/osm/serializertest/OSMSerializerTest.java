@@ -71,6 +71,28 @@ public class OSMSerializerTest{
 		assertTrue(StringUtils.contains(downloadedOSM, window2));
 		assertTrue(StringUtils.contains(downloadedOSM, window3));
 	}
+	
+	@Test
+	public void testWallLayer(){
+		String downloadedOSM = checkInAndDownload("./tests/ifc/Test Model-1.ifc");
+		saveAsOSM("./tests/osm/Test Model-1.osm",downloadedOSM);
+		
+		String window1 = "OS:Construction,";
+		String window2 = "OS:WindowMaterial:SimpleGlazingSystem,";
+		String window3 = "FixedWindow,";
+		
+		assertTrue(StringUtils.contains(downloadedOSM, window1));
+		assertTrue(StringUtils.contains(downloadedOSM, window2));
+		assertTrue(StringUtils.contains(downloadedOSM, window3));
+		
+		String fixture1 = "OS:Luminaire,";
+		String fixture2 = "OS:Luminaire:Definition,";
+		assertTrue(StringUtils.contains(downloadedOSM, fixture1));
+		assertTrue(StringUtils.contains(downloadedOSM, fixture2));
+		
+		String layer1 = "OS:Material,";
+		assertTrue(StringUtils.contains(downloadedOSM, layer1));
+	}
 
 	private String checkInAndDownload(String filePath) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
