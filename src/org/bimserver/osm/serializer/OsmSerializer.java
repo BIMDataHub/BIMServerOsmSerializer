@@ -141,7 +141,7 @@ public class OsmSerializer extends EmfSerializer {
 		transformUnits(scale);
 
 		lightFixture(model);
-		
+
 
 
 
@@ -178,32 +178,33 @@ public class OsmSerializer extends EmfSerializer {
 				if (windowTypeMap.containsKey(oid)) {
 					windowTypeHandle = windowTypeMap.get(oid).getHandle();
 				} else {
-					String name = ifcWindowStyle.getName();
+					String name = ifcWindowStyle.getName().replace(',', '_');
 					double uFactor = 0.0;
 					double solarHeatGainCoefficient = 0.0;
-					double visibleAbsorptance = 0.0;
+					double visibleTransmittance = 0.0;
 					if (ifcWindowStyle.isSetHasPropertySets()) {
 						for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcWindowStyle.getHasPropertySets()) {
 							if (ifcPropertySetDefinition instanceof IfcPropertySet) {
 								IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
 								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+								LOGGER.info("" + ifcProperty.getName());
 									if (ifcProperty instanceof IfcPropertySingleValue) {
 										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
 										String propertyName = ifcPropertySingleValue.getName();
-										if (propertyName == "Hear Transfer Coefficient(U)") {
+										if (propertyName.equals("Heat Transfer Coefficient (U)")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												uFactor = ifcReal.getWrappedValue();
 											}
-										} else if (propertyName == "Solar Heat Gain Coefficient") {
+										} else if (propertyName.equals("Solar Heat Gain Coefficient")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												solarHeatGainCoefficient = ifcReal.getWrappedValue();
 											}
-										} else if (propertyName == "Visual Light Transmittance") {
+										} else if (propertyName.equals("Visual Light Transmittance")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												visibleAbsorptance = ifcReal.getWrappedValue();
+												visibleTransmittance = ifcReal.getWrappedValue();
 											}
 										}
 									}
@@ -212,7 +213,7 @@ public class OsmSerializer extends EmfSerializer {
 						}
 					}
 
-					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, 1 - visibleAbsorptance);
+					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, 1 - visibleTransmittance);
 					windowType.add(osmWindowMaterialSimpleGlazingSystem);
 					OsmConstruction osmConstruction = new OsmConstruction(name, "", osmWindowMaterialSimpleGlazingSystem.getHandle());
 					windowTypeMap.put(oid, osmConstruction);
@@ -369,7 +370,7 @@ public class OsmSerializer extends EmfSerializer {
 		for(OsmWindowMaterialSimpleGlazingSystem window : windowType) {
 			outputContent.append(window.toString());
 		}
-		
+
 		for(OsmConstruction osmConstruction : windowConstructionMap) {
 			outputContent.append(osmConstruction.toString());
 		}
@@ -672,7 +673,7 @@ public class OsmSerializer extends EmfSerializer {
 				return constructionMap.get(coid).getHandle();
 			}
 
-			String layerSetName = ifcMaterialLayerSet.getLayerSetName();
+			String layerSetName = ifcMaterialLayerSet.getLayerSetName().replace(',', '_');
 			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
 			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
 			long moid = ifcMaterialLayer.getOid();
@@ -685,7 +686,7 @@ public class OsmSerializer extends EmfSerializer {
 			} else {
 				double layerThickness = ifcMaterialLayer.getLayerThickness();
 				IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
-				String materialName = ifcMaterial.getName();
+				String materialName = ifcMaterial.getName().replace(',', '_');
 				OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
 				materialMap.put(moid, osmMaterial);
 
