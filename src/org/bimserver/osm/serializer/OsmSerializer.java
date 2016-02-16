@@ -194,16 +194,31 @@ public class OsmSerializer extends EmfSerializer {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												uFactor = ifcReal.getWrappedValue();
+												if (nearlyEqual(uFactor, 0)) {
+													uFactor = 0.001
+												} else if(nearlyEqual(uFactor, 7)) {
+													uFacotr = 6.999
+												}
 											}
 										} else if (propertyName == "Solar Heat Gain Coefficient") {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												solarHeatGainCoefficient = ifcReal.getWrappedValue();
+												if (nearlyEqual(solarHeatGainCoefficient, 0)) {
+													solarHeatGainCoefficient = 0.001
+												} else if(nearlyEqual(solarHeatGainCoefficient, 1)) {
+													uFacotr = 0.999
+												}
 											}
 										} else if (propertyName == "Visual Light Transmittance") {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												visibleAbsorptance = ifcReal.getWrappedValue();
+												if (nearlyEqual(visibleAbsorptance, 0)) {
+													visibleAbsorptance = 0.001
+												} else if(nearlyEqual(visibleAbsorptance, 1)) {
+													visibleAbsorptance = 0.999
+												}
 											}
 										}
 									}
@@ -1160,5 +1175,22 @@ public class OsmSerializer extends EmfSerializer {
 			osmPoint.setZ(osmPoint.getZ() * scale);
 		}
 	}
+	
+	private boolean nearlyEqual(double a, double b, double epsilon) {
+        final double absA = Math.abs(a);
+        final double absB = Math.abs(b);
+        final double diff = Math.abs(a - b);
 
+        if (a == b) {
+            return true;
+        } else if (a == 0 || b == 0 || diff < Double.MIN_NORMAL) {
+            return diff < epsilon * Double.MIN_NORMAL;
+        } else {
+            return diff < epsilon * Math.min(absA, absB);
+        }
+    }
+
+    private boolean nearlyEqual(double a, double b) {
+        return nearlyEqual(a, b, 1e-6);
+    }
 }
