@@ -196,9 +196,9 @@ public class OsmSerializer extends EmfSerializer {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												uFactor = ifcReal.getWrappedValue();
 												if (nearlyEqual(uFactor, 0)) {
-													uFactor = 0.001
+													uFactor = 0.001;
 												} else if(nearlyEqual(uFactor, 7)) {
-													uFacotr = 6.999
+													uFactor = 6.999;
 												}
 											}
 										} else if (propertyName.equals("Solar Heat Gain Coefficient")) {
@@ -206,9 +206,9 @@ public class OsmSerializer extends EmfSerializer {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												solarHeatGainCoefficient = ifcReal.getWrappedValue();
 												if (nearlyEqual(solarHeatGainCoefficient, 0)) {
-													solarHeatGainCoefficient = 0.001
+													solarHeatGainCoefficient = 0.001;
 												} else if(nearlyEqual(solarHeatGainCoefficient, 1)) {
-													uFacotr = 0.999
+													solarHeatGainCoefficient = 0.999;
 												}
 											}
 										} else if (propertyName.equals("Visual Light Transmittance")) {
@@ -216,9 +216,9 @@ public class OsmSerializer extends EmfSerializer {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
 												visibleTransmittance = ifcReal.getWrappedValue();
 												if (nearlyEqual(visibleTransmittance, 0)) {
-													visibleTransmittance = 0.001
+													visibleTransmittance = 0.001;
 												} else if(nearlyEqual(visibleTransmittance, 1)) {
-													visibleTransmittance = 0.999
+													visibleTransmittance = 0.999;
 												}
 											}
 										}
@@ -304,7 +304,7 @@ public class OsmSerializer extends EmfSerializer {
 				for (IfcObject ifcObject :ifcRelDefinesByType.getRelatedObjects()) {
 					if (ifcObject instanceof IfcFlowTerminal) {
 						IfcFlowTerminal ifcFlowTerminal = (IfcFlowTerminal) ifcObject;
-						String name = groupMap.getOrDefault(ifcFlowTerminal.getOid(), "0") + ifcFlowTerminal.getName();
+						String name = groupMap.getOrDefault(ifcFlowTerminal.getOid(), "0") + "_" + ifcFlowTerminal.getName();
 						String luminaireDefinitionName = lightFixtureTypeHandle;
 						String spaceName = spatialMap.getOrDefault(ifcFlowTerminal.getOid(), "0");
 						OsmPoint point = new OsmPoint();
@@ -316,7 +316,6 @@ public class OsmSerializer extends EmfSerializer {
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -1176,7 +1175,7 @@ public class OsmSerializer extends EmfSerializer {
 			osmPoint.setZ(osmPoint.getZ() * scale);
 		}
 	}
-	
+
 	private boolean nearlyEqual(double a, double b, double epsilon) {
         final double absA = Math.abs(a);
         final double absB = Math.abs(b);
