@@ -2,6 +2,7 @@ package org.bimserver.osm.serializer;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,11 +121,14 @@ public class OsmSerializer extends EmfSerializer {
 	private int									surfaceNum					= 0;
 
 	private int									subSurfaceNum				= 0;
+	private double                              unit                        = 1.0; 
 
 	@Override
 	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException {
 		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
-
+		// Calculate the unit conversion scale
+		double scale = calUnitConvScale(model);
+		unit = scale;
 		//Create Element-Material map
 		mapElementMaterial(model);
 		extractWindowsInformation(model);
@@ -133,18 +137,10 @@ public class OsmSerializer extends EmfSerializer {
 		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
 		}
-
-		// Calculate the unit conversion scale
-		double scale = calUnitConvScale(model);
-
+		lightFixture(model);
+		
 		// Convert the units
 		transformUnits(scale);
-
-		lightFixture(model);
-
-
-
-
 		// Add linkage information to internal Walls
 		addLinkageInformation();
 	}
@@ -228,9 +224,9 @@ public class OsmSerializer extends EmfSerializer {
 						}
 					}
 
-					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, 1 - visibleTransmittance);
+					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, visibleTransmittance);
 					windowType.add(osmWindowMaterialSimpleGlazingSystem);
-					OsmConstruction osmConstruction = new OsmConstruction(name, "", osmWindowMaterialSimpleGlazingSystem.getHandle());
+					OsmConstruction osmConstruction = new OsmConstruction(name, "", new ArrayList<String>(Arrays.asList(osmWindowMaterialSimpleGlazingSystem.getHandle())));
 					windowTypeMap.put(oid, osmConstruction);
 					windowConstructionMap.add(osmConstruction);
 					windowTypeHandle = osmConstruction.getHandle();
@@ -301,17 +297,18 @@ public class OsmSerializer extends EmfSerializer {
 					lightFixtureTypeMap.put(oid, osmLuminaireDefinition);
 				}
 
-				for (IfcObject ifcObject :ifcRelDefinesByType.getRelatedObjects()) {
+				for (IfcObject ifcObject : ifcRelDefinesByType.getRelatedObjects()) {
 					if (ifcObject instanceof IfcFlowTerminal) {
 						IfcFlowTerminal ifcFlowTerminal = (IfcFlowTerminal) ifcObject;
 						String name = groupMap.getOrDefault(ifcFlowTerminal.getOid(), "0") + "_" + ifcFlowTerminal.getName();
 						String luminaireDefinitionName = lightFixtureTypeHandle;
 						String spaceName = spatialMap.getOrDefault(ifcFlowTerminal.getOid(), "0");
 						OsmPoint point = new OsmPoint();
+						allOsmPoints.add(point);
 						if (ifcFlowTerminal.isSetObjectPlacement()) {
 							coordinateSys3DTrans(point, ifcFlowTerminal.getObjectPlacement());
 						}
-						lights.add(new OsmLuminaire(name, luminaireDefinitionName, spaceName, point.getX(),point.getY(),point.getZ()));
+						lights.add(new OsmLuminaire(name, luminaireDefinitionName, spaceName, point.getX(), point.getY(), point.getZ()));
 					}
 				}
 			}
@@ -345,21 +342,20 @@ public class OsmSerializer extends EmfSerializer {
 	 * write the OsmSpace, OsmSurface, OsmSubSurface to outputStream
 	 * @param outputContent
 	 */
+	
 	private void generateOutput(UTF8PrintWriter outputContent) {
 		outputContent.append("OS:Version,\n");
 		UUID uuid = UUID.randomUUID();
 		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
 		outputContent.append("1.8.0;                         !- Version Identifier\n\n");
 
-
-
-		for(OsmSpace osmSpace: allSpaces) {
+		for (OsmSpace osmSpace : allSpaces) {
 			outputContent.append(osmSpace.toString());
 
-			for(OsmSurface osmSurface: osmSpace.getSurfaceList()) {
+			for (OsmSurface osmSurface : osmSpace.getSurfaceList()) {
 				outputContent.append(osmSurface.toString());
 
-				for(OsmSubSurface osmSubSurface: osmSurface.getSubSurfaceList()) {
+				for (OsmSubSurface osmSubSurface : osmSurface.getSubSurfaceList()) {
 					outputContent.append(osmSubSurface.toString());
 				}
 			}
@@ -689,25 +685,26 @@ public class OsmSerializer extends EmfSerializer {
 
 			String layerSetName = ifcMaterialLayerSet.getLayerSetName().replace(',', '_');
 			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
-			IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(0);
-			long moid = ifcMaterialLayer.getOid();
-
-			if (materialMap.containsKey(moid)) {
-				OsmMaterial osmMaterial = materialMap.get(moid);
-				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
-				constructionMap.put(coid, osmConstruction);
-				return osmConstruction.getHandle();
-			} else {
-				double layerThickness = ifcMaterialLayer.getLayerThickness();
-				IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
-				String materialName = ifcMaterial.getName().replace(',', '_');
-				OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
-				materialMap.put(moid, osmMaterial);
-
-				OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterial.getHandle());
-				constructionMap.put(coid, osmConstruction);
-				return osmConstruction.getHandle();
+			List<String> osmMaterialHandle = new ArrayList<String>();
+			
+			for (int i = 0; i < ifcMaterialLayers.size(); i++) {
+				IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(i);
+				long moid = ifcMaterialLayer.getOid();
+				if (materialMap.containsKey(moid)) {
+					OsmMaterial osmMaterial = materialMap.get(moid);
+					osmMaterialHandle.add(osmMaterial.getHandle());
+				} else {
+					double layerThickness = ifcMaterialLayer.getLayerThickness() * unit;
+					IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
+					String materialName = ifcMaterial.getName().replace(',', '_');
+					OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
+					osmMaterialHandle.add(osmMaterial.getHandle());
+					materialMap.put(moid, osmMaterial);
+				}
 			}
+			OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterialHandle);
+			constructionMap.put(coid, osmConstruction);
+			return osmConstruction.getHandle();
 		} else if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
 			IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
 			IfcMaterialLayerSet ifcMaterialLayerSet =  ifcMaterialLayerSetUsage.getForLayerSet();

@@ -1,25 +1,27 @@
 package org.bimserver.osm.serializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class OsmConstruction {
-	private String      handle;
-	private String      name;
-	private String      surfaceRenderingName;
-	private String      layerHandle;
+	private String            handle;
+	private String            name;
+	private String            surfaceRenderingName;
+	private List<String>      layers;
 
 	public OsmConstruction() {
 		this.handle               = UUID.randomUUID().toString();
 		this.name                 = "";
 		this.surfaceRenderingName = "";
-		this.layerHandle          = "";
+		this.layers               = new ArrayList<String>();
 	}
 
-	public OsmConstruction(String name, String surfaceRenderingName, String layerHandle) {
+	public OsmConstruction(String name, String surfaceRenderingName, List<String> layers) {
 		this.handle               = UUID.randomUUID().toString();
 		this.name                 = name;
 		this.surfaceRenderingName = surfaceRenderingName;
-		this.layerHandle          = layerHandle;
+		this.layers               = layers;
 	}
 
 	public void setName(String name) {
@@ -50,9 +52,20 @@ public class OsmConstruction {
 		output.append("{" + handle + "}" + ",                              !- Handle\n");
 		output.append(name + ",                                            !- Name\n");
 		output.append(surfaceRenderingName + ",                            !- Surface Rendering Name\n");
-		output.append("{" + layerHandle + "}" + ";                   !- Layer 1\n");
-		output.append("\n");
+		int size = layers.size();
 		
+		if (size <= 0) {
+			output.append(";                                               !- Layer \n");
+		} else {
+			for (int i = 1; i <= size; i++) {
+				if(i != size) {
+					output.append("{" + layers.get(i - 1) + "}" + ",           !- Layer " + i + "\n");
+				} else {
+					output.append("{" + layers.get(i - 1) + "}" + ";           !- Layer " + i + "\n");
+				}		
+			}
+		}
+		output.append("\n");
 		return output.toString();
 	}
 }
