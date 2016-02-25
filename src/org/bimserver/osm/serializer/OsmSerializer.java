@@ -32,6 +32,7 @@ import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
 import org.bimserver.models.ifc2x3tc1.IfcGroup;
 import org.bimserver.models.ifc2x3tc1.IfcLightFixtureType;
 import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
+import org.bimserver.models.ifc2x3tc1.IfcMappedItem;
 import org.bimserver.models.ifc2x3tc1.IfcMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayer;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSet;
@@ -43,6 +44,7 @@ import org.bimserver.models.ifc2x3tc1.IfcObjectDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcPolyline;
 import org.bimserver.models.ifc2x3tc1.IfcProduct;
+import org.bimserver.models.ifc2x3tc1.IfcProductRepresentation;
 import org.bimserver.models.ifc2x3tc1.IfcProfileDef;
 import org.bimserver.models.ifc2x3tc1.IfcProperty;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
@@ -58,6 +60,9 @@ import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByProperties;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByType;
 import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
 import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
+import org.bimserver.models.ifc2x3tc1.IfcRepresentation;
+import org.bimserver.models.ifc2x3tc1.IfcRepresentationItem;
+import org.bimserver.models.ifc2x3tc1.IfcRepresentationMap;
 import org.bimserver.models.ifc2x3tc1.IfcRoof;
 import org.bimserver.models.ifc2x3tc1.IfcRoot;
 import org.bimserver.models.ifc2x3tc1.IfcSlab;
@@ -121,7 +126,7 @@ public class OsmSerializer extends EmfSerializer {
 	private int									surfaceNum					= 0;
 
 	private int									subSurfaceNum				= 0;
-	private double                              unit                        = 1.0; 
+	private double                              unit                        = 1.0;
 
 	@Override
 	public void init(IfcModelInterface model, ProjectInfo projectInfo, PluginManager pluginManager, RenderEnginePlugin renderEnginePlugin, boolean normalizeOids) throws SerializerException {
@@ -138,7 +143,7 @@ public class OsmSerializer extends EmfSerializer {
 			extractSpaces(ifcSpace);
 		}
 		lightFixture(model);
-		
+
 		// Convert the units
 		transformUnits(scale);
 		// Add linkage information to internal Walls
@@ -183,7 +188,6 @@ public class OsmSerializer extends EmfSerializer {
 							if (ifcPropertySetDefinition instanceof IfcPropertySet) {
 								IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
 								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
-								LOGGER.info("" + ifcProperty.getName());
 									if (ifcProperty instanceof IfcPropertySingleValue) {
 										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
 										String propertyName = ifcPropertySingleValue.getName();
@@ -280,7 +284,7 @@ public class OsmSerializer extends EmfSerializer {
 				}
 			}
 		}
-
+		
 		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
 			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
 			if(ifcTypeObject instanceof IfcLightFixtureType) {
@@ -303,18 +307,20 @@ public class OsmSerializer extends EmfSerializer {
 						String name = groupMap.getOrDefault(ifcFlowTerminal.getOid(), "0") + "_" + ifcFlowTerminal.getName();
 						String luminaireDefinitionName = lightFixtureTypeHandle;
 						String spaceName = spatialMap.getOrDefault(ifcFlowTerminal.getOid(), "0");
+						
 						OsmPoint point = new OsmPoint();
+						coordinateSys3DTrans(point, ifcFlowTerminal.getObjectPlacement());
 						allOsmPoints.add(point);
-						if (ifcFlowTerminal.isSetObjectPlacement()) {
-							coordinateSys3DTrans(point, ifcFlowTerminal.getObjectPlacement());
-						}
-						lights.add(new OsmLuminaire(name, luminaireDefinitionName, spaceName, point.getX(), point.getY(), point.getZ()));
+						lights.add(new OsmLuminaire(name, luminaireDefinitionName, spaceName, point));
 					}
 				}
 			}
 		}
 	}
-
+	
+	
+	
+	
 	@Override
 	public void reset()	{
 		setMode(Mode.BODY);
@@ -342,7 +348,7 @@ public class OsmSerializer extends EmfSerializer {
 	 * write the OsmSpace, OsmSurface, OsmSubSurface to outputStream
 	 * @param outputContent
 	 */
-	
+
 	private void generateOutput(UTF8PrintWriter outputContent) {
 		outputContent.append("OS:Version,\n");
 		UUID uuid = UUID.randomUUID();
@@ -686,7 +692,7 @@ public class OsmSerializer extends EmfSerializer {
 			String layerSetName = ifcMaterialLayerSet.getLayerSetName().replace(',', '_');
 			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
 			List<String> osmMaterialHandle = new ArrayList<String>();
-			
+
 			for (int i = 0; i < ifcMaterialLayers.size(); i++) {
 				IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(i);
 				long moid = ifcMaterialLayer.getOid();

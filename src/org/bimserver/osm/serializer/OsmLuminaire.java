@@ -8,9 +8,7 @@ public class OsmLuminaire {
 	private String luminaireDefinitionName;
 	private String spaceName;
 	private String scheduleName;
-	double x;
-	double y;
-	double z;
+	private OsmPoint point; 
 	//double psi;
 	//double theta;
 	//double phi;
@@ -24,20 +22,16 @@ public class OsmLuminaire {
 		this.luminaireDefinitionName = "";
 		this.spaceName = "";
 		this.scheduleName = "";
-		this.x = 0.0;
-		this.y = 0.0;
-		this.z = 0.0;
+		this.point = new OsmPoint();
 	}
 	
-	public OsmLuminaire(String name, String luminaireDefinitionName, String spaceName, double x, double y, double z) {
+	public OsmLuminaire(String name, String luminaireDefinitionName, String spaceName, OsmPoint point) {
 		this.handle = UUID.randomUUID().toString();
 		this.name = name;
 		this.luminaireDefinitionName = luminaireDefinitionName;
 		this.spaceName = spaceName;
 		this.scheduleName = "";
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.point = point;
 	}
 	
 	public String getHandle() {
@@ -57,9 +51,9 @@ public class OsmLuminaire {
 		output.append(luminaireDefinitionName + ",                         !- Luminaire Definition Name\n");
 		output.append(spaceName + ",                                 	   !- Space or SpaceType Name\n");
 		output.append(scheduleName + ",                                    !- Schedule Name\n");
-		output.append(x + ",                                               !- Position X-coordinate\n");
-		output.append(y + ",                                               !- Position Y-coordinate\n");
-		output.append(z + ",                                               !- Position Z-coordinate\n");
+		output.append(point.getX() + ",                                               !- Position X-coordinate\n");
+		output.append(point.getY() + ",                                               !- Position Y-coordinate\n");
+		output.append(point.getZ() + ",                                               !- Position Z-coordinate\n");
 		output.append(",                                                   !- Psi Rotation Around X-axis\n");
 		output.append(",                                                   !- Theta Rotation Around Y-axis\n");
 		output.append(",                                                   !- Phi Rotation Around Z-axis\n");
