@@ -24,6 +24,8 @@ import org.bimserver.models.ifc2x3tc1.IfcConnectionSurfaceGeometry;
 import org.bimserver.models.ifc2x3tc1.IfcConversionBasedUnit;
 import org.bimserver.models.ifc2x3tc1.IfcCurve;
 import org.bimserver.models.ifc2x3tc1.IfcCurveBoundedPlane;
+import org.bimserver.models.ifc2x3tc1.IfcDerivedUnit;
+import org.bimserver.models.ifc2x3tc1.IfcDerivedUnitElement;
 import org.bimserver.models.ifc2x3tc1.IfcDirection;
 import org.bimserver.models.ifc2x3tc1.IfcDoor;
 import org.bimserver.models.ifc2x3tc1.IfcElement;
@@ -32,19 +34,18 @@ import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
 import org.bimserver.models.ifc2x3tc1.IfcGroup;
 import org.bimserver.models.ifc2x3tc1.IfcLightFixtureType;
 import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
-import org.bimserver.models.ifc2x3tc1.IfcMappedItem;
 import org.bimserver.models.ifc2x3tc1.IfcMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayer;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSet;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSetUsage;
 import org.bimserver.models.ifc2x3tc1.IfcMaterialSelect;
 import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
+import org.bimserver.models.ifc2x3tc1.IfcNamedUnit;
 import org.bimserver.models.ifc2x3tc1.IfcObject;
 import org.bimserver.models.ifc2x3tc1.IfcObjectDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
 import org.bimserver.models.ifc2x3tc1.IfcPolyline;
 import org.bimserver.models.ifc2x3tc1.IfcProduct;
-import org.bimserver.models.ifc2x3tc1.IfcProductRepresentation;
 import org.bimserver.models.ifc2x3tc1.IfcProfileDef;
 import org.bimserver.models.ifc2x3tc1.IfcProperty;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
@@ -60,11 +61,9 @@ import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByProperties;
 import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByType;
 import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
 import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
-import org.bimserver.models.ifc2x3tc1.IfcRepresentation;
-import org.bimserver.models.ifc2x3tc1.IfcRepresentationItem;
-import org.bimserver.models.ifc2x3tc1.IfcRepresentationMap;
 import org.bimserver.models.ifc2x3tc1.IfcRoof;
 import org.bimserver.models.ifc2x3tc1.IfcRoot;
+import org.bimserver.models.ifc2x3tc1.IfcSIUnit;
 import org.bimserver.models.ifc2x3tc1.IfcSlab;
 import org.bimserver.models.ifc2x3tc1.IfcSpace;
 import org.bimserver.models.ifc2x3tc1.IfcSpatialStructureElement;
@@ -133,6 +132,7 @@ public class OsmSerializer extends EmfSerializer {
 		super.init(model, projectInfo, pluginManager, renderEnginePlugin, normalizeOids);
 		// Calculate the unit conversion scale
 		double scale = calUnitConvScale(model);
+		setDefaultUnit(model);
 		unit = scale;
 		//Create Element-Material map
 		mapElementMaterial(model);
@@ -194,7 +194,7 @@ public class OsmSerializer extends EmfSerializer {
 										if (propertyName.equals("Heat Transfer Coefficient (U)")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
 												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												uFactor = ifcReal.getWrappedValue();
+												uFactor = ifcReal.getWrappedValue() * getDefaultUnit("THERMALTRANSMITTANCEUNIT");
 												if (nearlyEqual(uFactor, 0)) {
 													uFactor = 0.001;
 												} else if(nearlyEqual(uFactor, 7)) {
@@ -1110,30 +1110,6 @@ public class OsmSerializer extends EmfSerializer {
 		return Math.sqrt(x2+y2+z2);
 	}
 
-	private double calUnitConvScale(IfcModelInterface model) {
-		double scale = 1.0;
-		List<IfcUnitAssignment> ifcUnitAssignmentList =  model.getAll(IfcUnitAssignment.class);
-		if(!ifcUnitAssignmentList.isEmpty()) {
-			IfcUnitAssignment ifcUnitAssignment = ifcUnitAssignmentList.get(0);
-			List<IfcUnit> ifcUnitList = ifcUnitAssignment.getUnits();
-			for (IfcUnit ifcUnit : ifcUnitList) {
-				if (ifcUnit instanceof IfcConversionBasedUnit) {
-					IfcConversionBasedUnit ifcConversionBasedUnit = (IfcConversionBasedUnit) ifcUnit;
-					if (ifcConversionBasedUnit.getUnitType().getName() == "LENGTHUNIT") {
-						IfcMeasureWithUnit ifcMeasureWithUnit = ifcConversionBasedUnit.getConversionFactor();
-						IfcValue ifcValue = ifcMeasureWithUnit.getValueComponent();
-						if (ifcValue instanceof IfcRatioMeasure) {
-							scale = ((IfcRatioMeasure) ifcValue).getWrappedValue();
-							break;
-						}
-					}
-
-				}
-			}
-		}
-		return scale;
-	}
-
 	private void getPointsOfIfcPolyline(IfcPolyline ifcPolyline, List<OsmPoint> osmPointList) {
 		List<IfcCartesianPoint> ifcCartesianPointList = ifcPolyline.getPoints();
 		for (IfcCartesianPoint ifcCartesianPoint : ifcCartesianPointList) {
@@ -1169,7 +1145,92 @@ public class OsmSerializer extends EmfSerializer {
 				set.add(points.get(i));
 			}
 		}
-  }
+	}
+
+
+
+	private double calUnitConvScale(IfcModelInterface model) {
+		double scale = 1.0;
+		List<IfcUnitAssignment> ifcUnitAssignmentList =  model.getAll(IfcUnitAssignment.class);
+		if (!ifcUnitAssignmentList.isEmpty()) {
+			for (IfcUnitAssignment ifcUnitAssignment : ifcUnitAssignmentList) {
+				List<IfcUnit> ifcUnitList = ifcUnitAssignment.getUnits();
+				for (IfcUnit ifcUnit : ifcUnitList) {
+					if (ifcUnit instanceof IfcConversionBasedUnit) {
+						IfcConversionBasedUnit ifcConversionBasedUnit = (IfcConversionBasedUnit) ifcUnit;
+						if (ifcConversionBasedUnit.getUnitType().getName() == "LENGTHUNIT") {
+							IfcMeasureWithUnit ifcMeasureWithUnit = ifcConversionBasedUnit.getConversionFactor();
+							IfcValue ifcValue = ifcMeasureWithUnit.getValueComponent();
+							if (ifcValue instanceof IfcRatioMeasure) {
+								scale = ((IfcRatioMeasure) ifcValue).getWrappedValue();
+								break;
+							}
+						}
+					}
+				}
+			}			
+		}
+		return scale;
+	}
+	
+	HashMap<String, Double> unitMap = new HashMap<String, Double>();
+	private void setDefaultUnit(IfcModelInterface model) {
+		List<IfcUnitAssignment> ifcUnitAssignmentList = model.getAll(IfcUnitAssignment.class);
+		if (!ifcUnitAssignmentList.isEmpty()) {
+			for (IfcUnitAssignment ifcUnitAssignment : ifcUnitAssignmentList) {
+				List<IfcUnit> ifcUnitList = ifcUnitAssignment.getUnits();
+				for (IfcUnit ifcUnit : ifcUnitList) {			
+					if (ifcUnit instanceof IfcNamedUnit) {
+						IfcNamedUnit ifcNamedUnit = (IfcNamedUnit) ifcUnit;
+						unitMap.put(ifcNamedUnit.getUnitType().getLiteral(), convertUnit(ifcNamedUnit));
+					} else if (ifcUnit instanceof IfcDerivedUnit) {
+						IfcDerivedUnit ifcDerivedUnit = (IfcDerivedUnit) ifcUnit;
+						if (!ifcDerivedUnit.getUnitType().getLiteral().equals("USERDEFINED")) {
+							unitMap.put(ifcDerivedUnit.getUnitType().getLiteral(), convertUnit(ifcDerivedUnit));
+						}
+					} else if (ifcUnit instanceof IfcSIUnit) {
+						IfcSIUnit ifcSIUnit = (IfcSIUnit) ifcUnit;
+						unitMap.put(ifcSIUnit.getUnitType().getLiteral(), 1.0);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private double getDefaultUnit(String unitName) {
+		return unitMap.getOrDefault(unitName, 1.0);
+	}
+	
+	private double convertUnit(IfcUnit ifcUnit) {
+		double ratio = 1.0;
+		if (ifcUnit instanceof IfcConversionBasedUnit) {
+			ratio = getUnitRatio((IfcNamedUnit) ifcUnit);
+		} else if (ifcUnit instanceof IfcDerivedUnit) {
+			IfcDerivedUnit ifcDerivedUnit = (IfcDerivedUnit) ifcUnit;
+			List<IfcDerivedUnitElement> ifcDerivedUnitElements = ifcDerivedUnit.getElements();
+			for (IfcDerivedUnitElement ifcDerivedUnitElement : ifcDerivedUnitElements) {
+				IfcNamedUnit ifcNamedUnit = ifcDerivedUnitElement.getUnit();
+				int exponent = ifcDerivedUnitElement.getExponent();
+			    ratio *= Math.pow(getUnitRatio(ifcNamedUnit), exponent);
+			}
+		}
+		return ratio;
+	}
+	
+	private double getUnitRatio(IfcNamedUnit ifcNamedUnit) {
+		double ratio = 1.0;
+		if (ifcNamedUnit instanceof IfcConversionBasedUnit) {
+			IfcConversionBasedUnit ifcConversionBasedUnit = (IfcConversionBasedUnit) ifcNamedUnit;
+			IfcMeasureWithUnit ifcMeasureWithUnit = ifcConversionBasedUnit.getConversionFactor();
+			IfcValue ifcValue = ifcMeasureWithUnit.getValueComponent();
+			if (ifcValue instanceof IfcRatioMeasure) {
+				ratio = ((IfcRatioMeasure) ifcValue).getWrappedValue();
+			}
+		}
+		return ratio;		
+	}
+	
 
 	private void transformUnits(double scale) {
 		for (OsmPoint osmPoint : allOsmPoints) {
