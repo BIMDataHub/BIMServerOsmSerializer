@@ -28,6 +28,7 @@ import org.bimserver.models.ifc2x3tc1.IfcDerivedUnit;
 import org.bimserver.models.ifc2x3tc1.IfcDerivedUnitElement;
 import org.bimserver.models.ifc2x3tc1.IfcDirection;
 import org.bimserver.models.ifc2x3tc1.IfcDoor;
+import org.bimserver.models.ifc2x3tc1.IfcDoorStyle;
 import org.bimserver.models.ifc2x3tc1.IfcElement;
 import org.bimserver.models.ifc2x3tc1.IfcFaceBasedSurfaceModel;
 import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
@@ -164,27 +165,26 @@ public class OsmSerializer extends EmfSerializer {
 			}
 		}
 	}
-	HashMap<Long, OsmConstruction> windowTypeMap = new HashMap<Long, OsmConstruction>();
-	HashMap<Long, String> windowMap = new HashMap<Long, String>();
-	List<OsmConstruction> windowConstructionMap = new ArrayList<OsmConstruction>();
-	List<OsmWindowMaterialSimpleGlazingSystem> windowType = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
+	
+	HashMap<Long, OsmConstruction> windowOrDoorTypeMap = new HashMap<Long, OsmConstruction>();
+	HashMap<Long, String> windowOrDoorMap = new HashMap<Long, String>();
+	List<OsmConstruction> windowOrDoorConstructionMap = new ArrayList<OsmConstruction>();
+	List<OsmWindowMaterialSimpleGlazingSystem> windowOrDoorType = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
 	public void extractWindowsInformation(IfcModelInterface model) {
 		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
 			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
-			if (ifcTypeObject instanceof IfcWindowStyle) {
-				IfcWindowStyle ifcWindowStyle = (IfcWindowStyle) ifcTypeObject;
-				Long oid = ifcWindowStyle.getOid();
-
-				String windowTypeHandle = "";
-				if (windowTypeMap.containsKey(oid)) {
-					windowTypeHandle = windowTypeMap.get(oid).getHandle();
+			if (ifcTypeObject instanceof IfcWindowStyle || ifcTypeObject instanceof IfcDoorStyle) {
+				Long oid = ifcTypeObject.getOid();
+				String typeHandle = "";
+				if (windowOrDoorTypeMap.containsKey(oid)) {
+					typeHandle = windowOrDoorTypeMap.get(oid).getHandle();
 				} else {
-					String name = ifcWindowStyle.getName().replace(',', '_');
+					String name = ifcTypeObject.getName().replace(',', '_');
 					double uFactor = 0.0;
 					double solarHeatGainCoefficient = 0.0;
 					double visibleTransmittance = 0.0;
-					if (ifcWindowStyle.isSetHasPropertySets()) {
-						for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcWindowStyle.getHasPropertySets()) {
+					if (ifcTypeObject.isSetHasPropertySets()) {
+						for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcTypeObject.getHasPropertySets()) {
 							if (ifcPropertySetDefinition instanceof IfcPropertySet) {
 								IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
 								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
@@ -229,21 +229,27 @@ public class OsmSerializer extends EmfSerializer {
 					}
 
 					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, visibleTransmittance);
-					windowType.add(osmWindowMaterialSimpleGlazingSystem);
+					windowOrDoorType.add(osmWindowMaterialSimpleGlazingSystem);
 					OsmConstruction osmConstruction = new OsmConstruction(name, "", new ArrayList<String>(Arrays.asList(osmWindowMaterialSimpleGlazingSystem.getHandle())));
-					windowTypeMap.put(oid, osmConstruction);
-					windowConstructionMap.add(osmConstruction);
-					windowTypeHandle = osmConstruction.getHandle();
+					windowOrDoorTypeMap.put(oid, osmConstruction);
+					windowOrDoorConstructionMap.add(osmConstruction);
+					typeHandle = osmConstruction.getHandle();
 				}
 
 				for (IfcObject ifcObject: ifcRelDefinesByType.getRelatedObjects()) {
-					if (ifcObject instanceof IfcWindow) {
-						windowMap.put(ifcObject.getOid(), windowTypeHandle);
+					if (ifcObject instanceof IfcWindow || ifcObject instanceof IfcDoor) {
+						windowOrDoorMap.put(ifcObject.getOid(), typeHandle);
 					}
 				}
 			}
 		}
 	}
+	
+	
+	
+	
+	
+	
 
 	HashMap<Long, OsmLuminaireDefinition> lightFixtureTypeMap = new HashMap<Long, OsmLuminaireDefinition>();
 	HashMap<Long, String> groupMap = new HashMap<Long, String>();
@@ -383,11 +389,11 @@ public class OsmSerializer extends EmfSerializer {
 			outputContent.append(osmLuminaireDefinition.toString());
 		}
 
-		for(OsmWindowMaterialSimpleGlazingSystem window : windowType) {
-			outputContent.append(window.toString());
+		for(OsmWindowMaterialSimpleGlazingSystem windowOrDoor : windowOrDoorType) {
+			outputContent.append(windowOrDoor.toString());
 		}
 
-		for(OsmConstruction osmConstruction : windowConstructionMap) {
+		for(OsmConstruction osmConstruction : windowOrDoorConstructionMap) {
 			outputContent.append(osmConstruction.toString());
 		}
 	}
@@ -595,8 +601,8 @@ public class OsmSerializer extends EmfSerializer {
 				osmSubSurface.setTypeName("FixedWindow");
 
 				String constructionName = "";
-				if(windowMap.containsKey(ifcElement.getOid())) {
-					constructionName = windowMap.get(ifcElement.getOid());
+				if(windowOrDoorMap.containsKey(ifcElement.getOid())) {
+					constructionName = windowOrDoorMap.get(ifcElement.getOid());
 				}
 				osmSubSurface.setConstructionName(constructionName);
 
@@ -636,6 +642,13 @@ public class OsmSerializer extends EmfSerializer {
                 osmSubSurface.setUuid(uuid.toString());
                 osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
 				osmSubSurface.setTypeName("Door");
+				
+				String constructionName = "";
+				if(windowOrDoorMap.containsKey(ifcElement.getOid())) {
+					constructionName = windowOrDoorMap.get(ifcElement.getOid());
+				}
+				osmSubSurface.setConstructionName(constructionName);
+				
 				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor.getFillsVoids();
 				if (ifcRelFillsElementList.size() > 0) {
 					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
