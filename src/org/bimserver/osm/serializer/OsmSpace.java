@@ -123,21 +123,22 @@ public class OsmSpace {
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder();
+		StringBuilder str = new StringBuilder();
 		
-		output.append("OS:Space,\n");
-		output.append("{" + uuid + "}" + ",           !- Handle\n");
-		output.append(spaceName + ",                  !- Name\n");
-		output.append(typeName + ",                   !- Space Type Name\n  ");
-		output.append(defaultScheduleSetName + ",     !- Default Construction Set Name\n");
-		output.append(defaultScheduleSetName + ",     !- Default Schedule Set Name\n");
-		output.append(directionOfRelativeNorth + ",   !- Direction of Relative North {deg}\n");
-		output.append(xOrigin + ",                    !- X Origin {m}\n");
-		output.append(yOrigin + ",                    !- Y Origin {m}\n");
-		output.append(zOrigin + ",                    !- Z Origin {m}\n");
-		output.append(buildingStoryName + ",          !- Building Story Name\n");
-		output.append(thermalZoneName + ";            !- Thermal Zone Name\n\n");
-		
-		return output.toString();	
+		str.append("OS:Space,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + uuid + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", spaceName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Space Type Name", typeName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Default Construction Set Name", defaultConstructionSetName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Default Schedule Set Name", defaultScheduleSetName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Direction of Relative North {deg}", directionOfRelativeNorth + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- !- X Origin {m}", xOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- !- Y Origin {m}", yOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- !- Z Origin {m}", zOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- !- Building Story Name", buildingStoryName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- !- Thermal Zone Name", thermalZoneName + ";")).append(System.getProperty("line.separator"));
+		str.append(System.getProperty("line.separator"));
+
+		return str.toString();	
 	}
 }

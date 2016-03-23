@@ -70,6 +70,7 @@ import org.bimserver.models.ifc2x3tc1.IfcSpace;
 import org.bimserver.models.ifc2x3tc1.IfcSpatialStructureElement;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
 import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
+import org.bimserver.models.ifc2x3tc1.IfcText;
 import org.bimserver.models.ifc2x3tc1.IfcTypeObject;
 import org.bimserver.models.ifc2x3tc1.IfcUnit;
 import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
@@ -297,12 +298,34 @@ public class OsmSerializer extends EmfSerializer {
 				IfcLightFixtureType ifcLightFixtureType = (IfcLightFixtureType) ifcTypeObject;
 				Long oid = ifcLightFixtureType.getOid();
 
-				String lightFixtureTypeHandle = "";
+				String lightFixtureTypeHandle = new String("");
+				
 				if (lightFixtureTypeMap.containsKey(oid)) {
 					lightFixtureTypeHandle = lightFixtureTypeMap.get(oid).getHandle();
 				} else {
 					String name = ifcLightFixtureType.getName();
-					OsmLuminaireDefinition osmLuminaireDefinition = new OsmLuminaireDefinition(name);
+					
+					String IESFilePath = new String("");
+					for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcLightFixtureType.getHasPropertySets()) {
+						if (ifcPropertySetDefinition instanceof IfcPropertySet) {
+							IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
+							if (ifcPropertySet.getName().equals("Photometrics")) {
+								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+									if (ifcProperty instanceof IfcPropertySingleValue) {
+										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+										if (ifcPropertySingleValue.getName().equals("Photometric Web File")) {
+											if (ifcPropertySingleValue.getNominalValue() instanceof IfcText) {
+												IfcText ifcText = (IfcText) ifcPropertySingleValue.getNominalValue();
+												IESFilePath = ifcText.getWrappedValue(); 
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
+					OsmLuminaireDefinition osmLuminaireDefinition = new OsmLuminaireDefinition(name, IESFilePath);
 					lightFixtureTypeHandle = osmLuminaireDefinition.getHandle();
 					lightFixtureTypeMap.put(oid, osmLuminaireDefinition);
 				}
@@ -1098,9 +1121,6 @@ public class OsmSerializer extends EmfSerializer {
 	 */
 	private OsmPoint computeSurfaceCenter(OsmSurface osmSurface) {
 		List<OsmPoint> list = osmSurface.getOsmPointList();
-		if (list.size() != 4) {
-			System.err.print("Warning! The Surface " + osmSurface.getSurfaceName() + " contains " + list.size() + " points!");
-		}
 		double xSum = 0, ySum = 0, zSum = 0;
 		for (OsmPoint p : list) {
 			xSum += p.getX();

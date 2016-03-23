@@ -114,44 +114,34 @@ public class OsmSubSurface {
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder();
+		StringBuilder str = new StringBuilder();
 		
-		output.append("OS:SubSurface,\n  ");
-		output.append("{" + uuid + "}" + ",                              !- Handle\n  ");
-		output.append(subSurfaceName + ",                     !- Name\n  ");
-		output.append(typeName + ",                     !- Surface Type\n  ");
-		output.append(constructionName + ",                         !- Construction Name\n  ");
-		output.append(osmSurface.getSurfaceName() + ",                  !- Surface Name\n  ");
-		output.append(outsideBoundaryConditionObject + ",                         !- Outside Boundary Condition Object\n  ");
-		output.append(viewFactorToGround + ",                         !- View Factor to Ground\n  ");
-		output.append(shadingControlName + ",                         !- Shading Control Name\n  ");
-		output.append(frameAndDividerName + ",                         !- Frame and Divider Name\n  ");
-		output.append(multiplier + ",                         !- Multiplier\n  ");
-		output.append(numberOfVertices);
+		str.append("OS:SubSurface,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + uuid + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", subSurfaceName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Sub Surface Type", typeName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Construction Name", "{" + constructionName + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Surface Name", osmSurface.getSurfaceName() + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Outside Boundary Condition Object", outsideBoundaryConditionObject + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- View Factor to Ground", viewFactorToGround + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Shading Control Name", shadingControlName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Frame and Divider Name", frameAndDividerName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Multiplier", multiplier + ",")).append(System.getProperty("line.separator"));
 		
 		int size = pointList.size();
-		if(size <= 0) {
-			output.append(";                         !- Number of Vertices\n  ");
+		if (size <= 0) {
+			str.append(String.format("%-60s!- Number of Vertices", ";")).append(System.getProperty("line.separator"));
 		} else{
-			output.append(",                         !- Number of Vertices\n  ");
-			for(int i = 0; i < size; i ++) {
-				OsmPoint osmPoint = pointList.get(i);
-				output.append(String.valueOf(osmPoint.getX()));
-				output.append(",");
-				output.append(String.valueOf(osmPoint.getY()));
-				output.append(",");
-				output.append(String.valueOf(osmPoint.getZ()));
-				if(i != size - 1) {
-					output.append(",  !- X,Y,Z Vertex ");
-				} else {
-					output.append(";  !- X,Y,Z Vertex ");
-				}
-				output.append(String.valueOf(i + 1));
-				output.append(" {m}\n  ");
+			str.append(String.format("%-60s!- Number of Vertices", ",")).append(System.getProperty("line.separator"));
+			
+			for (int i = 1; i <= size; i++) {
+				OsmPoint osmPoint = pointList.get(i - 1);
+				String delimiter = i == size ? ";" : ",";
+				str.append(String.format("%-60s!- X,Y,Z Vertex %d {m}", osmPoint.getX() + "," + osmPoint.getY() + "," + osmPoint.getZ() + delimiter, i)).append(System.getProperty("line.separator"));	
 			}
 		}
-		output.append("\n");
-		return output.toString();
+		str.append(System.getProperty("line.separator"));
+		
+		return str.toString();
 	}
-
 }

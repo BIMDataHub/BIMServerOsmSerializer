@@ -126,48 +126,37 @@ public class OsmSurface {
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder();
-		
-		output.append("OS:Surface,\n  ");
-		output.append("{" + uuid + "}" + ",                           !- Handle\n  ");
-		output.append(surfaceName + ",                                !- Name\n  ");
-		output.append(typeName + ",                                   !- Surface Type\n  ");
-		output.append("{" + constructionName + "}" + ",               !- Construction Name\n  ");
-		output.append(osmSpace.getSpaceName() + ",                    !- Space Name\n  ");
-		output.append(outsideBoundaryCondition + ",                   !- Outside Boundary Condition\n  ");
-		output.append(outsideBoundaryConditionObject + ",             !- Outside Boundary Condition Object\n  ");
-		output.append(sunExposure + ",                                !- Sun Exposure\n  ");
-		output.append(windExposure + ",                               !- Wind Exposure\n  ");
-		output.append(viewFactorToGround + ",                         !- View Factor to Ground\n  ");
-		output.append(numberOfVertices);
-		
-		int size = pointList.size();
-		
 		correctDirectionOfFloorCeiling();
 		
+		StringBuilder str = new StringBuilder();
+		
+		str.append("OS:Surface,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + uuid + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", surfaceName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Surface Type", typeName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Construction Name", "{" + constructionName + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Space Name", osmSpace.getSpaceName() + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Outside Boundary Condition", outsideBoundaryCondition + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Outside Boundary Condition Object", outsideBoundaryConditionObject + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Sun Exposure", sunExposure + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Wind Exposure", windExposure + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- View Factor to Ground", viewFactorToGround + ",")).append(System.getProperty("line.separator"));
+				
+		int size = pointList.size();
 		if(size <= 0) {
-			output.append(";                                !- Number of Vertices\n");
+			str.append(String.format("%-60s!- Number of Vertices", ";")).append(System.getProperty("line.separator"));
 		} else {
-			output.append(",                                !- Number of Vertices\n");
-			for(int i = 0; i < size; i ++) {
-				OsmPoint osmPoint = pointList.get(i);
-				output.append(String.valueOf(osmPoint.getX()));
-				output.append(",");
-				output.append(String.valueOf(osmPoint.getY()));
-				output.append(",");
-				output.append(String.valueOf(osmPoint.getZ()));
-				if(i != size - 1) {
-					output.append(",  !- X,Y,Z Vertex ");
-				} else {
-					output.append(";  !- X,Y,Z Vertex ");
-				}
-				output.append(String.valueOf(i+1));
-				output.append(" {m}\n  ");
+			str.append(String.format("%-60s!- Number of Vertices", ",")).append(System.getProperty("line.separator"));
+			
+			for (int i = 1; i <= size; i++) {
+				OsmPoint osmPoint = pointList.get(i - 1);
+				String delimiter = i == size ? ";" : ",";
+				str.append(String.format("%-60s!- X,Y,Z Vertex %d {m}", osmPoint.getX() + "," + osmPoint.getY() + "," + osmPoint.getZ() + delimiter, i)).append(System.getProperty("line.separator"));	
 			}
 		}
-		output.append("\n");
+		str.append(System.getProperty("line.separator"));
 		
-		return output.toString();
+		return str.toString();
 	}
 	
 	/**
@@ -181,7 +170,6 @@ public class OsmSurface {
 			return true;
 		}
 		
-		//calculate the center
 		double centroidX = 0.0;
 		double centroidY = 0.0;
 		int length = point.size();

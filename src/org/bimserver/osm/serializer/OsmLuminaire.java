@@ -43,26 +43,25 @@ public class OsmLuminaire {
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder();
-
-		output.append("OS:Luminaire,\n");
-		output.append("{" + handle + "}" + ",                              !- Handle\n");
-		output.append(name + ",                                            !- Name\n");
-		output.append(luminaireDefinitionName + ",                         !- Luminaire Definition Name\n");
-		output.append(spaceName + ",                                 	   !- Space or SpaceType Name\n");
-		output.append(scheduleName + ",                                    !- Schedule Name\n");
-		output.append(point.getX() + ",                                               !- Position X-coordinate\n");
-		output.append(point.getY() + ",                                               !- Position Y-coordinate\n");
-		output.append(point.getZ() + ",                                               !- Position Z-coordinate\n");
-		output.append(",                                                   !- Psi Rotation Around X-axis\n");
-		output.append(",                                                   !- Theta Rotation Around Y-axis\n");
-		output.append(",                                                   !- Phi Rotation Around Z-axis\n");
-		output.append(",                                                   !- Fraction Replaceable\n");
-		output.append(",                                                   !- Multiplier\n");
-		output.append(";                                                   !- End-Use Subcategory\n");
+		StringBuilder str = new StringBuilder();
 		
-		output.append("\n");
+		str.append("OS:Luminaire,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + handle + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", name + ",")).append(System.getProperty("line.separator"));
+	    str.append(String.format("%-60s!- Luminaire Definition Name", luminaireDefinitionName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Space or SpaceType Name", spaceName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Schedule Name", scheduleName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Position X-coordinate", point.getX() + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Position Y-coordinate", point.getY() + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Position Z-coordinate", point.getZ() + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Psi Rotation Around X-axis", ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Theta Rotation Around Y-axis", ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Phi Rotation Around Z-axis", ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Fraction Replaceable", ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Multiplier", ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- End-Use Subcategory", ";")).append(System.getProperty("line.separator"));	
+		str.append(System.getProperty("line.separator"));
 
-		return output.toString();
+		return str.toString();
 	}
 }

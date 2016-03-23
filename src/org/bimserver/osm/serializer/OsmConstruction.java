@@ -24,14 +24,6 @@ public class OsmConstruction {
 		this.layers               = layers;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setSurfaceRenderingName(String surfaceRenderingName) {
-		this.surfaceRenderingName = surfaceRenderingName;
-	}
-
 	public String getHandle() {
 		return handle;
 	}
@@ -40,32 +32,24 @@ public class OsmConstruction {
 		return name;
 	}
 
-	public String getSurfaceRenderingName() {
-		return surfaceRenderingName;
-	}
-
-
 	public String toString() {
-		StringBuilder output = new StringBuilder();
+		StringBuilder str = new StringBuilder();
 
-		output.append("OS:Construction,\n");
-		output.append("{" + handle + "}" + ",                              !- Handle\n");
-		output.append(name + ",                                            !- Name\n");
-		output.append(surfaceRenderingName + ",                            !- Surface Rendering Name\n");
-		int size = layers.size();
-		
+		str.append("OS:Construction,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + handle + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", name + ",")).append(System.getProperty("line.separator"));
+	    str.append(String.format("%-60s!- Surface Rendering Name", surfaceRenderingName + ",")).append(System.getProperty("line.separator"));
+	    int size = layers.size();
 		if (size <= 0) {
-			output.append(";                                               !- Layer \n");
+			str.append(String.format("%-60s!- Layer", ";")).append(System.getProperty("line.separator"));
 		} else {
 			for (int i = 1; i <= size; i++) {
-				if(i != size) {
-					output.append("{" + layers.get(i - 1) + "}" + ",           !- Layer " + i + "\n");
-				} else {
-					output.append("{" + layers.get(i - 1) + "}" + ";           !- Layer " + i + "\n");
-				}		
+				String delimiter = i == size ? ";" : ",";
+				str.append(String.format("%-60s!- Layer %d", "{" + layers.get(i - 1) + "}" + delimiter, i)).append(System.getProperty("line.separator"));	
 			}
 		}
-		output.append("\n");
-		return output.toString();
+		str.append(System.getProperty("line.separator"));
+		
+		return str.toString();
 	}
 }

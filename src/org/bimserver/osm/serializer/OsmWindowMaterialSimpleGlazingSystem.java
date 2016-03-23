@@ -30,18 +30,16 @@ public class OsmWindowMaterialSimpleGlazingSystem {
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder();
-
-		output.append("OS:WindowMaterial:SimpleGlazingSystem,\n");
-		output.append("{" + handle + "}" + ",                              !- Handle\n");
-		output.append(name + ",                                            !- Name\n");
-		output.append(uFactor + ",                                         !- U-Factor\n");
-		output.append(solarHeatGainCoefficient+ ",                         !- Solar Heat Gain Coefficient\n");
-		output.append(visibleTransmittance + ";                            !- Visible Transmittance\n");
+		StringBuilder str = new StringBuilder();
 		
-		output.append("\n");
-
-		return output.toString();
+		str.append("OS:WindowMaterial:SimpleGlazingSystem,").append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Handle", "{" + handle + "},")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Name", name + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- U-Factor", uFactor + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Solar Heat Gain Coefficient", solarHeatGainCoefficient + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Visible Transmittance", visibleTransmittance + ",")).append(System.getProperty("line.separator"));
+		str.append(System.getProperty("line.separator"));
+		
+		return str.toString();
 	}
-
 }
