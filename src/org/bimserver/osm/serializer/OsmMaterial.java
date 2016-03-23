@@ -57,7 +57,6 @@ public class OsmMaterial {
 		str.append(String.format("%-60s!- Roughness", roughness + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Thickness", thickness + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Conductivity", conductivity + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- Roughness", roughness + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Density", density + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Specific Heat", specificHeat + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Thermal Absorptance", thermalAbsorptance  + ",")).append(System.getProperty("line.separator"));
