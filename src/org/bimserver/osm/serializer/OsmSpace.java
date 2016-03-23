@@ -132,11 +132,11 @@ public class OsmSpace {
 		str.append(String.format("%-60s!- Default Construction Set Name", defaultConstructionSetName + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Default Schedule Set Name", defaultScheduleSetName + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Direction of Relative North {deg}", directionOfRelativeNorth + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- !- X Origin {m}", xOrigin + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- !- Y Origin {m}", yOrigin + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- !- Z Origin {m}", zOrigin + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- !- Building Story Name", buildingStoryName + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- !- Thermal Zone Name", thermalZoneName + ";")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- X Origin {m}", xOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Y Origin {m}", yOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Z Origin {m}", zOrigin + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Building Story Name", buildingStoryName + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Thermal Zone Name", thermalZoneName + ";")).append(System.getProperty("line.separator"));
 		str.append(System.getProperty("line.separator"));
 
 		return str.toString();	

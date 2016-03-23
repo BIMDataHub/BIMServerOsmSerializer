@@ -37,7 +37,7 @@ public class OsmWindowMaterialSimpleGlazingSystem {
 		str.append(String.format("%-60s!- Name", name + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- U-Factor", uFactor + ",")).append(System.getProperty("line.separator"));
 		str.append(String.format("%-60s!- Solar Heat Gain Coefficient", solarHeatGainCoefficient + ",")).append(System.getProperty("line.separator"));
-		str.append(String.format("%-60s!- Visible Transmittance", visibleTransmittance + ",")).append(System.getProperty("line.separator"));
+		str.append(String.format("%-60s!- Visible Transmittance", visibleTransmittance + ";")).append(System.getProperty("line.separator"));
 		str.append(System.getProperty("line.separator"));
 		
 		return str.toString();
