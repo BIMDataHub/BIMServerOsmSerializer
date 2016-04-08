@@ -16,6 +16,7 @@ import org.bimserver.models.ifc2x3tc1.IfcArbitraryOpenProfileDef;
 import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement;
 import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement3D;
 import org.bimserver.models.ifc2x3tc1.IfcBoundedCurve;
+import org.bimserver.models.ifc2x3tc1.IfcBuildingStorey;
 import org.bimserver.models.ifc2x3tc1.IfcCartesianPoint;
 import org.bimserver.models.ifc2x3tc1.IfcCompositeCurve;
 import org.bimserver.models.ifc2x3tc1.IfcCompositeCurveSegment;
@@ -56,6 +57,7 @@ import org.bimserver.models.ifc2x3tc1.IfcPropertySetDefinition;
 import org.bimserver.models.ifc2x3tc1.IfcPropertySingleValue;
 import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
 import org.bimserver.models.ifc2x3tc1.IfcReal;
+import org.bimserver.models.ifc2x3tc1.IfcRelAggregates;
 import org.bimserver.models.ifc2x3tc1.IfcRelAssignsToGroup;
 import org.bimserver.models.ifc2x3tc1.IfcRelAssociatesMaterial;
 import org.bimserver.models.ifc2x3tc1.IfcRelContainedInSpatialStructure;
@@ -141,18 +143,22 @@ public class OsmSerializer extends EmfSerializer {
 		//Create Element-Material map
 		mapElementMaterial(model);
 		extractWindowsInformation(model);
+		extractBuildingStories(model);
 
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
 		}
 		lightFixture(model);
+		
 
 		// Convert the units
 		transformUnits(scale);
 		// Add linkage information to internal Walls
 		addLinkageInformation();
 	}
+	
+	
 
 
 
@@ -249,11 +255,27 @@ public class OsmSerializer extends EmfSerializer {
 	}
 	
 	
+	HashMap<Long, String> storeySpaceMap = new HashMap<Long, String>();
+	List<OsmBuildingStory> storyMap = new ArrayList<OsmBuildingStory>();
+	public void extractBuildingStories(IfcModelInterface model) {
+		for (IfcRelAggregates ifcRelAggregates : model.getAll(IfcRelAggregates.class)) {
+			IfcObjectDefinition ifcObjectDefinition =  ifcRelAggregates.getRelatingObject();
+			if (ifcObjectDefinition instanceof IfcBuildingStorey) {
+				IfcBuildingStorey ifcBuildingStorey = (IfcBuildingStorey) ifcObjectDefinition;
+				String name = ifcBuildingStorey.getName();
+				OsmBuildingStory osmBuildingStory = new OsmBuildingStory(name);
+				storyMap.add(osmBuildingStory);
+				String handle = osmBuildingStory.getHandle();
+				for (IfcObjectDefinition object : ifcRelAggregates.getRelatedObjects()) {
+					if (object instanceof IfcSpace) {
+						IfcSpace ifcSpace = (IfcSpace) object;
+						storeySpaceMap.put(ifcSpace.getOid(), handle);
+					}
+				}
+			}
+		}
+	}
 	
-	
-	
-	
-
 	HashMap<Long, OsmLuminaireDefinition> lightFixtureTypeMap = new HashMap<Long, OsmLuminaireDefinition>();
 	HashMap<Long, String> groupMap = new HashMap<Long, String>();
 	HashMap<Long, String> spatialMap = new HashMap<Long, String>();
@@ -425,6 +447,10 @@ public class OsmSerializer extends EmfSerializer {
 		for(OsmMaterial osmMaterial : materialList) {
 			outputContent.append(osmMaterial.toString());
 		}
+		
+		for(OsmBuildingStory osmBuildingStory : storyMap) {
+			outputContent.append(osmBuildingStory.toString());
+		}
 	}
 
 
@@ -440,6 +466,7 @@ public class OsmSerializer extends EmfSerializer {
 		UUID uuid = UUID.randomUUID();
 		osmSpace.setUuid(uuid.toString());
 		osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
+		osmSpace.setBuildingStoryName(storeySpaceMap.getOrDefault(ifcSpace.getOid(), ""));
 
 		List<IfcRelSpaceBoundary> ifcRelSpaceBoundaryList = ifcSpace.getBoundedBy();
 
