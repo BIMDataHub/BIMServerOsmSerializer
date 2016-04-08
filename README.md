@@ -4,7 +4,5 @@ This OSMserializer plugin provides a utility in BIMserver to download a BIM proj
 
 Currently, it supports BIMserver 1.3.4. You can simply drag the OSMserializer.jar file into the BIMserver/plugin folder to use it.
 
-If you have any questions, please contact:
-Issa Ramaji, Ph.D.
-ramaji.issa@gmail.com
+If you have any questions, please contact Dr. Issa Ramaji at ramaji.issa@gmail.com
 
