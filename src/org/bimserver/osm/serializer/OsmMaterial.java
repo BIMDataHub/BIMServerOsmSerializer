@@ -18,10 +18,10 @@ public class OsmMaterial {
 		this.handle       = UUID.randomUUID().toString();
 		this.name         = "";
 		this.roughness    = "";
-		this.thickness    = 0.01;
-		this.conductivity = 0.01;
-		this.density      = 0.01;
-		this.specificHeat = 0.01;
+		this.thickness    = 0.001;
+		this.conductivity = 0.001;
+		this.density      = 0.001;
+		this.specificHeat = 0.001;
 		this.thermalAbsorptance = 0.9;
 		this.solarAbsorptance = 0.7;
 		this.visibleAbsorptance = 0.7;
@@ -33,7 +33,7 @@ public class OsmMaterial {
 		this.roughness    = roughness;
 		this.thickness    = Double.compare(thickness, 3.0) < 0 ? thickness : 3.0;
 		this.conductivity = conductivity;
-		this.density      = density;
+		this.density      = Double.compare(density, 0.0) > 0 ? density : 0.001;
 		this.specificHeat = specificHeat;
 		this.thermalAbsorptance = 0.9;
 		this.solarAbsorptance = 0.7;
