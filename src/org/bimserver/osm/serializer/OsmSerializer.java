@@ -299,7 +299,7 @@ public class OsmSerializer extends EmfSerializer {
 			if (ifcSpatialStructureElement instanceof IfcSpace && spaceMap.containsKey(ifcSpatialStructureElement.getOid())) {
 				OsmSpace osmSpace = spaceMap.get(ifcSpatialStructureElement.getOid());
 				spaceId = osmSpace.getUuid();
-			} else {
+			} /*else {
 				OsmSpace osmSpace = new OsmSpace();
 				UUID uuid = UUID.randomUUID();
 				osmSpace.setUuid(uuid.toString());
@@ -307,7 +307,7 @@ public class OsmSerializer extends EmfSerializer {
 				allSpaces.add(osmSpace);
 				spaceMap.put(ifcSpatialStructureElement.getOid(), osmSpace);
 				spaceId = uuid.toString();
-			}
+			}*/
 
 			for (IfcProduct ifcProduct : ifcRelContainedInSpatialStructure.getRelatedElements()) {
 				if (ifcProduct instanceof IfcFlowTerminal) {
