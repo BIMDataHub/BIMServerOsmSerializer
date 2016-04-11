@@ -668,7 +668,7 @@ public class OsmSerializer extends EmfSerializer {
 										} else if (ifcPropertySingleValue.getName().equals("Roughness")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcInteger) {
 												IfcInteger ifcInteger = (IfcInteger) ifcPropertySingleValue.getNominalValue();
-												roughness = ifcInteger.toString();
+												roughness = "";
 											}
 										} else if (ifcPropertySingleValue.getName().equals("Thermal mass")) {
 											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
