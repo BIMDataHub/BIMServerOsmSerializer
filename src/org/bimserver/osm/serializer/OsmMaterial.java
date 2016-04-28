@@ -32,9 +32,9 @@ public class OsmMaterial {
 		this.name         = name;
 		this.roughness    = "MediumRough";
 		this.thickness    = Double.compare(thickness, 3.0) < 0 ? thickness : 3.0;
-		this.conductivity = conductivity;
+		this.conductivity = Double.compare(conductivity, 0.0) > 0 ? conductivity : 0.001;
 		this.density      = Double.compare(density, 0.0) > 0 ? density : 0.001;
-		this.specificHeat = specificHeat;
+		this.specificHeat = Double.compare(specificHeat, 0.0) > 0 ? specificHeat : 0.001;
 		this.thermalAbsorptance = 0.9;
 		this.solarAbsorptance = 0.7;
 		this.visibleAbsorptance = 0.7;
