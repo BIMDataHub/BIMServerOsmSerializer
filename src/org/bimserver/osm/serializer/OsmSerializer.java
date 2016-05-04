@@ -535,6 +535,10 @@ public class OsmSerializer extends EmfSerializer {
 				osmSurface.setOsmSpace(osmSpace);
 				IfcMaterialSelect ifcMaterialSelect = elementMaterialMap.get(ifcElement);
 				osmSurface.setConstructionName(materialInformation(ifcMaterialSelect));
+				
+				if (ifcWall.isSetHasAssociations()) {
+					LOGGER.info("Has associations" + ifcElement.eClass().getName());
+				}
 
 				//add internal surface link information
 				if (internalWallMap.containsKey(ifcWall)) {
