@@ -829,7 +829,7 @@ public class OsmSerializer extends EmfSerializer {
 					double layerThickness = ifcMaterialLayer.getLayerThickness() * unit;
 					IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
 					String materialName = ifcMaterial.getName().replace(',', '_');
-					OsmMaterial osmMaterial = new OsmMaterial(materialName, "MediumRough", layerThickness, 123, 123, 123);
+					OsmMaterial osmMaterial = new OsmMaterial(materialName + "_" + layerSetName, "MediumRough", layerThickness, 123, 123, 123);
 					osmMaterialHandle.add(osmMaterial.getHandle());
 					materialMap.put(moid, osmMaterial);
 				}
