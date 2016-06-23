@@ -12,21 +12,43 @@ public class OsmWindowMaterialSimpleGlazingSystem {
 	public OsmWindowMaterialSimpleGlazingSystem() {
 		this.handle = UUID.randomUUID().toString();
 		this.name = "";
-		this.uFactor = 0.0;
-		this.solarHeatGainCoefficient = 0.0;
-		this.visibleTransmittance = 0.0;
+		this.uFactor = 0.001;
+		this.solarHeatGainCoefficient = 0.001;
+		this.visibleTransmittance = 0.001;
 	}
 	
 	public String getHandle() {
 		return handle;
 	}
 	
-	public OsmWindowMaterialSimpleGlazingSystem(String name, double uFacotr, double solarHeatGainCoefficient, double visibleTransmittance) {
+	public OsmWindowMaterialSimpleGlazingSystem(String name, double uFactor, double solarHeatGainCoefficient, double visibleTransmittance) {
 		this.handle = UUID.randomUUID().toString();
 		this.name = name;
-		this.uFactor = uFacotr;
-		this.solarHeatGainCoefficient = solarHeatGainCoefficient;
-		this.visibleTransmittance = visibleTransmittance;
+		
+		if (Double.compare(uFactor, 0.0) > 0 && Double.compare(uFactor, 7.0) < 0) {
+			this.uFactor = uFactor;
+		} else if (Double.compare(uFactor, 0.0) <= 0) {
+			this.uFactor = 0.001;
+		} else if (Double.compare(uFactor, 7.0) >=0) {
+			this.uFactor = 6.999;
+		}
+		
+		if (Double.compare(solarHeatGainCoefficient, 0.0) > 0 && Double.compare(solarHeatGainCoefficient, 1.0) < 0) {
+			this.solarHeatGainCoefficient = solarHeatGainCoefficient;
+		} else if (Double.compare(solarHeatGainCoefficient, 0.0) <= 0) {
+			this.solarHeatGainCoefficient = 0.001;
+		} else if (Double.compare(solarHeatGainCoefficient, 1.0) >= 0) {
+			this.solarHeatGainCoefficient = 0.999;
+		}
+		
+		if (Double.compare(visibleTransmittance, 0.0) > 0 && Double.compare(visibleTransmittance, 1.0) < 0) {
+			this.visibleTransmittance = visibleTransmittance;
+		} else if (Double.compare(visibleTransmittance, 0.0) <= 0) {
+			this.visibleTransmittance = 0.001;
+		} else if (Double.compare(visibleTransmittance, 1.0) >= 0) {
+			this.visibleTransmittance = 0.999;
+		}
+		
 	}
 	
 	public String toString() {

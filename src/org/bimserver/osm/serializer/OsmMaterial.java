@@ -31,7 +31,15 @@ public class OsmMaterial {
 		this.handle       = UUID.randomUUID().toString();
 		this.name         = name;
 		this.roughness    = "MediumRough";
-		this.thickness    = Double.compare(thickness, 3.0) < 0 ? thickness : 3.0;
+		
+		if (Double.compare(thickness, 0.0) > 0 && Double.compare(thickness, 3.0) < 0) {
+			this.thickness = thickness;
+		} else if (Double.compare(thickness, 0.0) <= 0) {
+			this.thickness = 0.001;
+		} else if (Double.compare(thickness, 3.0) >= 0) {
+			this.thickness = 3.0;
+		}
+		
 		this.conductivity = Double.compare(conductivity, 0.0) > 0 ? conductivity : 0.001;
 		this.density      = Double.compare(density, 0.0) > 0 ? density : 0.001;
 		this.specificHeat = Double.compare(specificHeat, 0.0) > 0 ? specificHeat : 0.001;

@@ -1,87 +1,10 @@
 package org.bimserver.osm.serializer;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bimserver.emf.IfcModelInterface;
-import org.bimserver.models.ifc2x3tc1.IfcArbitraryOpenProfileDef;
-import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement;
-import org.bimserver.models.ifc2x3tc1.IfcAxis2Placement3D;
-import org.bimserver.models.ifc2x3tc1.IfcBoundedCurve;
-import org.bimserver.models.ifc2x3tc1.IfcBuildingStorey;
-import org.bimserver.models.ifc2x3tc1.IfcCartesianPoint;
-import org.bimserver.models.ifc2x3tc1.IfcCompositeCurve;
-import org.bimserver.models.ifc2x3tc1.IfcCompositeCurveSegment;
-import org.bimserver.models.ifc2x3tc1.IfcConnectionGeometry;
-import org.bimserver.models.ifc2x3tc1.IfcConnectionSurfaceGeometry;
-import org.bimserver.models.ifc2x3tc1.IfcConversionBasedUnit;
-import org.bimserver.models.ifc2x3tc1.IfcCurve;
-import org.bimserver.models.ifc2x3tc1.IfcCurveBoundedPlane;
-import org.bimserver.models.ifc2x3tc1.IfcDerivedUnit;
-import org.bimserver.models.ifc2x3tc1.IfcDerivedUnitElement;
-import org.bimserver.models.ifc2x3tc1.IfcDirection;
-import org.bimserver.models.ifc2x3tc1.IfcDoor;
-import org.bimserver.models.ifc2x3tc1.IfcDoorStyle;
-import org.bimserver.models.ifc2x3tc1.IfcElement;
-import org.bimserver.models.ifc2x3tc1.IfcFaceBasedSurfaceModel;
-import org.bimserver.models.ifc2x3tc1.IfcFlowTerminal;
-import org.bimserver.models.ifc2x3tc1.IfcGroup;
-import org.bimserver.models.ifc2x3tc1.IfcInteger;
-import org.bimserver.models.ifc2x3tc1.IfcLengthMeasure;
-import org.bimserver.models.ifc2x3tc1.IfcLightFixtureType;
-import org.bimserver.models.ifc2x3tc1.IfcLocalPlacement;
-import org.bimserver.models.ifc2x3tc1.IfcMaterial;
-import org.bimserver.models.ifc2x3tc1.IfcMaterialLayer;
-import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSet;
-import org.bimserver.models.ifc2x3tc1.IfcMaterialLayerSetUsage;
-import org.bimserver.models.ifc2x3tc1.IfcMaterialSelect;
-import org.bimserver.models.ifc2x3tc1.IfcMeasureWithUnit;
-import org.bimserver.models.ifc2x3tc1.IfcNamedUnit;
-import org.bimserver.models.ifc2x3tc1.IfcObject;
-import org.bimserver.models.ifc2x3tc1.IfcObjectDefinition;
-import org.bimserver.models.ifc2x3tc1.IfcObjectPlacement;
-import org.bimserver.models.ifc2x3tc1.IfcPolyline;
-import org.bimserver.models.ifc2x3tc1.IfcProduct;
-import org.bimserver.models.ifc2x3tc1.IfcProfileDef;
-import org.bimserver.models.ifc2x3tc1.IfcProperty;
-import org.bimserver.models.ifc2x3tc1.IfcPropertySet;
-import org.bimserver.models.ifc2x3tc1.IfcPropertySetDefinition;
-import org.bimserver.models.ifc2x3tc1.IfcPropertySingleValue;
-import org.bimserver.models.ifc2x3tc1.IfcRatioMeasure;
-import org.bimserver.models.ifc2x3tc1.IfcReal;
-import org.bimserver.models.ifc2x3tc1.IfcRelAggregates;
-import org.bimserver.models.ifc2x3tc1.IfcRelAssignsToGroup;
-import org.bimserver.models.ifc2x3tc1.IfcRelAssociatesMaterial;
-import org.bimserver.models.ifc2x3tc1.IfcRelContainedInSpatialStructure;
-import org.bimserver.models.ifc2x3tc1.IfcRelDefines;
-import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByProperties;
-import org.bimserver.models.ifc2x3tc1.IfcRelDefinesByType;
-import org.bimserver.models.ifc2x3tc1.IfcRelFillsElement;
-import org.bimserver.models.ifc2x3tc1.IfcRelSpaceBoundary;
-import org.bimserver.models.ifc2x3tc1.IfcRoof;
-import org.bimserver.models.ifc2x3tc1.IfcRoot;
-import org.bimserver.models.ifc2x3tc1.IfcSIUnit;
-import org.bimserver.models.ifc2x3tc1.IfcSlab;
-import org.bimserver.models.ifc2x3tc1.IfcSpace;
-import org.bimserver.models.ifc2x3tc1.IfcSpatialStructureElement;
-import org.bimserver.models.ifc2x3tc1.IfcSurfaceOfLinearExtrusion;
-import org.bimserver.models.ifc2x3tc1.IfcSurfaceOrFaceSurface;
-import org.bimserver.models.ifc2x3tc1.IfcText;
-import org.bimserver.models.ifc2x3tc1.IfcTypeObject;
-import org.bimserver.models.ifc2x3tc1.IfcUnit;
-import org.bimserver.models.ifc2x3tc1.IfcUnitAssignment;
-import org.bimserver.models.ifc2x3tc1.IfcValue;
-import org.bimserver.models.ifc2x3tc1.IfcWall;
-import org.bimserver.models.ifc2x3tc1.IfcWindow;
-import org.bimserver.models.ifc2x3tc1.IfcWindowStyle;
+import org.bimserver.models.ifc2x3tc1.*;
 import org.bimserver.plugins.PluginManager;
 import org.bimserver.plugins.renderengine.RenderEnginePlugin;
 import org.bimserver.plugins.serializers.EmfSerializer;
@@ -141,10 +64,9 @@ public class OsmSerializer extends EmfSerializer {
 		setDefaultUnit(model);
 		unit = scale;
 		//Create Element-Material map
-		mapElementMaterial(model);
-		extractWindowsInformation(model);
+		createMaterialMap(model);
 		extractBuildingStories(model);
-
+		
 		List<IfcSpace> ifcSpaceList = model.getAll(IfcSpace.class);
 		for (IfcSpace ifcSpace : ifcSpaceList) {
 			extractSpaces(ifcSpace);
@@ -158,124 +80,597 @@ public class OsmSerializer extends EmfSerializer {
 		addLinkageInformation();
 	}
 	
+	@Override
+	public void reset()	{
+		setMode(Mode.BODY);
+	}
+
+	@Override
+	protected boolean write(OutputStream outputStream) throws SerializerException {
+		if (out == null) {
+			out = new UTF8PrintWriter(outputStream);
+		}
+
+		if (getMode() == Mode.BODY) {
+			out = new UTF8PrintWriter(outputStream);
+			generateOutput(out);
+			out.flush();
+			setMode(Mode.FINISHED);
+			return true;
+		} else if (getMode() == Mode.FINISHED) {
+			return false;
+		}
+		return false;
+	}
+
+	/**
+	 * write the OsmSpace, OsmSurface, OsmSubSurface to outputStream
+	 * @param outputContent
+	 */
+
+	private void generateOutput(UTF8PrintWriter outputContent) {
+		outputContent.append("OS:Version,\n");
+		UUID uuid = UUID.randomUUID();
+		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
+		outputContent.append("1.8.0;                         !- Version Identifier\n\n");
+
+		for (OsmSpace osmSpace : allSpaces) {
+			outputContent.append(osmSpace.toString());
+
+			for (OsmSurface osmSurface : osmSpace.getSurfaceList()) {
+				outputContent.append(osmSurface.toString());
+
+				for (OsmSubSurface osmSubSurface : osmSurface.getSubSurfaceList()) {
+					outputContent.append(osmSubSurface.toString());
+				}
+			}
+		}
+		
+		for(OsmBuildingStory osmBuildingStory : storyMap) {
+			outputContent.append(osmBuildingStory.toString());
+		}
+
+		for(OsmConstruction construction : constructionMap.values()) {
+			outputContent.append(construction.toString());
+		}
+
+		for(OsmMaterial material : materialMap.values()) {
+			outputContent.append(material.toString());
+		}
+
+		for(OsmLuminaire light : lights) {
+			outputContent.append(light.toString());
+		}
+
+		for(OsmLuminaireDefinition osmLuminaireDefinition : lightFixtureTypeMap.values()) {
+			outputContent.append(osmLuminaireDefinition.toString());
+		}
+
+		for(OsmWindowMaterialSimpleGlazingSystem osmWindowMaterial : windowMaterialMap) {
+			outputContent.append(osmWindowMaterial.toString());
+		}
+	}
+
+	/**
+	 * Analyze every IFCSpace and create OsmSpace accordingly
+	 *
+	 * @param ifcSpace
+	 */
+
+	HashMap<Long, OsmSpace> spaceMap = new HashMap<Long, OsmSpace>();
+	private void extractSpaces(IfcSpace ifcSpace) {
+		OsmSpace osmSpace = new OsmSpace();
+		UUID uuid = UUID.randomUUID();
+		osmSpace.setUuid(uuid.toString());
+		osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
+		osmSpace.setBuildingStoryName(storeySpaceMap.getOrDefault(ifcSpace.getOid(), ""));
+
+		List<IfcRelSpaceBoundary> ifcRelSpaceBoundaryList = ifcSpace.getBoundedBy();
+
+		// TODO what does this means? Can we delete this global variable and put it locally?
+		wallOsmSurfaceMap.clear();
+
+		for (IfcRelSpaceBoundary ifcRelSpaceBoundary : ifcRelSpaceBoundaryList) {
+			IfcElement ifcElement = ifcRelSpaceBoundary.getRelatedBuildingElement();
+			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary.getConnectionGeometry();
+
+			if (ifcConnectionGeometry != null && ifcElement != null) {
+				extractRelatedElement(ifcElement, ifcConnectionGeometry, ifcSpace, osmSpace);
+			} else {
+				LOGGER.info("Unimplemented type [extractSpaces]:" + ifcRelSpaceBoundary.eClass().getName());
+			}
+		}
+
+		allSpaces.add(osmSpace);
+		spaceMap.put(ifcSpace.getOid(), osmSpace);
+
+		/*
+		if (!osmSpace.containsUnsolvedSurface()) {
+			allSpaces.add(osmSpace);
+		} else {
+			surfaceNum -= osmSpace.getSurfaceList().size();
+		}
+		*/
+	}
+
+	/**
+	 * Extract all properties of the building elements
+	 *
+	 * @param ifcElement
+	 *            the space boundary element. It could be wall, ceiling, floor,
+	 *            window, door, etc.
+	 * @param ifcConnectionGeometry
+	 *            the connecting geometry points of the connection points of the
+	 *            space boundary
+	 * @param OsmSpace
+	 *            current OsmSpace to be analyzed
+	 */
 	
+	private void extractRelatedElement(IfcElement ifcElement, IfcConnectionGeometry ifcConnectionGeometry, IfcSpace ifcSpace, OsmSpace osmSpace) {
 
+		// initiate the connecting point list
+		List<OsmPoint> spaceBoundaryPointList = new ArrayList<OsmPoint>();
 
+		// Extract the connection geometry		
+		boolean isGeometrySolved = extractSpaceBoundary(ifcConnectionGeometry, spaceBoundaryPointList, ifcSpace);
+		// After extracting boundary points, remove duplicates.
+		deleteDuplicatePoints(spaceBoundaryPointList);
+	
+		// Wall - Surface  
+		if (ifcElement instanceof IfcWall) {
+			if (!isGeometrySolved) {
+				osmSpace.setContainsUnsolvedSurface(true);
+				LOGGER.info("Unparsed geometry representation of wall!" + ifcElement.eClass().getName());
+				return;
+			}
+			
+			IfcWall ifcWall = (IfcWall) ifcElement;
+			OsmSurface osmSurface = new OsmSurface();
+			UUID uuid = UUID.randomUUID();
+			osmSurface.setUuid(uuid.toString());
+			String osmSurfaceName = "su-" + (++surfaceNum);
+			osmSurface.setSurfaceName(osmSurfaceName);
+			osmSurface.setTypeName("Wall");
+			osmSurface.setOsmSpace(osmSpace);				
+			
+			if (material.containsKey(ifcWall.getOid())) {
+				osmSurface.setConstructionName(material.get(ifcWall.getOid()));
+			}
+				
+				//add internal surface link information
+			if (internalWallMap.containsKey(ifcWall)) {
+				internalWallMap.get(ifcWall).add(osmSurface);
+			} else {
+				LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
+				surfaceList.add(osmSurface);
+				internalWallMap.put(ifcWall,surfaceList);
+			}
 
-	private HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap = new HashMap<IfcElement, IfcMaterialSelect>();
-	public void mapElementMaterial(IfcModelInterface model) {
+			for (OsmPoint osmPoint : spaceBoundaryPointList) {
+				osmSurface.addOsmPoint(osmPoint);
+				allOsmPoints.add(osmPoint);
+			}
+			osmSpace.addSurface(osmSurface);
+
+				//TODO: Lan: do you know what this chunk is for?
+			wallOsmSurfaceMap.put(ifcWall, osmSurface);
+			
+			List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap.get(ifcWall);
+			if (unlinkedOsmSubSurfaceList != null && unlinkedOsmSubSurfaceList.size() > 0) {
+				for (OsmSubSurface osmSubSurface : unlinkedOsmSubSurfaceList) {
+					osmSubSurface.setOsmSurface(osmSurface);
+					osmSurface.addSubSurface(osmSubSurface);
+				}
+				unLinkedOsmSubSurfacesMap.remove(ifcWall);
+			}
+		} else if (ifcElement instanceof IfcSlab) {
+			// Slab - Surface
+			if (isGeometrySolved) {
+				IfcSlab ifcSlab = (IfcSlab) ifcElement;
+				OsmSurface osmSurface = new OsmSurface();
+				UUID uuid = UUID.randomUUID();
+				osmSurface.setUuid(uuid.toString());
+				osmSurface.setSurfaceName("su-" + (++surfaceNum));
+				osmSurface.setOsmSpace(osmSpace);
+				if (material.containsKey(ifcSlab.getOid())) {
+					osmSurface.setConstructionName(material.get(ifcSlab.getOid()));
+				}						
+
+				if (ifcSlab.getPredefinedType().getName().equals("Roof")) {
+					osmSurface.setTypeName("RoofCeiling");
+					osmSurface.setSunExposure("SunExposed");
+					osmSurface.setWindExposure("WindExposed");
+				} else {
+					//Floor or BaseSlab or Landing
+					//if Floor, it could be a foundation floor or a slab between stories, it is then processed at the end in addlinkage
+					//add internal surface link information
+					if (internalWallMap.containsKey(ifcSlab)) {
+						internalWallMap.get(ifcSlab).add(osmSurface);
+					} else {
+						LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
+						surfaceList.add(osmSurface);
+						internalWallMap.put(ifcSlab,surfaceList);
+					}
+				}
+
+				for (OsmPoint osmPoint : spaceBoundaryPointList) {
+					osmSurface.addOsmPoint(osmPoint);
+					allOsmPoints.add(osmPoint);
+				}
+
+				osmSpace.addSurface(osmSurface);
+			} else {
+				osmSpace.setContainsUnsolvedSurface(true);
+				LOGGER.info("Unparsed slab geomatry" + ifcElement.eClass().getName());
+			}
+		} else if (ifcElement instanceof IfcRoof) {
+			// Roof, Surface
+			if (isGeometrySolved) {
+				IfcRoof ifcRoof = (IfcRoof) ifcElement;
+				OsmSurface osmSurface = new OsmSurface();
+				osmSurface.setSurfaceName("su-" + (++surfaceNum));
+				UUID uuid = UUID.randomUUID();
+				osmSurface.setUuid(uuid.toString());
+				osmSurface.setTypeName("RoofCeiling");
+				osmSurface.setOsmSpace(osmSpace);
+										
+				if (ifcRoof.isSetIsDefinedBy()) {
+					osmSurface.setConstructionName(extractDefinesByProperties(ifcRoof, osmSurface));	
+				}
+			
+				for (OsmPoint osmPoint : spaceBoundaryPointList) {
+					osmSurface.addOsmPoint(osmPoint);
+					allOsmPoints.add(osmPoint);
+				}
+				osmSpace.addSurface(osmSurface);
+			} else { // else for if(isGeometrySolved)
+				osmSpace.setContainsUnsolvedSurface(true);
+				System.err.println("Error: unparsed geometry representation of roof!");
+			}
+		} else if (ifcElement instanceof IfcWindow) {
+			// Window, subsurface
+			if (isGeometrySolved) {
+				IfcWindow ifcWindow = (IfcWindow) ifcElement;
+				OsmSubSurface osmSubSurface = new OsmSubSurface();
+				UUID uuid = UUID.randomUUID();
+                osmSubSurface.setUuid(uuid.toString());
+				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
+				osmSubSurface.setTypeName("FixedWindow");				
+				
+				if (ifcWindow.isSetIsDefinedBy()) {
+					for (IfcRelDefines ifcRelDefines: ifcWindow.getIsDefinedBy()) {
+						if (ifcRelDefines instanceof IfcRelDefinesByType) {
+							IfcRelDefinesByType ifcRelDefinesByType = (IfcRelDefinesByType) ifcRelDefines;
+							IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
+							osmSubSurface.setConstructionName(extractDefinesByType(ifcTypeObject));
+						}
+					}
+				}
+
+				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow.getFillsVoids();
+				if (ifcRelFillsElementList.size() > 0) {
+					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
+					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
+					for (OsmPoint osmPoint : spaceBoundaryPointList) {
+						osmSubSurface.addOsmPoint(osmPoint);
+						allOsmPoints.add(osmPoint);
+					}
+					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
+					if (osmSurface != null) {
+						osmSubSurface.setOsmSurface(osmSurface);
+						osmSurface.addSubSurface(osmSubSurface);
+					} else {
+						List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap
+								.get(ifcRelatingBuildingElement);
+						if (unlinkedOsmSubSurfaceList == null) {
+							unlinkedOsmSubSurfaceList = new ArrayList<OsmSubSurface>();
+						}
+						unlinkedOsmSubSurfaceList.add(osmSubSurface);
+						unLinkedOsmSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOsmSubSurfaceList);
+					}
+				}
+			} else { // else for if(isGeometrySolved)
+				LOGGER.info("Unparsed window for " + ifcElement.eClass().getName());
+			}
+		} else if (ifcElement instanceof IfcDoor) {
+			// Door subsurface
+			if (isGeometrySolved) {
+				IfcDoor ifcDoor = (IfcDoor) ifcElement;
+				OsmSubSurface osmSubSurface = new OsmSubSurface();
+				UUID uuid = UUID.randomUUID();
+                osmSubSurface.setUuid(uuid.toString());
+                osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
+				osmSubSurface.setTypeName("Door");
+				
+				if (ifcDoor.isSetIsDefinedBy()) {
+					for (IfcRelDefines ifcRelDefines: ifcDoor.getIsDefinedBy()) {
+						if (ifcRelDefines instanceof IfcRelDefinesByType) {
+							IfcRelDefinesByType ifcRelDefinesByType = (IfcRelDefinesByType) ifcRelDefines;
+							IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
+							osmSubSurface.setConstructionName(extractDefinesByType(ifcTypeObject));
+						}
+					}
+				}
+				
+				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor.getFillsVoids();
+				if (ifcRelFillsElementList.size() > 0) {
+					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
+					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
+					for (OsmPoint osmPoint : spaceBoundaryPointList) {
+						osmSubSurface.addOsmPoint(osmPoint);
+						allOsmPoints.add(osmPoint);
+					}
+					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
+					if (osmSurface != null) {
+						osmSubSurface.setOsmSurface(osmSurface);
+						osmSurface.addSubSurface(osmSubSurface);
+					} else {
+						List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap.get(ifcRelatingBuildingElement);
+						if (unlinkedOsmSubSurfaceList == null) {
+							unlinkedOsmSubSurfaceList = new ArrayList<OsmSubSurface>();
+						}
+						unlinkedOsmSubSurfaceList.add(osmSubSurface);
+						unLinkedOsmSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOsmSubSurfaceList);
+					}
+				}
+			} else { // else for if(isGeometrySolved)
+				LOGGER.info("Unparsed door for " + ifcElement.eClass().getName());
+			}
+		} else { // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
+			// IfcWindow, IfcDoor
+			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
+		}
+	}
+	
+	
+	/*
+	 *  Functions to extract related material information
+	 * 
+	 * */
+	
+	private HashMap<Long, String> material = new HashMap<Long, String>();
+	private HashMap<Long, IfcExtendedMaterialProperties> materialExtProp = new HashMap<>();
+	public void createMaterialMap(IfcModelInterface model) {
+		for (IfcExtendedMaterialProperties ifcExtendedMaterialProperties : model.getAll(IfcExtendedMaterialProperties.class)) {
+			Long oid = ifcExtendedMaterialProperties.getMaterial().getOid();
+			materialExtProp.put(oid, ifcExtendedMaterialProperties);
+		}
+		
 		for (IfcRelAssociatesMaterial ifcRelAssociatesMaterial : model.getAll(IfcRelAssociatesMaterial.class)) {
 			IfcMaterialSelect ifcMaterialSelect = ifcRelAssociatesMaterial.getRelatingMaterial();
 			for (IfcRoot ifcRoot : ifcRelAssociatesMaterial.getRelatedObjects()) {
-				if (ifcRoot instanceof IfcElement) {
-					IfcElement ifcElement = (IfcElement) ifcRoot;
-					elementMaterialMap.put(ifcElement, ifcMaterialSelect);
+				if (ifcRoot instanceof IfcWallStandardCase || ifcRoot instanceof IfcWall || ifcRoot instanceof IfcSlab) {
+					long oid = ifcRoot.getOid();
+					String handle = extractAssociateMaterial(ifcMaterialSelect);
+					material.put(oid, handle);
 				}
 			}
 		}
 	}
 	
-	HashMap<Long, OsmConstruction> windowOrDoorTypeMap = new HashMap<Long, OsmConstruction>();
-	HashMap<Long, String> windowOrDoorMap = new HashMap<Long, String>();
-	List<OsmConstruction> windowOrDoorConstructionMap = new ArrayList<OsmConstruction>();
-	List<OsmWindowMaterialSimpleGlazingSystem> windowOrDoorType = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
-	public void extractWindowsInformation(IfcModelInterface model) {
-		for (IfcRelDefinesByType ifcRelDefinesByType : model.getAll(IfcRelDefinesByType.class)) {
-			IfcTypeObject ifcTypeObject = ifcRelDefinesByType.getRelatingType();
-			if (ifcTypeObject instanceof IfcWindowStyle || ifcTypeObject instanceof IfcDoorStyle) {
-				Long oid = ifcTypeObject.getOid();
-				String typeHandle = "";
-				if (windowOrDoorTypeMap.containsKey(oid)) {
-					typeHandle = windowOrDoorTypeMap.get(oid).getHandle();
+	HashMap<Long, OsmConstruction> constructionMap = new HashMap<Long, OsmConstruction>();
+	HashMap<Long, OsmMaterial>     materialMap     = new HashMap<Long, OsmMaterial>();
+	
+	public String extractAssociateMaterial(IfcMaterialSelect ifcMaterialSelect) {
+		if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
+			IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
+			IfcMaterialLayerSet ifcMaterialLayerSet =  ifcMaterialLayerSetUsage.getForLayerSet();
+			if (ifcMaterialLayerSet != null) {
+				return extractAssociateMaterial(ifcMaterialLayerSet);
+			} else {
+				return "";
+			}
+		} else if (ifcMaterialSelect instanceof IfcMaterialLayerSet) {
+			IfcMaterialLayerSet ifcMaterialLayerSet = (IfcMaterialLayerSet) ifcMaterialSelect;
+			long oid = ifcMaterialLayerSet.getOid();
+			if (constructionMap.containsKey(oid)) {
+				return constructionMap.get(oid).getHandle();
+			}
+			
+			String layerSetName = ifcMaterialLayerSet.getLayerSetName().replace(',', '_');
+			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
+			List<String> handles = new ArrayList<String>();
+			
+			for (IfcMaterialLayer ifcMaterialLayer : ifcMaterialLayers) {
+				long moid = ifcMaterialLayer.getOid();
+				if (materialMap.containsKey(moid)) {
+					OsmMaterial osmMaterial = materialMap.get(moid);
+					handles.add(osmMaterial.getHandle());
 				} else {
-					String name = ifcTypeObject.getName().replace(',', '_');
-					double uFactor = 0.0;
-					double solarHeatGainCoefficient = 0.0;
-					double visibleTransmittance = 0.0;
-					if (ifcTypeObject.isSetHasPropertySets()) {
-						for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcTypeObject.getHasPropertySets()) {
-							if (ifcPropertySetDefinition instanceof IfcPropertySet) {
-								IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
-								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
-									if (ifcProperty instanceof IfcPropertySingleValue) {
-										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
-										String propertyName = ifcPropertySingleValue.getName();
-										if (propertyName.equals("Heat Transfer Coefficient (U)")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
-												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												uFactor = ifcReal.getWrappedValue() * getDefaultUnit("THERMALTRANSMITTANCEUNIT");
-												if (nearlyEqual(uFactor, 0)) {
-													uFactor = 0.001;
-												} else if(nearlyEqual(uFactor, 7)) {
-													uFactor = 6.999;
-												}
-											}
-										} else if (propertyName.equals("Solar Heat Gain Coefficient")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
-												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												solarHeatGainCoefficient = ifcReal.getWrappedValue();
-												if (nearlyEqual(solarHeatGainCoefficient, 0)) {
-													solarHeatGainCoefficient = 0.001;
-												} else if(nearlyEqual(solarHeatGainCoefficient, 1)) {
-													solarHeatGainCoefficient = 0.999;
-												}
-											}
-										} else if (propertyName.equals("Visual Light Transmittance")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
-												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												visibleTransmittance = ifcReal.getWrappedValue();
-												if (nearlyEqual(visibleTransmittance, 0)) {
-													visibleTransmittance = 0.001;
-												} else if(nearlyEqual(visibleTransmittance, 1)) {
-													visibleTransmittance = 0.999;
-												}
-											}
+					IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
+					String materialName = ifcMaterial.getName().replace(',', '_');
+					double layerThickness = ifcMaterialLayer.getLayerThickness() * unit;
+					double specificHeat = 0.001;
+					double density = 0.001;
+					double conductivity = 0.001;
+					
+					IfcExtendedMaterialProperties ifcExtendedMaterialProperties = materialExtProp.get(ifcMaterial.getOid());
+					if (ifcExtendedMaterialProperties != null) {
+						for (IfcProperty ifcProperty : ifcExtendedMaterialProperties.getExtendedProperties()) {
+							if (ifcProperty instanceof IfcPropertySingleValue) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+								String name = ifcPropertySingleValue.getName();
+								IfcValue ifcValue = ifcPropertySingleValue.getNominalValue();
+								if (name.equals("Specific Heat") && ifcValue instanceof IfcSpecificHeatCapacityMeasure) {			
+									IfcSpecificHeatCapacityMeasure ifcSpecificHeatCapacityMeasure = (IfcSpecificHeatCapacityMeasure) ifcValue;
+									specificHeat = ifcSpecificHeatCapacityMeasure.getWrappedValue();
+								} else if (name.equals("Density") && ifcValue instanceof IfcMassDensityMeasure) {								
+									IfcMassDensityMeasure ifcMassDensityMeasure = (IfcMassDensityMeasure) ifcValue;
+									density = ifcMassDensityMeasure.getWrappedValue();
+								} else if (name.equals("Thermal Conductivity") && ifcValue instanceof IfcThermalConductivityMeasure) {
+									IfcThermalConductivityMeasure ifcThermalConductivityMeasure= (IfcThermalConductivityMeasure) ifcValue;
+									conductivity = ifcThermalConductivityMeasure.getWrappedValue();
+								}	
+							}
+						}
+					}
+					
+					OsmMaterial osmMaterial = new OsmMaterial(materialName + "(in:" + layerSetName + ")", "MediumRough", layerThickness, conductivity, density, specificHeat);
+					materialMap.put(moid, osmMaterial);
+					handles.add(osmMaterial.getHandle());
+				}
+			}
+			
+			OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", handles);
+			constructionMap.put(oid, osmConstruction);
+			return osmConstruction.getHandle();
+		}
+		
+		return "";
+	}
+	
+	public String extractDefinesByProperties(IfcRoof ifcRoof, OsmSurface osmSurface) {
+		String roughness = "";
+		double conductivity = 0.0;
+		double specificHeat = 0.0;
+		double thickness = 0.0;	
+		boolean isMaterialCreated = false;
+		String handle = "";
+		
+		if (material.containsKey(ifcRoof.getOid())) {
+			isMaterialCreated = true;
+			handle = material.get(ifcRoof.getOid());
+		}
+		
+		for (IfcRelDefines ifcRelDefines : ifcRoof.getIsDefinedBy()) {
+			if (ifcRelDefines instanceof IfcRelDefinesByProperties) { 
+				IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
+				IfcPropertySetDefinition ifcPropertySetDefinition = ifcRelDefinesByProperties.getRelatingPropertyDefinition();
+				if (ifcPropertySetDefinition instanceof IfcPropertySet) {
+					IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
+					if (ifcPropertySet.getName().equals("Pset_RoofCommon")) {
+						for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+							if (ifcProperty instanceof IfcPropertySingleValue) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+								if (ifcPropertySingleValue.getName().equals("IsExternal")) {
+									osmSurface.setOutsideBoundaryCondition("Outdoors");
+									osmSurface.setSunExposure("SunExposed");
+									osmSurface.setWindExposure("WindExposed");
+								}
+							}
+						}
+					} else if (ifcPropertySet.getName().equals("Dimensions") && !isMaterialCreated) {
+						for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+							if (ifcProperty instanceof IfcPropertySingleValue) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+								if (ifcPropertySingleValue.getName().equals("Thickness")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcLengthMeasure) {
+										IfcLengthMeasure ifcLengthMeasure = (IfcLengthMeasure) ifcPropertySingleValue.getNominalValue();
+										thickness = ifcLengthMeasure.getWrappedValue() * getDefaultUnit("LENGTHUNIT");
+									}
+								}
+							}
+						}
+					} else if (ifcPropertySet.getName().equals("Analytical Properties") && !isMaterialCreated) {
+						for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+							if (ifcProperty instanceof IfcPropertySingleValue) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+								if (ifcPropertySingleValue.getName().equals("Heat Transfer Coefficient (U)")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+										IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+										conductivity = ifcReal.getWrappedValue();
+									}
+								} else if (ifcPropertySingleValue.getName().equals("Roughness")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcInteger) {
+										//IfcInteger ifcInteger = (IfcInteger) ifcPropertySingleValue.getNominalValue();
+										roughness = "";
+									}
+								} else if (ifcPropertySingleValue.getName().equals("Thermal mass")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+										IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+										specificHeat = ifcReal.getWrappedValue();
+									}
+								}
+							}
+						}
+					}					
+				}
+			}
+		}
+		
+		if (!isMaterialCreated) {
+			OsmMaterial osmMaterial = new OsmMaterial(ifcRoof.getName() + "_Material" + "(in:" + ifcRoof.getName() +")", roughness, thickness, conductivity, 0, specificHeat);
+			OsmConstruction osmConstruction = new OsmConstruction(ifcRoof.getName(), "", new ArrayList<String>(Arrays.asList(osmMaterial.getHandle())));
+			material.put(ifcRoof.getOid(), osmConstruction.getHandle());
+			constructionMap.put(ifcRoof.getOid(),osmConstruction);
+			materialMap.put(ifcRoof.getOid(), osmMaterial);
+			handle = osmConstruction.getHandle();
+		}
+		
+		return handle;
+	}
+	 
+	List<OsmWindowMaterialSimpleGlazingSystem> windowMaterialMap = new ArrayList<OsmWindowMaterialSimpleGlazingSystem>();
+	public String extractDefinesByType(IfcTypeObject ifcTypeObject) {
+		long coid = ifcTypeObject.getOid();
+		String handle = "";
+		if (constructionMap.containsKey(coid)) {
+			handle = constructionMap.get(coid).getHandle();
+		} else {
+			String constructionName = ifcTypeObject.getName().replace(',', '_');
+			double uFactor = 0.0;
+			double solarHeatGainCoefficient = 0.0;
+			double visibleTransmittance = 0.0;
+			if (ifcTypeObject.isSetHasPropertySets()) {
+				for (IfcPropertySetDefinition ifcPropertySetDefinition : ifcTypeObject.getHasPropertySets()) {
+					if (ifcPropertySetDefinition instanceof IfcPropertySet) {
+						IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
+						for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
+							if (ifcProperty instanceof IfcPropertySingleValue) {
+								IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
+								String propertyName = ifcPropertySingleValue.getName();
+								if (propertyName.equals("Heat Transfer Coefficient (U)")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+										IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+										uFactor = ifcReal.getWrappedValue() * getDefaultUnit("THERMALTRANSMITTANCEUNIT");
+										if (Double.compare(uFactor, 0) <= 0) {
+											uFactor = 0.001;
+										} else if(Double.compare(uFactor, 7) >= 0) {
+											uFactor = 6.999;
+										}
+									}
+								} else if (propertyName.equals("Solar Heat Gain Coefficient")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+										IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+										solarHeatGainCoefficient = ifcReal.getWrappedValue();
+										if (Double.compare(solarHeatGainCoefficient, 0.0) <= 0) {
+											solarHeatGainCoefficient = 0.001;
+										} else if(Double.compare(solarHeatGainCoefficient, 1) >= 0) {
+											solarHeatGainCoefficient = 0.999;
+										}
+									}
+								} else if (propertyName.equals("Visual Light Transmittance")) {
+									if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
+										IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
+										visibleTransmittance = ifcReal.getWrappedValue();
+										if (Double.compare(visibleTransmittance, 0.0) <= 0) {
+											visibleTransmittance = 0.001;
+										} else if(Double.compare(visibleTransmittance, 1.0) >= 0) {
+											visibleTransmittance = 0.999;
 										}
 									}
 								}
 							}
 						}
 					}
-
-					OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(name + "_Material", uFactor, solarHeatGainCoefficient, visibleTransmittance);
-					windowOrDoorType.add(osmWindowMaterialSimpleGlazingSystem);
-					OsmConstruction osmConstruction = new OsmConstruction(name, "", new ArrayList<String>(Arrays.asList(osmWindowMaterialSimpleGlazingSystem.getHandle())));
-					windowOrDoorTypeMap.put(oid, osmConstruction);
-					windowOrDoorConstructionMap.add(osmConstruction);
-					typeHandle = osmConstruction.getHandle();
-				}
-
-				for (IfcObject ifcObject: ifcRelDefinesByType.getRelatedObjects()) {
-					if (ifcObject instanceof IfcWindow || ifcObject instanceof IfcDoor) {
-						windowOrDoorMap.put(ifcObject.getOid(), typeHandle);
-					}
 				}
 			}
+			
+			OsmWindowMaterialSimpleGlazingSystem osmWindowMaterialSimpleGlazingSystem = new OsmWindowMaterialSimpleGlazingSystem(constructionName + "_Material" + "(in:" + constructionName + ")", uFactor, solarHeatGainCoefficient, visibleTransmittance);
+			windowMaterialMap.add(osmWindowMaterialSimpleGlazingSystem);
+			OsmConstruction osmConstruction = new OsmConstruction(constructionName, "", new ArrayList<String>(Arrays.asList(osmWindowMaterialSimpleGlazingSystem.getHandle())));
+			constructionMap.put(coid, osmConstruction);
+			handle = osmConstruction.getHandle();
 		}
+		
+		return handle;
 	}
 	
-	
-	HashMap<Long, String> storeySpaceMap = new HashMap<Long, String>();
-	List<OsmBuildingStory> storyMap = new ArrayList<OsmBuildingStory>();
-	public void extractBuildingStories(IfcModelInterface model) {
-		for (IfcRelAggregates ifcRelAggregates : model.getAll(IfcRelAggregates.class)) {
-			IfcObjectDefinition ifcObjectDefinition =  ifcRelAggregates.getRelatingObject();
-			if (ifcObjectDefinition instanceof IfcBuildingStorey) {
-				IfcBuildingStorey ifcBuildingStorey = (IfcBuildingStorey) ifcObjectDefinition;
-				String name = ifcBuildingStorey.getName();
-				OsmBuildingStory osmBuildingStory = new OsmBuildingStory(name);
-				storyMap.add(osmBuildingStory);
-				String handle = osmBuildingStory.getHandle();
-				for (IfcObjectDefinition object : ifcRelAggregates.getRelatedObjects()) {
-					if (object instanceof IfcSpace) {
-						IfcSpace ifcSpace = (IfcSpace) object;
-						storeySpaceMap.put(ifcSpace.getOid(), handle);
-					}
-				}
-			}
-		}
-	}
-	
+	/*
+	 * Lighting fixtures
+	 * 
+	 * */
+
 	HashMap<Long, OsmLuminaireDefinition> lightFixtureTypeMap = new HashMap<Long, OsmLuminaireDefinition>();
 	HashMap<Long, String> groupMap = new HashMap<Long, String>();
 	HashMap<Long, String> spatialMap = new HashMap<Long, String>();
@@ -299,16 +694,8 @@ public class OsmSerializer extends EmfSerializer {
 			if (ifcSpatialStructureElement instanceof IfcSpace && spaceMap.containsKey(ifcSpatialStructureElement.getOid())) {
 				OsmSpace osmSpace = spaceMap.get(ifcSpatialStructureElement.getOid());
 				spaceId = osmSpace.getUuid();
-			} /*else {
-				OsmSpace osmSpace = new OsmSpace();
-				UUID uuid = UUID.randomUUID();
-				osmSpace.setUuid(uuid.toString());
-				osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
-				allSpaces.add(osmSpace);
-				spaceMap.put(ifcSpatialStructureElement.getOid(), osmSpace);
-				spaceId = uuid.toString();
-			}*/
-
+			}
+			
 			for (IfcProduct ifcProduct : ifcRelContainedInSpatialStructure.getRelatedElements()) {
 				if (ifcProduct instanceof IfcFlowTerminal) {
 					spatialMap.put(ifcProduct.getOid(), spaceId);
@@ -371,488 +758,6 @@ public class OsmSerializer extends EmfSerializer {
 		}
 	}
 	
-	
-	
-	
-	@Override
-	public void reset()	{
-		setMode(Mode.BODY);
-	}
-
-	@Override
-	protected boolean write(OutputStream outputStream) throws SerializerException {
-		if (out == null) {
-			out = new UTF8PrintWriter(outputStream);
-		}
-
-		if (getMode() == Mode.BODY) {
-			out = new UTF8PrintWriter(outputStream);
-			generateOutput(out);
-			out.flush();
-			setMode(Mode.FINISHED);
-			return true;
-		} else if (getMode() == Mode.FINISHED) {
-			return false;
-		}
-		return false;
-	}
-
-	/**
-	 * write the OsmSpace, OsmSurface, OsmSubSurface to outputStream
-	 * @param outputContent
-	 */
-
-	private void generateOutput(UTF8PrintWriter outputContent) {
-		outputContent.append("OS:Version,\n");
-		UUID uuid = UUID.randomUUID();
-		outputContent.append("{" +uuid.toString()+ "}" + ",  !- Handle\n  ");
-		outputContent.append("1.8.0;                         !- Version Identifier\n\n");
-
-		for (OsmSpace osmSpace : allSpaces) {
-			outputContent.append(osmSpace.toString());
-
-			for (OsmSurface osmSurface : osmSpace.getSurfaceList()) {
-				outputContent.append(osmSurface.toString());
-
-				for (OsmSubSurface osmSubSurface : osmSurface.getSubSurfaceList()) {
-					outputContent.append(osmSubSurface.toString());
-				}
-			}
-		}
-
-		for(OsmConstruction construction : constructionMap.values()) {
-			outputContent.append(construction.toString());
-		}
-
-		for(OsmMaterial material : materialMap.values()) {
-			outputContent.append(material.toString());
-		}
-
-		for(OsmLuminaire light : lights) {
-			outputContent.append(light.toString());
-		}
-
-		for(OsmLuminaireDefinition osmLuminaireDefinition : lightFixtureTypeMap.values()) {
-			outputContent.append(osmLuminaireDefinition.toString());
-		}
-
-		for(OsmWindowMaterialSimpleGlazingSystem windowOrDoor : windowOrDoorType) {
-			outputContent.append(windowOrDoor.toString());
-		}
-
-		for(OsmConstruction osmConstruction : windowOrDoorConstructionMap) {
-			outputContent.append(osmConstruction.toString());
-		}
-		
-		for(OsmMaterial osmMaterial : materialList) {
-			outputContent.append(osmMaterial.toString());
-		}
-		
-		for(OsmBuildingStory osmBuildingStory : storyMap) {
-			outputContent.append(osmBuildingStory.toString());
-		}
-	}
-
-
-	/**
-	 * Analyze every IFCSpace and create OsmSpace accordingly
-	 *
-	 * @param ifcSpace
-	 */
-
-	HashMap<Long, OsmSpace> spaceMap = new HashMap<Long, OsmSpace>();
-	private void extractSpaces(IfcSpace ifcSpace) {
-		OsmSpace osmSpace = new OsmSpace();
-		UUID uuid = UUID.randomUUID();
-		osmSpace.setUuid(uuid.toString());
-		osmSpace.setSpaceName("sp-" + (allSpaces.size() + 1) + "-Space");
-		osmSpace.setBuildingStoryName(storeySpaceMap.getOrDefault(ifcSpace.getOid(), ""));
-
-		List<IfcRelSpaceBoundary> ifcRelSpaceBoundaryList = ifcSpace.getBoundedBy();
-
-		// TODO what does this means? Can we delete this global variable and put it locally?
-		wallOsmSurfaceMap.clear();
-
-		for (IfcRelSpaceBoundary ifcRelSpaceBoundary : ifcRelSpaceBoundaryList) {
-			IfcElement ifcElement = ifcRelSpaceBoundary.getRelatedBuildingElement();
-			IfcConnectionGeometry ifcConnectionGeometry = ifcRelSpaceBoundary.getConnectionGeometry();
-
-			if (ifcConnectionGeometry != null && ifcElement != null) {
-				extractRelatedElement(ifcElement, ifcConnectionGeometry, ifcSpace, osmSpace);
-			} else {
-				LOGGER.info("Unimplemented type [extractSpaces]:" + ifcRelSpaceBoundary.eClass().getName());
-			}
-		}
-
-		allSpaces.add(osmSpace);
-		spaceMap.put(ifcSpace.getOid(), osmSpace);
-
-		/*
-		if (!osmSpace.containsUnsolvedSurface()) {
-			allSpaces.add(osmSpace);
-		} else {
-			surfaceNum -= osmSpace.getSurfaceList().size();
-		}
-		*/
-	}
-
-	/**
-	 * Extract all properties of the building elements
-	 *
-	 * @param ifcElement
-	 *            the space boundary element. It could be wall, ceiling, floor,
-	 *            window, door, etc.
-	 * @param ifcConnectionGeometry
-	 *            the connecting geometry points of the connection points of the
-	 *            space boundary
-	 * @param OsmSpace
-	 *            current OsmSpace to be analyzed
-	 */
-	
-	List<OsmMaterial> materialList = new ArrayList<OsmMaterial>();
-	private void extractRelatedElement(IfcElement ifcElement, IfcConnectionGeometry ifcConnectionGeometry, IfcSpace ifcSpace, OsmSpace osmSpace) {
-
-		// initiate the connecting point list
-		List<OsmPoint> spaceBoundaryPointList = new ArrayList<OsmPoint>();
-
-		// Extract the connection geometry
-		//TODO: Bug: sometimes windows and doors are not contained in the original surfaces.
-		//TODO: put extract space boundary inside the IFC Element List as there might be some differences in extracting windows and doors
-		boolean isGeometrySolved = extractSpaceBoundary(ifcConnectionGeometry, spaceBoundaryPointList, ifcSpace);
-		deleteDuplicatePoints(spaceBoundaryPointList);//after extracting boundary points, remove duplicates.
-		// Extract Other Properties
-
-		// Wall, surface  HashMap<IfcElement, IfcMaterialSelect> elementMaterialMap
-		if (ifcElement instanceof IfcWall) {
-			if (isGeometrySolved) {
-				IfcWall ifcWall = (IfcWall) ifcElement;
-				OsmSurface osmSurface = new OsmSurface();
-				UUID uuid = UUID.randomUUID();
-				osmSurface.setUuid(uuid.toString());
-				String osmSurfaceName = "su-" + (++surfaceNum);
-				osmSurface.setSurfaceName(osmSurfaceName);
-				osmSurface.setTypeName("Wall");
-				osmSurface.setOsmSpace(osmSpace);
-				IfcMaterialSelect ifcMaterialSelect = elementMaterialMap.get(ifcElement);
-				osmSurface.setConstructionName(materialInformation(ifcMaterialSelect));
-				
-				if (ifcWall.isSetHasAssociations()) {
-					LOGGER.info("Has associations" + ifcElement.eClass().getName());
-				}
-
-				//add internal surface link information
-				if (internalWallMap.containsKey(ifcWall)) {
-					internalWallMap.get(ifcWall).add(osmSurface);
-				} else {
-					LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
-					surfaceList.add(osmSurface);
-					internalWallMap.put(ifcWall,surfaceList);
-				}
-
-				for (OsmPoint osmPoint : spaceBoundaryPointList) {
-					osmSurface.addOsmPoint(osmPoint);
-					allOsmPoints.add(osmPoint);
-				}
-				osmSpace.addSurface(osmSurface);
-
-				//TODO: Lan: do you know what this chunk is for?
-				wallOsmSurfaceMap.put(ifcWall, osmSurface);
-				List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap
-						.get(ifcWall);
-				if (unlinkedOsmSubSurfaceList != null && unlinkedOsmSubSurfaceList.size() > 0) {
-					for (OsmSubSurface osmSubSurface : unlinkedOsmSubSurfaceList) {
-						osmSubSurface.setOsmSurface(osmSurface);
-						osmSurface.addSubSurface(osmSubSurface);
-					}
-					unLinkedOsmSubSurfacesMap.remove(ifcWall);
-				}
-			} else {
-				osmSpace.setContainsUnsolvedSurface(true);
-				LOGGER.info("Unparsed geometry representation of wall!" + ifcElement.eClass().getName());
-			}
-		}
-
-		// Slab, surface
-		else if (ifcElement instanceof IfcSlab) {
-			if (isGeometrySolved) {
-				IfcSlab ifcSlab = (IfcSlab) ifcElement;
-				OsmSurface osmSurface = new OsmSurface();
-				UUID uuid = UUID.randomUUID();
-				osmSurface.setUuid(uuid.toString());
-				osmSurface.setSurfaceName("su-" + (++surfaceNum));
-				osmSurface.setOsmSpace(osmSpace);
-				IfcMaterialSelect ifcMaterialSelect = elementMaterialMap.get(ifcElement);
-				osmSurface.setConstructionName(materialInformation(ifcMaterialSelect));
-
-				if (ifcSlab.getPredefinedType().getName().equals("Roof")) {
-					osmSurface.setTypeName("RoofCeiling");
-					osmSurface.setSunExposure("SunExposed");
-					osmSurface.setWindExposure("WindExposed");
-				} else {//Floor or BaseSlab or Landing
-					//if Floor, it could be a foundation floor or a slab between stories, it is then processed at the end in addlinkage
-					//add internal surface link information
-					if (internalWallMap.containsKey(ifcSlab)) {
-						internalWallMap.get(ifcSlab).add(osmSurface);
-					} else {
-						LinkedList<OsmSurface> surfaceList = new LinkedList<OsmSurface>();
-						surfaceList.add(osmSurface);
-						internalWallMap.put(ifcSlab,surfaceList);
-					}
-				}
-
-				for (OsmPoint osmPoint : spaceBoundaryPointList) {
-					osmSurface.addOsmPoint(osmPoint);
-					allOsmPoints.add(osmPoint);
-				}
-
-				osmSpace.addSurface(osmSurface);
-			} else {
-				osmSpace.setContainsUnsolvedSurface(true);
-				LOGGER.info("Unparsed slab geomatry" + ifcElement.eClass().getName());
-			}
-		}
-
-		// Roof, Surface
-		else if (ifcElement instanceof IfcRoof) {
-			if (isGeometrySolved) {
-				IfcRoof ifcRoof = (IfcRoof) ifcElement;
-				OsmSurface osmSurface = new OsmSurface();
-				osmSurface.setSurfaceName("su-" + (++surfaceNum));
-				UUID uuid = UUID.randomUUID();
-				osmSurface.setUuid(uuid.toString());
-				osmSurface.setTypeName("RoofCeiling");
-				osmSurface.setOsmSpace(osmSpace);
-				
-				String name = ifcRoof.getName();
-				String roughness = "";
-				double conductivity = 0.0;
-				double specificHeat = 0.0;
-				double thickness = 0.0;
-				
-
-				for (IfcRelDefines ifcRelDefines : ifcRoof.getIsDefinedBy()) {
-					if (ifcRelDefines instanceof IfcRelDefinesByProperties) {
-						IfcRelDefinesByProperties ifcRelDefinesByProperties = (IfcRelDefinesByProperties) ifcRelDefines;
-						IfcPropertySetDefinition ifcPropertySetDefinition = ifcRelDefinesByProperties.getRelatingPropertyDefinition();
-						if (ifcPropertySetDefinition instanceof IfcPropertySet) {
-							IfcPropertySet ifcPropertySet = (IfcPropertySet) ifcPropertySetDefinition;
-							
-							if (ifcPropertySet.getName().equals("Pset_RoofCommon")) {
-								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
-									if (ifcProperty instanceof IfcPropertySingleValue) {
-										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
-										if (ifcPropertySingleValue.getName().equals("IsExternal")) {
-											osmSurface.setOutsideBoundaryCondition("Outdoors");
-											osmSurface.setSunExposure("SunExposed");
-											osmSurface.setWindExposure("WindExposed");
-										}
-									}
-								}
-							} else if (ifcPropertySet.getName().equals("Dimensions")) {
-								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
-									if (ifcProperty instanceof IfcPropertySingleValue) {
-										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
-										if (ifcPropertySingleValue.getName().equals("Thickness")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcLengthMeasure) {
-												IfcLengthMeasure ifcLengthMeasure = (IfcLengthMeasure) ifcPropertySingleValue.getNominalValue();
-												thickness = ifcLengthMeasure.getWrappedValue() * getDefaultUnit("LENGTHUNIT");
-											}
-										}
-									}
-								}
-							} else if (ifcPropertySet.getName().equals("Analytical Properties")) {
-								for (IfcProperty ifcProperty : ifcPropertySet.getHasProperties()) {
-									if (ifcProperty instanceof IfcPropertySingleValue) {
-										IfcPropertySingleValue ifcPropertySingleValue = (IfcPropertySingleValue) ifcProperty;
-										if (ifcPropertySingleValue.getName().equals("Heat Transfer Coefficient (U)")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
-												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												conductivity = ifcReal.getWrappedValue();
-											}
-										} else if (ifcPropertySingleValue.getName().equals("Roughness")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcInteger) {
-												IfcInteger ifcInteger = (IfcInteger) ifcPropertySingleValue.getNominalValue();
-												roughness = "";
-											}
-										} else if (ifcPropertySingleValue.getName().equals("Thermal mass")) {
-											if (ifcPropertySingleValue.getNominalValue() instanceof IfcReal) {
-												IfcReal ifcReal = (IfcReal) ifcPropertySingleValue.getNominalValue();
-												specificHeat = ifcReal.getWrappedValue();
-											}
-										}
-									}
-								}
-							}					
-						}
-					}
-				}
-				
-				OsmMaterial osmMaterial = new OsmMaterial(name + "_Material", roughness, thickness, conductivity, 0, specificHeat);
-				List<String> osmMaterialList = new ArrayList<String>();
-				osmMaterialList.add(osmMaterial.getHandle());
-				OsmConstruction osmConstruction = new OsmConstruction(name, "", osmMaterialList);
-				osmSurface.setConstructionName(osmConstruction.getHandle());
-				windowOrDoorConstructionMap.add(osmConstruction);
-				materialList.add(osmMaterial);
-				
-
-				for (OsmPoint osmPoint : spaceBoundaryPointList) {
-					osmSurface.addOsmPoint(osmPoint);
-					allOsmPoints.add(osmPoint);
-				}
-				osmSpace.addSurface(osmSurface);
-			} else { // else for if(isGeometrySolved)
-				osmSpace.setContainsUnsolvedSurface(true);
-				System.err.println("Error: unparsed geometry representation of roof!");
-			}
-		}
-
-		// Window, subsurface
-		else if (ifcElement instanceof IfcWindow) {
-			if (isGeometrySolved) {
-				IfcWindow ifcWindow = (IfcWindow) ifcElement;
-				OsmSubSurface osmSubSurface = new OsmSubSurface();
-				UUID uuid = UUID.randomUUID();
-                osmSubSurface.setUuid(uuid.toString());
-				osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
-				osmSubSurface.setTypeName("FixedWindow");
-
-				String constructionName = "";
-				if(windowOrDoorMap.containsKey(ifcElement.getOid())) {
-					constructionName = windowOrDoorMap.get(ifcElement.getOid());
-				}
-				osmSubSurface.setConstructionName(constructionName);
-
-				List<IfcRelFillsElement> ifcRelFillsElementList = ifcWindow.getFillsVoids();
-				if (ifcRelFillsElementList.size() > 0) {
-					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
-					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
-					for (OsmPoint osmPoint : spaceBoundaryPointList) {
-						osmSubSurface.addOsmPoint(osmPoint);
-						allOsmPoints.add(osmPoint);
-					}
-					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
-					if (osmSurface != null) {
-						osmSubSurface.setOsmSurface(osmSurface);
-						osmSurface.addSubSurface(osmSubSurface);
-					} else {
-						List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap
-								.get(ifcRelatingBuildingElement);
-						if (unlinkedOsmSubSurfaceList == null) {
-							unlinkedOsmSubSurfaceList = new ArrayList<OsmSubSurface>();
-						}
-						unlinkedOsmSubSurfaceList.add(osmSubSurface);
-						unLinkedOsmSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOsmSubSurfaceList);
-					}
-				}
-			} else { // else for if(isGeometrySolved)
-				LOGGER.info("Unparsed window for " + ifcElement.eClass().getName());
-			}
-		}
-
-		// Door subsurface
-		else if (ifcElement instanceof IfcDoor) {
-			if (isGeometrySolved) {
-				IfcDoor ifcDoor = (IfcDoor) ifcElement;
-				OsmSubSurface osmSubSurface = new OsmSubSurface();
-				UUID uuid = UUID.randomUUID();
-                osmSubSurface.setUuid(uuid.toString());
-                osmSubSurface.setSubSurfaceName("sub-" + (++subSurfaceNum));
-				osmSubSurface.setTypeName("Door");
-				
-				String constructionName = "";
-				if(windowOrDoorMap.containsKey(ifcElement.getOid())) {
-					constructionName = windowOrDoorMap.get(ifcElement.getOid());
-				}
-				osmSubSurface.setConstructionName(constructionName);
-				
-				List<IfcRelFillsElement> ifcRelFillsElementList = ifcDoor.getFillsVoids();
-				if (ifcRelFillsElementList.size() > 0) {
-					IfcRelFillsElement ifcRelFillsElement = ifcRelFillsElementList.get(0);
-					IfcElement ifcRelatingBuildingElement = ifcRelFillsElement.getRelatingOpeningElement().getVoidsElements().getRelatingBuildingElement();
-					for (OsmPoint osmPoint : spaceBoundaryPointList) {
-						osmSubSurface.addOsmPoint(osmPoint);
-						allOsmPoints.add(osmPoint);
-					}
-					OsmSurface osmSurface = wallOsmSurfaceMap.get(ifcRelatingBuildingElement);
-					if (osmSurface != null) {
-						osmSubSurface.setOsmSurface(osmSurface);
-						osmSurface.addSubSurface(osmSubSurface);
-					} else {
-						List<OsmSubSurface> unlinkedOsmSubSurfaceList = unLinkedOsmSubSurfacesMap.get(ifcRelatingBuildingElement);
-						if (unlinkedOsmSubSurfaceList == null) {
-							unlinkedOsmSubSurfaceList = new ArrayList<OsmSubSurface>();
-						}
-						unlinkedOsmSubSurfaceList.add(osmSubSurface);
-						unLinkedOsmSubSurfacesMap.put((IfcWall) ifcRelatingBuildingElement, unlinkedOsmSubSurfaceList);
-					}
-				}
-			} else { // else for if(isGeometrySolved)
-				LOGGER.info("Unparsed door for " + ifcElement.eClass().getName());
-			}
-		}
-
-		/*
-		 * Virtual element
-		else if(ifcElement instanceof IfcVirtualElement) {
-			//TODO: Add IfcVirtualElement
-		}
-		*/
-
-		else { // else for ifcElement instanceof IfcWall, IfcSlab, IfcRoof,
-			// IfcWindow, IfcDoor
-			LOGGER.info("Unparsed element" + ifcElement.eClass().getName());
-		}
-	}
-
-
-
-
-
-	HashMap<Long, OsmConstruction> constructionMap = new HashMap<Long, OsmConstruction>();
-	HashMap<Long, OsmMaterial>     materialMap     = new HashMap<Long, OsmMaterial>();
-	public String materialInformation(IfcMaterialSelect ifcMaterialSelect) {
-		if (ifcMaterialSelect instanceof IfcMaterialLayerSet) {
-			IfcMaterialLayerSet ifcMaterialLayerSet = (IfcMaterialLayerSet) ifcMaterialSelect;
-			long coid = ifcMaterialLayerSet.getOid();
-			if(constructionMap.containsKey(coid)) {
-				return constructionMap.get(coid).getHandle();
-			}
-
-			String layerSetName = ifcMaterialLayerSet.getLayerSetName().replace(',', '_');
-			List<IfcMaterialLayer> ifcMaterialLayers = ifcMaterialLayerSet.getMaterialLayers();
-			List<String> osmMaterialHandle = new ArrayList<String>();
-
-			for (int i = 0; i < ifcMaterialLayers.size(); i++) {
-				IfcMaterialLayer ifcMaterialLayer = ifcMaterialLayers.get(i);
-				long moid = ifcMaterialLayer.getOid();
-				if (materialMap.containsKey(moid)) {
-					OsmMaterial osmMaterial = materialMap.get(moid);
-					osmMaterialHandle.add(osmMaterial.getHandle());
-				} else {
-					double layerThickness = ifcMaterialLayer.getLayerThickness() * unit;
-					IfcMaterial ifcMaterial = ifcMaterialLayer.getMaterial();
-					String materialName = ifcMaterial.getName().replace(',', '_');
-					OsmMaterial osmMaterial = new OsmMaterial(materialName + "_" + layerSetName, "MediumRough", layerThickness, 123, 123, 123);
-					osmMaterialHandle.add(osmMaterial.getHandle());
-					materialMap.put(moid, osmMaterial);
-				}
-			}
-			OsmConstruction osmConstruction = new OsmConstruction(layerSetName, "", osmMaterialHandle);
-			constructionMap.put(coid, osmConstruction);
-			return osmConstruction.getHandle();
-		} else if (ifcMaterialSelect instanceof IfcMaterialLayerSetUsage) {
-			IfcMaterialLayerSetUsage ifcMaterialLayerSetUsage = (IfcMaterialLayerSetUsage) ifcMaterialSelect;
-			IfcMaterialLayerSet ifcMaterialLayerSet =  ifcMaterialLayerSetUsage.getForLayerSet();
-			return materialInformation(ifcMaterialLayerSet);
-		} else {
-			return "False";
-		}
-	}
-
-
-
-
 	/**
 	 * Extract the connection geometry
 	 *
@@ -862,6 +767,28 @@ public class OsmSerializer extends EmfSerializer {
 	 *            an empty point list of the connection geometry
 	 * @return if the connection is a surface, return true.
 	 */
+
+	HashMap<Long, String> storeySpaceMap = new HashMap<Long, String>();
+	List<OsmBuildingStory> storyMap = new ArrayList<OsmBuildingStory>();
+	public void extractBuildingStories(IfcModelInterface model) {
+		for (IfcRelAggregates ifcRelAggregates : model.getAll(IfcRelAggregates.class)) {
+			IfcObjectDefinition ifcObjectDefinition =  ifcRelAggregates.getRelatingObject();
+			if (ifcObjectDefinition instanceof IfcBuildingStorey) {
+				IfcBuildingStorey ifcBuildingStorey = (IfcBuildingStorey) ifcObjectDefinition;
+				String name = ifcBuildingStorey.getName();
+				OsmBuildingStory osmBuildingStory = new OsmBuildingStory(name);
+				storyMap.add(osmBuildingStory);
+				String handle = osmBuildingStory.getHandle();
+				for (IfcObjectDefinition object : ifcRelAggregates.getRelatedObjects()) {
+					if (object instanceof IfcSpace) {
+						IfcSpace ifcSpace = (IfcSpace) object;
+						storeySpaceMap.put(ifcSpace.getOid(), handle);
+					}
+				}
+			}
+		}
+	}
+	
 	private boolean extractSpaceBoundary(IfcConnectionGeometry ifcConnectionGeometry, List<OsmPoint> spaceBoundaryPointList, IfcSpace ifcSpace) {
 		/*
 		 * The boundary geometry should always be a surface.
@@ -879,9 +806,6 @@ public class OsmSerializer extends EmfSerializer {
 			} else if (ifcSurfaceOrFaceSurface instanceof IfcCurveBoundedPlane) {
 				IfcCurveBoundedPlane ifcCurveBoundedPlane = (IfcCurveBoundedPlane) ifcSurfaceOrFaceSurface;
 				return extractCurveBoundedPlaneSB(ifcCurveBoundedPlane, spaceBoundaryPointList, ifcSpace);
-			} else if (ifcSurfaceOrFaceSurface instanceof IfcFaceBasedSurfaceModel) {
-				//TODO: implement IfcFaceBasedSurfaceModel
-				return false;
 			} else {
 				LOGGER.info("Wrong type [extractSpaceBoundary]:" + ifcConnectionGeometry.eClass().getName());
 				return false;
@@ -1013,10 +937,7 @@ public class OsmSerializer extends EmfSerializer {
 						coordinateSys3DTrans(osmPoint, ifcSpace.getObjectPlacement());
 						spaceBoundaryPointList.add(osmPoint);
 					}
-				} /*else if(parentCurve instanceof IfcTrimmedCurve) {
-					//TODO: extract geometry from IfcTrimmedCurve
-				} */
-				else {
+				} else {
 					LOGGER.info("Unimplemented type [extractCurveBoundedPlaneSB]" + parentCurve.eClass().getName());
 				}
 			}
@@ -1165,7 +1086,6 @@ public class OsmSerializer extends EmfSerializer {
 					}
 				}
 				if(closestSurfaceIndex>=0) {//found a matched surface
-
 					OsmSurface secondSurface = surfaceList.remove(closestSurfaceIndex);
 					firstSurface.setOutsideBoundaryCondition("Surface");
 					firstSurface.setOutsideBoundaryConditionObject(secondSurface.getSurfaceName());
@@ -1179,24 +1099,20 @@ public class OsmSerializer extends EmfSerializer {
 					if (ifcElement instanceof IfcSlab){ //slab
 						//set type, set exposure, set outside boundary
 						OsmPoint secondCenter = computeSurfaceCenter(secondSurface);
-						if (firstCenter.getZ() > secondCenter.getZ())
-						{
+						if (firstCenter.getZ() > secondCenter.getZ()) {
 							firstSurface.setTypeName("Floor");
 							secondSurface.setTypeName("RoofCeiling");
-
 						} else {
 							firstSurface.setTypeName("RoofCeiling");
 							secondSurface.setTypeName("Floor");
 						}
 					}
 				} else {
-					if (ifcElement instanceof IfcWall)
-					{
+					if (ifcElement instanceof IfcWall) {
 						firstSurface.setOutsideBoundaryCondition("Outdoors");
 						firstSurface.setSunExposure("SunExposed");
 						firstSurface.setWindExposure("WindExposed");
-					}
-					else{// IfcSlab, only slab with a floor type will be added to the surfaceMap.
+					} else{// IfcSlab, only slab with a floor type will be added to the surfaceMap.
 						firstSurface.setTypeName("Floor");
 						firstSurface.setOutsideBoundaryCondition("Ground");
 						firstSurface.setSunExposure("NoSun");
@@ -1366,22 +1282,4 @@ public class OsmSerializer extends EmfSerializer {
 			osmPoint.setZ(osmPoint.getZ() * scale);
 		}
 	}
-
-	private boolean nearlyEqual(double a, double b, double epsilon) {
-        final double absA = Math.abs(a);
-        final double absB = Math.abs(b);
-        final double diff = Math.abs(a - b);
-
-        if (a == b) {
-            return true;
-        } else if (a == 0 || b == 0 || diff < Double.MIN_NORMAL) {
-            return diff < epsilon * Double.MIN_NORMAL;
-        } else {
-            return diff < epsilon * Math.min(absA, absB);
-        }
-    }
-
-    private boolean nearlyEqual(double a, double b) {
-        return nearlyEqual(a, b, 1e-6);
-    }
 }
