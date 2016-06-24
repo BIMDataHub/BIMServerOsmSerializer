@@ -33,7 +33,7 @@ To use this plugin, please:
 
 1. Download [BIMserver version 1.3.4](https://github.com/opensourceBIM/BIMserver/releases/download/1.3.4-FINAL-2014-10-17/bimserver-1.3.4-FINAL-2014-10-17.jar) and rename the .jar file to bimserver. 
 2. When you first run the server, it will create two folders, which are home and bimserver. 
-3. Download our serializer from our [github release page](https://github.com/BIMDataHub/OsmSerializer/releases) and put it under bimserver/plugins.
+3. Download our serializer (.jar file) from our [github release page](https://github.com/BIMDataHub/OsmSerializer/releases) and put it under bimserver/plugins.
 4. If the server is running when you import the serializer, please restart the server before you perform any tasks. 
 
 ## Usage
