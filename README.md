@@ -55,5 +55,3 @@ If you have any questions, please contact Dr. Issa Ramaji at <ramaji.issa@gmail.
 
 ## Contributors
 
-## License
-
